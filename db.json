@@ -1,0 +1,72 @@
+{
+  "users": [
+    {
+      "isAdmin": true,
+      "name": "Admin User",
+      "email": "",
+      "password": "",
+      "role": "Admin"
+    },
+    {
+      "id": "",
+      "isAdmin": false,
+      "name": "Employee User",
+      "email": "",
+      "password": "",
+      "role": "Employee",
+      "status": "Available",
+      "positionId": 1,
+      "projectIds": [1],
+      "skills": "",
+      "contact": "",
+      "cv_list": [
+        {
+          "cv_skill": "",
+          "cv_experience": [
+            {
+              "work_position": "",
+              "time_work": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "startDate": "",
+      "finishDate": "",
+      "managerId": 2,
+      "technologyId": 1,
+      "status": "Completed"
+    }
+  ],
+  "positions": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "status": "Active"
+    }
+  ],
+  "technologies": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "status": "Active"
+    }
+  ],
+  "programmingLanguages": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "status": "Active"
+    }
+  ]
+}

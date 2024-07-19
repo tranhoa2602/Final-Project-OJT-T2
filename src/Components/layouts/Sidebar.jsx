@@ -1,45 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../../styles/layouts/Sidebar.css";
 import {
   AppstoreOutlined,
   ContainerOutlined,
   DesktopOutlined,
   MailOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   PieChartOutlined,
 } from '@ant-design/icons';
 import { Flex, Layout } from 'antd';
-const { Header, Footer, Sider, Content } = Layout;
-import { Button, Menu } from 'antd';
+const { Sider, Content } = Layout;
+import { Menu } from 'antd';
+import { Link } from 'react-router-dom';
 import Main from "./Main";
+import index from "../User";
+import Create from "../Employee/Employee_Information/CreateEmployee";
 
-const headerStyle = {
-  textAlign: 'center',
-  color: '#fff',
-  height: 64,
-  paddingInline: 48,
-  lineHeight: '64px',
-  backgroundColor: '#4096ff',
-};
+
 const contentStyle = {
   textAlign: 'center',
   minHeight: 120,
   height: '100%',
   color: '#fff',
-  backgroundColor: '#0958d9',
+
+  
 };
 const siderStyle = {
   textAlign: 'center',
   lineHeight: '120px',
   color: '#fff',
-  backgroundColor: '#1677ff',
+
 };
-const footerStyle = {
-  textAlign: 'center',
-  color: '#fff',
-  backgroundColor: '#4096ff',
-};
+
 const layoutStyle = {
   borderRadius: 8,
   overflow: 'hidden',
@@ -56,11 +47,11 @@ const items = [
     children: [
       {
         key: '1',
-        label: 'Account Info',
+        label: <Link to="../Employee/Employee_Information/CreateEmployee">Account Info</Link>
       },
       {
         key: '2',
-        label: 'Reset Password',
+        label: <Link to="/../Employee/EmployeeList">Reset Password</Link>,
       },
     ],
   },
@@ -71,15 +62,15 @@ const items = [
     children: [
       {
         key: '3',
-        label: 'Project Info',
+        label: <Link to="/../Employee/EmployeeList">Project Info</Link>,
       },
       {
         key: '4',
-        label: 'Assign Employees',
+        label: <Link to="/../Employee/EmployeeList">Assign Employees</Link>,
       },
       {
         key: '5',
-        label: 'Project Tracking',
+        label: <Link to="/../Employee/EmployeeList">Project Tracking</Link>,
       }
     ],
   },
@@ -90,7 +81,7 @@ const items = [
     children: [
       {
         key: '6',
-        label: 'Technology Info',
+        label: <Link to="/../Employee/EmployeeList">Technology Info</Link>,
       },
     ],
   },
@@ -101,11 +92,11 @@ const items = [
     children: [
       {
         key: '7',
-        label: 'Employee Profile',
+        label: <Link to="/../Employee/EmployeeDetails">Employee Profile</Link>,
       },
       {
         key: '8',
-        label: 'Assign Project',
+        label: <Link to="/../Employee/EmployeeList">Assign Project</Link>,
       },
     ],
   },
@@ -116,14 +107,29 @@ const items = [
     children: [
       {
         key: '9',
-        label: 'Programming Language Info',
+        label: <Link to="/../Employee/EmployeeList">Programming Language Info</Link>,
       },
     ],
   },
   {
     key: '10',
     icon: <ContainerOutlined />,
-    label: 'CV',
+    label: 'Translate',
+    children: [
+      {
+        key: '7',
+        label: <Link to="/../Employee/EmployeeList">Vietnamese</Link>,
+      },
+      {
+        key: '8',
+        label: <Link to="/../Employee/EmployeeList">English</Link>,
+      },
+    ],
+  },
+  {
+    key: '11',
+    icon: <ContainerOutlined />,
+    label: <Link to="/../Employee/EmployeeList">CV</Link>,
   },
 ];
 
@@ -169,15 +175,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
       <Layout>
         <Sider width="20%" style={siderStyle}>          
-      <Button
-        type="primary"
-        onClick={toggleCollapsed}
-        style={{
-          marginBottom: 16,
-        }}
-      >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </Button>
       <Menu
         defaultSelectedKeys={['1']}
         defaultOpenKeys={['sub1']}

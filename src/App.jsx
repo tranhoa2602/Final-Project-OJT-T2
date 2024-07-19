@@ -10,7 +10,7 @@ function App() {
 
   return (
     <>
-      <Sidebar />
+      {showSidebar && <Sidebar />}
 
       <Main />
       <Routes>

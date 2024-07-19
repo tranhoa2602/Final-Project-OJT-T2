@@ -166,7 +166,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         <Flex gap="middle" wrap>
 
     <Layout style={layoutStyle}>
-      <Header style={headerStyle}>Header</Header>
+
       <Layout>
         <Sider width="20%" style={siderStyle}>          
       <Button
@@ -189,45 +189,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </Sider>
         <Content style={contentStyle}><Main></Main></Content>
       </Layout>
-      <Footer style={footerStyle}>Footer</Footer>
     </Layout>
         </Flex>
 
 </>
-
-/*
-      <div className="sidebar-desktop">
-        <div className={`sidebar ${isOpen ? "open" : ""}`}>
-          <button className="close-btn" onClick={toggleSidebar}>
-            &times;
-          </button>
-          <h2>Adim Page</h2>
-          <ul>
-            <SidebarItem title="Manage Accounts">
-              <li>Account Info</li>
-              <li>Reset Password</li>
-            </SidebarItem>
-            <SidebarItem title="Manage Projects">
-              <li>Project Info</li>
-              <li>Assign Employees</li>
-              <li>Project Tracking</li>
-            </SidebarItem>
-            <SidebarItem title="Technology">
-              <li>Technology Info</li>
-            </SidebarItem>
-            <SidebarItem title="Employee">
-              <li>Employee Profile</li>
-              <li>Assign Project</li>
-            </SidebarItem>
-            <SidebarItem title="Languages">
-              <li>Programming Language Info</li>
-            </SidebarItem>
-            <SidebarItem title="CV"></SidebarItem>
-            <SidebarItem title="Log out"></SidebarItem>
-          </ul>
-        </div>
-      </div> 
-    </> */
   );
 };
 

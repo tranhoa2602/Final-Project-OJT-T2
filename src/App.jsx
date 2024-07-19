@@ -10,7 +10,8 @@ function App() {
 
   return (
     <>
-      {showSidebar && <Sidebar />}
+      <Sidebar />
+
       <Main />
       <Routes>
         <Route path="/Login" element={<Login />} />

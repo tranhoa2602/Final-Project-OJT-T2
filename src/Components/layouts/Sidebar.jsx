@@ -34,7 +34,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <button className="close-btn" onClick={toggleSidebar}>
             &times;
           </button>
-          <h2>Sidebar</h2>
+          <h2>Adim Page</h2>
           <ul>
             <SidebarItem title="Manage Accounts">
               <li>Account Info</li>
@@ -56,9 +56,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               <li>Programming Language Info</li>
             </SidebarItem>
             <SidebarItem title="CV"></SidebarItem>
+            <SidebarItem title="Log out"></SidebarItem>
           </ul>
         </div>
-        <h1>day la sidebar</h1>
       </div>
     </>
   );

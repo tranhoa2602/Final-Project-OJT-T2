@@ -6,14 +6,15 @@ import { Route, Routes, useLocation } from "react-router-dom";
 
 function App() {
   const location = useLocation();
-  const showSidebar = location.pathname !== "/login";
+  const showSidebar = location.pathname !== "/Login";
 
   return (
     <>
-      {showSidebar && <Sidebar />}
+      <Sidebar />
+
       <Main />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/Login" element={<Login />} />
       </Routes>
     </>
   );

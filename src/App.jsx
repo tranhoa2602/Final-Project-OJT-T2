@@ -7,6 +7,8 @@ function App() {
     <>
       <Sidebar />
 
+      <Route path="/employees" component={EmployeeRoutes} />
+
       <Main />
     </>
   );

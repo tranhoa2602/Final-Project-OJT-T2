@@ -1,0 +1,68 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "name": "Project A"
+    },
+    {
+      "id": "2",
+      "name": "Project B"
+    },
+    {
+      "id": "3",
+      "name": "Project C"
+    }
+  ],
+  "assignedProjects": [
+    {
+      "id": "1",
+      "employeeId": 1,
+      "projectId": 1
+    },
+    {
+      "id": "2",
+      "employeeId": 1,
+      "projectId": 2
+    },
+    {
+      "id": "21a7",
+      "employeeId": "2",
+      "projectId": "2"
+    },
+    {
+      "id": "a9b6",
+      "employeeId": "1",
+      "projectId": "2"
+    },
+    {
+      "id": "6956",
+      "employeeId": "1",
+      "projectId": "1"
+    },
+    {
+      "id": "77da",
+      "employeeId": "1",
+      "projectId": "2"
+    },
+    {
+      "id": "dc85",
+      "employeeId": "1",
+      "projectId": "3"
+    },
+    {
+      "id": "b269",
+      "employeeId": "1",
+      "projectId": "1"
+    },
+    {
+      "id": "ee4c",
+      "employeeId": "1",
+      "projectId": "1"
+    },
+    {
+      "id": "73e2",
+      "employeeId": "1",
+      "projectId": "2"
+    }
+  ]
+}

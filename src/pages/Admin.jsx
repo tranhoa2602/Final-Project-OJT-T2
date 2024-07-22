@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
-function AdminPage() {
+function Admin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("employee");
@@ -275,4 +275,4 @@ function AdminPage() {
   );
 }
 
-export default AdminPage;
+export default Admin;

@@ -10,12 +10,12 @@ function App() {
 
   return (
     <>
-      {showSidebar && <Sidebar />}
-
-      <Main />
       <Routes>
         <Route path="/Login" element={<Login />} />
       </Routes>
+      {showSidebar && <Sidebar />}
+
+      <Main />
     </>
   );
 }

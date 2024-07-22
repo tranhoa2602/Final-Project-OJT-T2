@@ -1,10 +1,12 @@
-import { database } from "../../firebaseConfig";
+//login.jsx
+
+import { database } from "../firebaseConfig";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { loginUser, signUpUser } from "../service/authService";
-// import "../../styles/layouts/Login.css"; // Import CSS file nếu bạn sử dụng CSS
+import { loginUser, signUpUser } from "../service/authService.js";
+import styles from "../assets/style/Pages/Login.module.scss"; // Import SCSS file
 
 const { Title } = Typography;
 
@@ -45,16 +47,16 @@ function Login({ setUser }) {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-form">
-        <div className="header-form">
-          <Title level={2} className="title">
+    <div className={styles["login-container"]}>
+      <div className={styles["login-form"]}>
+        <div className={styles["header-form"]}>
+          <Title level={2} className={styles["title"]}>
             {isSignUp ? "Sign Up" : "Login"}
           </Title>
           <img
             src="/public/images/logo.jpg"
             alt="logo"
-            className="logo-header"
+            className={styles["logo-header"]}
           />
         </div>
         <Form onFinish={handleSubmit}>
@@ -80,7 +82,7 @@ function Login({ setUser }) {
           )}
           <Form.Item>
             <Button
-              className="btn-login"
+              className={styles["btn-login"]}
               type="primary"
               htmlType="submit"
               block
@@ -90,7 +92,7 @@ function Login({ setUser }) {
             <Button
               type="link"
               onClick={forgetPassword}
-              className="link-forget"
+              className={styles["link-forget"]}
             >
               Forgot Password
             </Button>
@@ -98,7 +100,7 @@ function Login({ setUser }) {
         </Form>
         <Button
           type="link"
-          className="link-button"
+          className={styles["link-button"]}
           onClick={() => setIsSignUp(!isSignUp)}
           block
         >

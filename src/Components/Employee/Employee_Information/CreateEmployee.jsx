@@ -59,22 +59,6 @@ const Create = () => {
     </Form.Item>
 
     <Form.Item
-      label="Cascader"
-      name="Cascader"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Cascader />
-    </Form.Item>
-
-    <Form.Item
-      label="TreeSelect"
-      name="TreeSelect"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <TreeSelect />
-    </Form.Item>
-
-    <Form.Item
       label="DatePicker"
       name="DatePicker"
       rules={[{ required: true, message: "Please input!" }]}

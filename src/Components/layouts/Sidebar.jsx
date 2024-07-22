@@ -44,13 +44,13 @@ const items = [
         key: "1",
         label: (
           <Link to="../Employee/Employee_Information/CreateEmployee">
-            Account Info
+            Account Info{" "}
           </Link>
         ),
       },
       {
         key: "2",
-        label: <Link to="/../Employee/EmployeeList">Reset Password</Link>,
+        label: <Link to="/../Employee/EmployeeList"> Reset Password </Link>,
       },
     ],
   },
@@ -61,15 +61,15 @@ const items = [
     children: [
       {
         key: "3",
-        label: <Link to="/../Employee/EmployeeList">Project Info</Link>,
+        label: <Link to="/../Employee/EmployeeList"> Project Info </Link>,
       },
       {
         key: "4",
-        label: <Link to="/../Employee/EmployeeList">Assign Employees</Link>,
+        label: <Link to="/../Employee/EmployeeList"> Assign Employees </Link>,
       },
       {
         key: "5",
-        label: <Link to="/../Employee/EmployeeList">Project Tracking</Link>,
+        label: <Link to="/../Employee/EmployeeList"> Project Tracking </Link>,
       },
     ],
   },
@@ -80,7 +80,7 @@ const items = [
     children: [
       {
         key: "6",
-        label: <Link to="/../Employee/EmployeeList">Technology Info</Link>,
+        label: <Link to="TechList"> Technology Info </Link>,
       },
     ],
   },
@@ -91,11 +91,13 @@ const items = [
     children: [
       {
         key: "7",
-        label: <Link to="/../Employee/EmployeeDetails">Employee Profile</Link>,
+        label: (
+          <Link to="/../Employee/EmployeeDetails"> Employee Profile </Link>
+        ),
       },
       {
         key: "8",
-        label: <Link to="/../Employee/EmployeeList">Assign Project</Link>,
+        label: <Link to="/../Employee/EmployeeList"> Assign Project </Link>,
       },
     ],
   },
@@ -106,9 +108,7 @@ const items = [
     children: [
       {
         key: "9",
-        label: (
-          <Link to="/../Employee/EmployeeList">Programming Language Info</Link>
-        ),
+        label: <Link to="ViewLanguage"> Programming Language Info </Link>,
       },
     ],
   },
@@ -119,18 +119,18 @@ const items = [
     children: [
       {
         key: "10",
-        label: <Link to="/../Employee/EmployeeList">Vietnamese</Link>,
+        label: <Link to="/../Employee/EmployeeList"> Vietnamese </Link>,
       },
       {
         key: "11",
-        label: <Link to="/../Employee/EmployeeList">English</Link>,
+        label: <Link to="/../Employee/EmployeeList"> English </Link>,
       },
     ],
   },
   {
     key: "12",
     icon: <ContainerOutlined />,
-    label: <Link to="/../Employee/EmployeeList">CV</Link>,
+    label: <Link to="/../Employee/EmployeeList"> CV </Link>,
   },
 ];
 
@@ -144,11 +144,13 @@ const SidebarItem = ({ title, children }) => {
   return (
     <div className="sidebar-item">
       <div className="sidebar-item-title" onClick={toggleExpand}>
-        {title}
-      </div>
+        {" "}
+        {title}{" "}
+      </div>{" "}
       <div className={`sidebar-sub-items ${isExpanded ? "expanded" : ""}`}>
-        {children}
-      </div>
+        {" "}
+        {children}{" "}
+      </div>{" "}
     </div>
   );
 };
@@ -177,14 +179,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 mode="inline"
                 theme="dark"
                 items={items}
-              />
-            </Sider>
+              />{" "}
+            </Sider>{" "}
             <Content style={contentStyle}>
               <Main />
-            </Content>
-          </Layout>
-        </Layout>
-      </Flex>
+            </Content>{" "}
+          </Layout>{" "}
+        </Layout>{" "}
+      </Flex>{" "}
     </>
   );
 };

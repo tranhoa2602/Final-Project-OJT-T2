@@ -14,20 +14,20 @@ const formItemLayout = {
 
 const { Title } = Typography;
 
-const EditTech = () => (
+const AddLanguage = () => (
   <Form {...formItemLayout} style={{ height: "100vh" }}>
-    <Title level={2}> Edit Technology </Title>{" "}
+    <Title level={2}> Add New Technology </Title>{" "}
     <Form.Item
       label="TechName"
       name="techname"
-      rules={[{ required: true, message: "Please input change Tech Name!" }]}
+      rules={[{ required: true, message: "Please input Tech Name!" }]}
     >
       <Input />
     </Form.Item>{" "}
     <Form.Item
       label="TechType"
       name="techtype"
-      rules={[{ required: true, message: "Please input change Tech Type!" }]}
+      rules={[{ required: true, message: "Please input Tech Type!" }]}
     >
       <Input />
     </Form.Item>{" "}
@@ -45,4 +45,4 @@ const EditTech = () => (
   </Form>
 );
 
-export default EditTech;
+export default AddLanguage;

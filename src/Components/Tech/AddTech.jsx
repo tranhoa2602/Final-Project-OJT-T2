@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Typography } from "antd";
 
 const formItemLayout = {
   labelCol: {
@@ -12,8 +12,11 @@ const formItemLayout = {
   },
 };
 
+const { Title } = Typography;
+
 const AddTech = () => (
   <Form {...formItemLayout} style={{ height: "100vh" }}>
+    <Title level={2}> Add New Technology </Title>{" "}
     <Form.Item
       label="TechName"
       name="techname"

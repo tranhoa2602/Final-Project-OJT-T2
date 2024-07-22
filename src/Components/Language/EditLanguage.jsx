@@ -14,7 +14,7 @@ const formItemLayout = {
 
 const { Title } = Typography;
 
-const EditTech = () => (
+const EditLanguage = () => (
   <Form {...formItemLayout} style={{ height: "100vh" }}>
     <Title level={2}> Edit Technology </Title>{" "}
     <Form.Item
@@ -45,4 +45,4 @@ const EditTech = () => (
   </Form>
 );
 
-export default EditTech;
+export default EditLanguage;

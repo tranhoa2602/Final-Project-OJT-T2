@@ -39,9 +39,9 @@ const Create = () => {
     </Form.Item>
 
     <Form.Item
-      label="email"
-      name="Email"
-      rules={[{ required: true, message: 'Please input!' }]}
+      label="Mentions"
+      name="Mentions"
+      rules={[{ required: true, message: "Please input!" }]}
     >
       <Mentions />
     </Form.Item>
@@ -58,6 +58,21 @@ const Create = () => {
       </Select>
     </Form.Item>
 
+    <Form.Item
+      label="Cascader"
+      name="Cascader"
+      rules={[{ required: true, message: "Please input!" }]}
+    >
+      <Cascader />
+    </Form.Item>
+
+    <Form.Item
+      label="TreeSelect"
+      name="TreeSelect"
+      rules={[{ required: true, message: "Please input!" }]}
+    >
+      <TreeSelect />
+    </Form.Item>
 
     <Form.Item
       label="DatePicker"

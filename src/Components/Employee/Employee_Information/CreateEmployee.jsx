@@ -30,15 +30,15 @@ const Create = () => (
     style={{height: '100vh'}}
   >
     <Form.Item
-      label="Input"
-      name="Input"
+      label="User Name"
+      name="username"
       rules={[{ required: true, message: 'Please input!' }]}
     >
       <Input />
     </Form.Item>
 
     <Form.Item
-      label="InputNumber"
+      label="Unkniown"
       name="InputNumber"
       rules={[{ required: true, message: 'Please input!' }]}
     >
@@ -62,11 +62,13 @@ const Create = () => (
     </Form.Item>
 
     <Form.Item
-      label="Select"
+      label="Role"
       name="Select"
       rules={[{ required: true, message: 'Please input!' }]}
     >
-      <Select />
+      <Select onChange={onChange}>
+        <Select.Option value="admin">Admin</Select.Option>
+      </Select>
     </Form.Item>
 
     <Form.Item

@@ -4,6 +4,7 @@ import "../../styles/layouts/main.css";
 import EditUser from "../User/EditUser";
 import { Route, Routes } from "react-router-dom";
 import Create from "../Employee/Employee_Information/CreateEmployee";
+import Sidebar from "./Sidebar";
 
 const Main = () => {
   return (
@@ -12,11 +13,8 @@ const Main = () => {
         <Routes>
           <Route path="/Sidebar" element={<Sidebar />} />
           <Route path="/edit-user/:id" element={<EditUser />} />
-
-          
         </Routes>
         <Create></Create>
-        
       </main>
     </>
   );

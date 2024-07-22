@@ -1,17 +1,13 @@
 import React from "react";
 import {
   Button,
-  Cascader,
   DatePicker,
   Form,
   Input,
-  InputNumber,
   Mentions,
   Select,
-  TreeSelect,
 } from "antd";
-
-const { RangePicker } = DatePicker;
+import { useNavigate } from "react-router-dom";
 
 const formItemLayout = {
   labelCol: {
@@ -24,7 +20,15 @@ const formItemLayout = {
   },
 };
 
-const Create = () => (
+const Create = () => {
+  const navigate = useNavigate();
+
+  const gotoEmployeeList = () => {
+    navigate('/user-list'); 
+  };
+
+  return (
+
   <Form {...formItemLayout} style={{ height: "100vh" }}>
     <Form.Item
       label="User Name"
@@ -32,14 +36,6 @@ const Create = () => (
       rules={[{ required: true, message: "Please input!" }]}
     >
       <Input />
-    </Form.Item>
-
-    <Form.Item
-      label="TextArea"
-      name="TextArea"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Input.TextArea />
     </Form.Item>
 
     <Form.Item
@@ -56,10 +52,9 @@ const Create = () => (
       rules={[{ required: true, message: "Please input!" }]}
     >
       <Select>
-      <Select>
         <Select.Option value="admin">Admin</Select.Option>
         <Select.Option value="employee">Employee</Select.Option>
-        <Select.Option value="employee">Employee</Select.Option>
+
       </Select>
     </Form.Item>
 
@@ -72,13 +67,28 @@ const Create = () => (
       <DatePicker />
     </Form.Item>
 
+    <Form.Item
+      label="TextArea"
+      name="TextArea"
+      rules={[{ required: true, message: "Please input!" }]}
+    >
+      <Input.TextArea />
+    </Form.Item>
+
 
     <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
       <Button type="primary" htmlType="submit">
         Submit
       </Button>
     </Form.Item>
+
+    <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+      <Button type="primary" htmlType="submit" onClick={gotoEmployeeList} >
+        Empl. List
+      </Button>
+    </Form.Item>
   </Form>
-);
+  )
+};
 
 export default Create;

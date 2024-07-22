@@ -21,7 +21,7 @@ const contentStyle = {
 };
 
 const siderStyle = {
-  textAlign: "center",
+  textAlign: "left",
   lineHeight: "120px",
   color: "#fff",
 };
@@ -43,7 +43,7 @@ const items = [
       {
         key: "1",
         label: (
-          <Link to="../Employee/Employee_Information/CreateEmployee">
+          <Link to="user-list">
             Account Info
           </Link>
         ),
@@ -91,7 +91,7 @@ const items = [
     children: [
       {
         key: "7",
-        label: <Link to="/../Employee/EmployeeDetails">Employee Profile</Link>,
+        label: <Link to="create-user">Employee Profile</Link>,
       },
       {
         key: "8",
@@ -140,7 +140,7 @@ const SidebarItem = ({ title, children }) => {
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
 
 
   };
@@ -171,7 +171,6 @@ const Sidebar = ({}) => {
               style={siderStyle}
               collapsible
               collapsed={collapsed}
-              onCollapse={toggleCollapsed}
             >
               <Menu
                 defaultSelectedKeys={["1"]}

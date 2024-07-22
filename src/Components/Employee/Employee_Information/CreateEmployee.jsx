@@ -35,14 +35,6 @@ const Create = () => (
     </Form.Item>
 
     <Form.Item
-      label="Unkniown"
-      name="InputNumber"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <InputNumber style={{ width: "100%" }} />
-    </Form.Item>
-
-    <Form.Item
       label="TextArea"
       name="TextArea"
       rules={[{ required: true, message: "Please input!" }]}
@@ -51,9 +43,9 @@ const Create = () => (
     </Form.Item>
 
     <Form.Item
-      label="Mentions"
-      name="Mentions"
-      rules={[{ required: true, message: "Please input!" }]}
+      label="email"
+      name="Email"
+      rules={[{ required: true, message: 'Please input!' }]}
     >
       <Mentions />
     </Form.Item>
@@ -64,26 +56,13 @@ const Create = () => (
       rules={[{ required: true, message: "Please input!" }]}
     >
       <Select>
+      <Select>
         <Select.Option value="admin">Admin</Select.Option>
+        <Select.Option value="employee">Employee</Select.Option>
         <Select.Option value="employee">Employee</Select.Option>
       </Select>
     </Form.Item>
 
-    <Form.Item
-      label="Cascader"
-      name="Cascader"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Cascader />
-    </Form.Item>
-
-    <Form.Item
-      label="TreeSelect"
-      name="TreeSelect"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <TreeSelect />
-    </Form.Item>
 
     <Form.Item
       label="DatePicker"
@@ -93,13 +72,6 @@ const Create = () => (
       <DatePicker />
     </Form.Item>
 
-    <Form.Item
-      label="RangePicker"
-      name="RangePicker"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <RangePicker />
-    </Form.Item>
 
     <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
       <Button type="primary" htmlType="submit">

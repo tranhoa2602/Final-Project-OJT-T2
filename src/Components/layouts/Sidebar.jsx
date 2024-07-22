@@ -6,115 +6,116 @@ import {
   DesktopOutlined,
   MailOutlined,
   PieChartOutlined,
-} from '@ant-design/icons';
-import { Flex, Layout } from 'antd';
-const { Sider, Content } = Layout;
-import { Menu } from 'antd';
-import { Link } from 'react-router-dom';
+} from "@ant-design/icons";
+import { Flex, Layout, Menu } from "antd";
+import { Link } from "react-router-dom";
 import Main from "./Main";
-import index from "../User";
-import Create from "../Employee/Employee_Information/CreateEmployee";
 
+const { Sider, Content } = Layout;
 
 const contentStyle = {
-  textAlign: 'center',
+  textAlign: "center",
   minHeight: 120,
-  height: '100%',
-  color: '#fff',
-
-  
+  height: "100%",
+  color: "#fff",
 };
-const siderStyle = {
-  textAlign: 'center',
-  lineHeight: '120px',
-  color: '#fff',
 
+const siderStyle = {
+  textAlign: "center",
+  lineHeight: "120px",
+  color: "#fff",
 };
 
 const layoutStyle = {
   borderRadius: 8,
-  overflow: 'hidden',
-  height: '100vh',
-  width: 'calc(100% - 8px)',
-  maxWidth: 'calc(100% - 8px)',
+  overflow: "hidden",
+  height: "100vh",
+  width: "calc(100% - 8px)",
+  maxWidth: "calc(100% - 8px)",
 };
 
 const items = [
   {
-    key: 'sub1',
+    key: "sub1",
     icon: <PieChartOutlined />,
-    label: 'Manage Accounts',
+    label: "Manage Accounts",
     children: [
       {
-        key: '1',
-        label: <Link to="../Employee/Employee_Information/CreateEmployee">Account Info</Link>
+        key: "1",
+        label: (
+          <Link to="../Employee/Employee_Information/CreateEmployee">
+            Account Info
+          </Link>
+        ),
       },
       {
-        key: '2',
+        key: "2",
         label: <Link to="/../Employee/EmployeeList">Reset Password</Link>,
       },
     ],
   },
   {
-    key: 'sub2',
+    key: "sub2",
     icon: <DesktopOutlined />,
-    label: 'Manage Projects',
+    label: "Manage Projects",
     children: [
       {
-        key: '3',
+        key: "3",
         label: <Link to="/../Employee/EmployeeList">Project Info</Link>,
       },
       {
-        key: '4',
+        key: "4",
         label: <Link to="/../Employee/EmployeeList">Assign Employees</Link>,
       },
       {
-        key: '5',
+        key: "5",
         label: <Link to="/../Employee/EmployeeList">Project Tracking</Link>,
-      }
+      },
     ],
   },
   {
-    key: 'sub3',
+    key: "sub3",
     icon: <ContainerOutlined />,
-    label: 'Technology',
+    label: "Technology",
     children: [
       {
-        key: '6',
+        key: "6",
         label: <Link to="/../Employee/EmployeeList">Technology Info</Link>,
       },
     ],
   },
   {
-    key: 'sub4',
-    label: 'Employee',
+    key: "sub4",
+    label: "Employee",
     icon: <MailOutlined />,
     children: [
       {
-        key: '7',
+        key: "7",
         label: <Link to="/../Employee/EmployeeDetails">Employee Profile</Link>,
       },
       {
-        key: '8',
+        key: "8",
         label: <Link to="/../Employee/EmployeeList">Assign Project</Link>,
       },
     ],
   },
   {
-    key: 'sub5',
-    label: 'Languages',
+    key: "sub5",
+    label: "Languages",
     icon: <AppstoreOutlined />,
     children: [
       {
-        key: '9',
-        label: <Link to="/../Employee/EmployeeList">Programming Language Info</Link>,
+        key: "9",
+        label: (
+          <Link to="/../Employee/EmployeeList">Programming Language Info</Link>
+        ),
       },
     ],
   },
   {
     key: 'sub6',
     icon: <ContainerOutlined />,
-    label: 'Translate',
+    label: "Translate",
     children: [
       {
         key: '10',
@@ -132,8 +133,6 @@ const items = [
     label: <Link to="/../Employee/EmployeeList">CV</Link>,
   },
 ];
-
-
 
 const SidebarItem = ({ title, children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -164,27 +163,31 @@ const Sidebar = ({}) => {
 
   return (
     <>
-        <Flex gap="middle" wrap>
-
-    <Layout style={layoutStyle}>
-
-      <Layout>
-        <Sider width="20%" style={siderStyle}>          
-      <Menu
-        defaultSelectedKeys={['1']}
-        defaultOpenKeys={['sub1']}
-        mode="inline"
-        theme="dark"
-        inlineCollapsed={collapsed}
-        items={items}
-      />
-        </Sider>
-        <Content style={contentStyle}><Main></Main></Content>
-      </Layout>
-    </Layout>
-        </Flex>
-
-</>
+      <Flex gap="middle" wrap>
+        <Layout style={layoutStyle}>
+          <Layout>
+            <Sider
+              width="20%"
+              style={siderStyle}
+              collapsible
+              collapsed={collapsed}
+              onCollapse={toggleCollapsed}
+            >
+              <Menu
+                defaultSelectedKeys={["1"]}
+                defaultOpenKeys={["sub1"]}
+                mode="inline"
+                theme="dark"
+                items={items}
+              />
+            </Sider>
+            <Content style={contentStyle}>
+              <Main />
+            </Content>
+          </Layout>
+        </Layout>
+      </Flex>
+    </>
   );
 };
 

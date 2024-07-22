@@ -13,11 +13,8 @@ const Main = () => {
         <Routes>
           <Route path="/Sidebar" element={<Sidebar />} />
           <Route path="/edit-user/:id" element={<EditUser />} />
-
-          
         </Routes>
         <Create></Create>
-        
       </main>
     </>
   );

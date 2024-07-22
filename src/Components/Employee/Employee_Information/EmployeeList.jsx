@@ -1,38 +1,38 @@
-import React from 'react';
-import { Space, Table, Tag } from 'antd';
-import Password from 'antd/es/input/Password';
+import React from "react";
+import { Space, Table, Tag } from "antd";
+import Password from "antd/es/input/Password";
 const columns = [
   {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text) => <a href='user-details'>{text}</a>,
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+    render: (text) => <a href="user-details">{text}</a>,
   },
   {
-    title: 'Age',
-    dataIndex: 'age',
-    key: 'age',
+    title: "Age",
+    dataIndex: "age",
+    key: "age",
   },
   {
-    title: 'Email',
-    dataIndex: 'email',
-    key: 'email',
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
   },
   {
-    title: 'Password',
-    dataIndex: 'password',
-    key: 'password',
+    title: "Password",
+    dataIndex: "password",
+    key: "password",
   },
   {
-    title: 'Roles',
-    key: 'roles',
-    dataIndex: 'roles',
+    title: "Roles",
+    key: "roles",
+    dataIndex: "roles",
     render: (_, { roles }) => (
       <>
         {roles.map((role) => {
-          let color = role.length > 5 ? 'geekblue' : 'green';
-          if (role === 'loser') {
-            color = 'volcano';
+          let color = role.length > 5 ? "geekblue" : "green";
+          if (role === "loser") {
+            color = "volcano";
           }
           return (
             <Tag color={color} key={role}>
@@ -44,11 +44,11 @@ const columns = [
     ),
   },
   {
-    title: 'Action',
-    key: 'action',
+    title: "Action",
+    key: "action",
     render: (_, record) => (
       <Space size="middle">
-        <a href='/edit-user'>Edit</a>
+        <a href="/edit-user">Edit</a>
         <a>Delete</a>
       </Space>
     ),
@@ -56,26 +56,26 @@ const columns = [
 ];
 const data = [
   {
-    key: '1',
-    name: 'John Brown', 
-    password: '',
+    key: "1",
+    name: "John Brown",
+    password: "",
     age: 32,
-    email: 'johnbrown@gmail.com',
-    roles: ['employee'],
+    email: "johnbrown@gmail.com",
+    roles: ["employee"],
   },
   {
-    key: '2',
-    name: 'Jim Green',
+    key: "2",
+    name: "Jim Green",
     age: 42,
-    email: 'jimgreen@gmail.com',
-    roles: ['admin'],
+    email: "jimgreen@gmail.com",
+    roles: ["admin"],
   },
   {
-    key: '3',
-    name: 'Joe Black',
+    key: "3",
+    name: "Joe Black",
     age: 32,
-    email: 'joeblack@gmail.com',
-    roles: ['employee'],
+    email: "joeblack@gmail.com",
+    roles: ["employee"],
   },
 ];
 const EmployeeList = () => <Table columns={columns} dataSource={data} />;

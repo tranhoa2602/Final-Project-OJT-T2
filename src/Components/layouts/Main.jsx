@@ -4,6 +4,7 @@ import "../../styles/layouts/main.css";
 import EditUser from "../User/EditUser";
 import { Route, Routes } from "react-router-dom";
 import Create from "../Employee/Employee_Information/CreateEmployee";
+import Sidebar from "./Sidebar";
 
 const Main = () => {
   return (

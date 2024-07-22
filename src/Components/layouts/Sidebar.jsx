@@ -112,22 +112,22 @@ const items = [
     ],
   },
   {
-    key: '10',
+    key: 'sub6',
     icon: <ContainerOutlined />,
     label: 'Translate',
     children: [
       {
-        key: '7',
+        key: '10',
         label: <Link to="/../Employee/EmployeeList">Vietnamese</Link>,
       },
       {
-        key: '8',
+        key: '11',
         label: <Link to="/../Employee/EmployeeList">English</Link>,
       },
     ],
   },
   {
-    key: '11',
+    key: '12',
     icon: <ContainerOutlined />,
     label: <Link to="/../Employee/EmployeeList">CV</Link>,
   },
@@ -143,9 +143,7 @@ const SidebarItem = ({ title, children }) => {
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const toggleSidebar = () => {
-      setIsSidebarOpen(!isSidebarOpen);
-    };
+
   };
 
   return (
@@ -160,12 +158,9 @@ const SidebarItem = ({ title, children }) => {
   );
 };
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = ({}) => {
 
   const [collapsed, setCollapsed] = useState(false);
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
 
   return (
     <>

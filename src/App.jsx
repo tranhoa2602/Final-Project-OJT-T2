@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "./Components/layouts/Sidebar";
 import Main from "./Components/layouts/Main";
-import Login from "./pages/Login"; // Giả sử bạn có component Login
 import { Route, Routes, useLocation } from "react-router-dom";
 
 function App() {

@@ -4,6 +4,7 @@ import "../../styles/layouts/main.css";
 import EditUser from "../User/EditUser";
 import { Route, Routes } from "react-router-dom";
 import Create from "../Employee/Employee_Information/CreateEmployee";
+import AddTech from "../Tech/AddTech";
 import Sidebar from "./Sidebar";
 
 const Main = () => {
@@ -11,11 +12,11 @@ const Main = () => {
     <>
       <main className="main-content">
         <Routes>
-          <Route path="/Sidebar" element={<Sidebar />} />
-          <Route path="/edit-user/:id" element={<EditUser />} />
-        </Routes>
-        <Create></Create>
-      </main>
+          <Route path="/Sidebar" element={<Sidebar />} />{" "}
+          <Route path="/edit-user/:id" element={<EditUser />} />{" "}
+        </Routes>{" "}
+        <Create> </Create> <AddTech> </AddTech>{" "}
+      </main>{" "}
     </>
   );
 };

@@ -1,12 +1,10 @@
-//login.jsx
-
-import { database } from "../firebaseConfig";
+import { database } from "../../firebaseConfig.js";
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
 import { loginUser, signUpUser } from "../service/authService.js";
-import styles from "../assets/style/Pages/Login.module.scss"; // Import SCSS file
+import styles from "../styles/layouts/Login.module.scss"; // Ensure the SCSS module follows naming convention
 
 const { Title } = Typography;
 
@@ -53,11 +51,11 @@ function Login({ setUser }) {
           <Title level={2} className={styles["title"]}>
             {isSignUp ? "Sign Up" : "Login"}
           </Title>
-          <img
+          {/* <img
             src="/public/images/logo.jpg"
             alt="logo"
             className={styles["logo-header"]}
-          />
+          /> */}
         </div>
         <Form onFinish={handleSubmit}>
           <Form.Item

@@ -3,36 +3,20 @@ import "../../styles/layouts/main.css";
 import EditUser from "../User/EditUser";
 import { Route, Routes } from "react-router-dom";
 import Create from "../Employee/Employee_Information/CreateEmployee";
-// import Sidebar from "./Sidebar";
-import EmployeeList from "../Employee/Employee_Information/EmployeeList";
-import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
-import Edit from "../Employee/Employee_Information/EditEmployee";
 import Login from "../../pages/Login";
 
 const Main = () => {
   const [user, setUser] = useState(null);
 
   return (
-    <>
-      <main className="main-content">
-        <Routes>
-          {/* <Route path="/Sidebar" element={<Sidebar />} /> */}
-          <Route path="/edit-user/:id" element={<EditUser />} />
-          <Route path="/create-user" element={<Create></Create>}></Route>
-          <Route
-            path="/user-list"
-            element={<EmployeeList></EmployeeList>}
-          ></Route>
-          <Route
-            path="/user-details"
-            element={<EmployeeDetails></EmployeeDetails>}
-          ></Route>
-          <Route path="/edit-user" element={<Edit></Edit>}></Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/create" element={<Create />} />
-        </Routes>
-      </main>
-    </>
+    <main className="main-content">
+      <Routes>
+        <Route path="/edit-user/:id" element={<EditUser />} />
+        <Route path="/" element={<Login setUser={setUser} />} />
+        <Route path="/create" element={<Create />} />
+        {/* <Route path="/admin" element={<Admin />} /> */}
+      </Routes>
+    </main>
   );
 };
 

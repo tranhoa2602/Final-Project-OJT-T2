@@ -74,16 +74,23 @@ export const loginUser = async (
         setUser(user);
 
         // Điều hướng dựa trên vai trò người dùng
-        navigate(user.role === "admin" ? "/account-management" : "/employee");
+        if (user.role === "Admin") {
+          navigate("/account-management");
+        } else {
+          navigate("/employee");
+        }
         return { user, error: null };
       } else {
+        setError("Invalid password");
         return { user: null, error: "Invalid password" };
       }
     } else {
+      setError("User not found");
       return { user: null, error: "User not found" };
     }
   } catch (error) {
     console.error("Error fetching data: ", error);
+    setError("An error occurred");
     return { user: null, error: "An error occurred" };
   }
 };

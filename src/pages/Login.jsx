@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
 import { loginUser, signUpUser } from "../service/authService.js";
-import styles from "../styles/layouts/Login.module.scss"; // Ensure the SCSS module follows naming convention
+import styles from "../styles/layouts/Login.module.scss";
 
 const { Title } = Typography;
 
@@ -51,11 +51,6 @@ function Login({ setUser }) {
           <Title level={2} className={styles["title"]}>
             {isSignUp ? "Sign Up" : "Login"}
           </Title>
-          {/* <img
-            src="/public/images/logo.jpg"
-            alt="logo"
-            className={styles["logo-header"]}
-          /> */}
         </div>
         <Form onFinish={handleSubmit}>
           <Form.Item
@@ -74,9 +69,7 @@ function Login({ setUser }) {
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}
           {successMessage && (
-            <div>
-              <Alert message={successMessage} type="success" showIcon />
-            </div>
+            <Alert message={successMessage} type="success" showIcon />
           )}
           <Form.Item>
             <Button

@@ -129,8 +129,7 @@ const items = [
   },
   {
     key: "13",
-    icon: <ContainerOutlined />,
-    label: <Link to="/">Log out</Link>,
+    icon: <logoutButton />,
   },
 ];
 

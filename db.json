@@ -1,6 +1,7 @@
 {
   "users": [
     {
+      "id": "",
       "isAdmin": true,
       "name": "Admin User",
       "email": "",

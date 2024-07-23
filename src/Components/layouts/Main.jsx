@@ -1,21 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../styles/layouts/main.css";
-import User from "../User/index";
 import EditUser from "../User/EditUser";
 import EmployeeRoutes from '../../pages/Employee';
 import { Route, Routes } from "react-router-dom";
+import Create from "../Employee/Employee_Information/CreateEmployee";
+import Login from "../../pages/Login";
 
 const Main = () => {
+  const [user, setUser] = useState(null);
+
   return (
-    <>
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<User />} />
-          <Route path="/edit-user/:id" element={<EditUser />} />
-          <Route path="/employees/*" element={<EmployeeRoutes />} />
-        </Routes>
-      </main>
-    </>
+    <main className="main-content">
+      <Routes>
+        <Route path="/edit-user/:id" element={<EditUser />} />
+        <Route path="/" element={<Login setUser={setUser} />} />
+        <Route path="/create" element={<Create />} />
+        {/* <Route path="/admin" element={<Admin />} /> */}
+      </Routes>
+    </main>
   );
 };
 

@@ -9,7 +9,6 @@ import {
 } from "@ant-design/icons";
 import { Flex, Layout, Menu } from "antd";
 import { Link } from "react-router-dom";
-import Main from "./Main";
 
 const { Sider, Content } = Layout;
 
@@ -179,9 +178,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 items={items}
               />
             </Sider>
-            {/* <Content style={contentStyle}>
-              <Main />
-            </Content> */}
           </Layout>
         </Layout>
       </Flex>

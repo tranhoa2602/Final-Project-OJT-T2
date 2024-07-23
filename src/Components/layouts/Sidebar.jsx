@@ -4,9 +4,13 @@ import {
   AppstoreOutlined,
   ContainerOutlined,
   DesktopOutlined,
-  MailOutlined,
-  PieChartOutlined,
   LogoutOutlined,
+  TeamOutlined,
+  UserOutlined,
+  FundProjectionScreenOutlined,
+  GlobalOutlined,
+  SolutionOutlined,
+  DeploymentUnitOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -38,7 +42,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const items = [
     {
       key: "sub1",
-      icon: <PieChartOutlined />,
+      icon: <UserOutlined />,
       label: "Manage Accounts",
       children: [
         {
@@ -53,7 +57,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub2",
-      icon: <DesktopOutlined />,
+      icon: <FundProjectionScreenOutlined />,
       label: "Manage Projects",
       children: [
         {
@@ -72,7 +76,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub3",
-      icon: <ContainerOutlined />,
+      icon: <DeploymentUnitOutlined />,
       label: "Technology",
       children: [
         {
@@ -84,7 +88,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     {
       key: "sub4",
       label: "Employee",
-      icon: <MailOutlined />,
+      icon: <TeamOutlined />,
       children: [
         {
           key: "7",
@@ -99,7 +103,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     {
       key: "sub5",
       label: "Languages",
-      icon: <AppstoreOutlined />,
+      icon: <GlobalOutlined />,
       children: [
         {
           key: "9",
@@ -113,7 +117,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub6",
-      icon: <ContainerOutlined />,
+      icon: <GlobalOutlined />,
       label: "Translate",
       children: [
         {
@@ -128,7 +132,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "12",
-      icon: <ContainerOutlined />,
+      icon: <SolutionOutlined />,
       label: <Link to="/../Employee/EmployeeList">CV</Link>,
     },
     {

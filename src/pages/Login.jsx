@@ -54,18 +54,18 @@ function Login({ setUser }) {
         </div>
         <Form onFinish={handleSubmit}>
           <Form.Item
-            label="Email"
+            // label="Email"
             name="email"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input type="email" />
+            <Input type="email" placeholder="Input your email" />
           </Form.Item>
           <Form.Item
-            label="Password"
+            // label="Password"
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password />
+            <Input.Password placeholder="Input your password" />
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}
           {successMessage && (
@@ -85,7 +85,7 @@ function Login({ setUser }) {
               onClick={forgetPassword}
               className={styles["link-forget"]}
             >
-              Forgot Password
+              Forgot Password?
             </Button>
           </Form.Item>
         </Form>

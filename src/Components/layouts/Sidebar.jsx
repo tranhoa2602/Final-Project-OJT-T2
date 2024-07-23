@@ -42,7 +42,7 @@ const items = [
     children: [
       {
         key: "1",
-        label: <Link to="user-list">Account Info</Link>,
+        label: <Link to="/admin">Account Info</Link>,
       },
       {
         key: "2",
@@ -128,6 +128,11 @@ const items = [
     icon: <ContainerOutlined />,
     label: <Link to="/../Employee/EmployeeList">CV</Link>,
   },
+  {
+    key: "13",
+    icon: <ContainerOutlined />,
+    label: <Link to="/">Log out</Link>,
+  },
 ];
 
 const SidebarItem = ({ title, children }) => {
@@ -161,7 +166,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         <Layout style={layoutStyle}>
           <Layout>
             <Sider
-              width="20%"
+              width="15%"
               style={siderStyle}
               collapsible
               collapsed={collapsed}
@@ -174,9 +179,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 items={items}
               />
             </Sider>
-            <Content style={contentStyle}>
+            {/* <Content style={contentStyle}>
               <Main />
-            </Content>
+            </Content> */}
           </Layout>
         </Layout>
       </Flex>

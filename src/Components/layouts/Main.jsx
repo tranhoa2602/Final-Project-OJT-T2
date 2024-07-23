@@ -15,6 +15,8 @@ const Main = () => {
         <Route path="/edit-user/:id" element={<EditUser />} />
         <Route path="/" element={<Login setUser={setUser} />} />
         <Route path="/create" element={<Create />} />
+        <Route path="/Employee/*" element={<EmployeeRoutes />} />
+
         {/* <Route path="/admin" element={<Admin />} /> */}
       </Routes>
     </main>

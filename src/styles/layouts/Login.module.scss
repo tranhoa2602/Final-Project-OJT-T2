@@ -7,12 +7,12 @@
 }
 
 .login-form {
-  max-width: 400px;
   padding: 20px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   font-weight: 500;
+  width: 400px;
 }
 
 .success-message {
@@ -31,6 +31,9 @@
 
   .title {
     color: #1e90ff;
+    margin: auto;
+    padding-bottom: 10px;
+    font-weight: bold;
   }
 
   .logo-header {

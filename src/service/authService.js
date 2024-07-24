@@ -89,6 +89,8 @@ export const loginUser = async (
 
 // Hàm đăng ký người dùng
 export const signUpUser = async (
+  name,
+  phone,
   email,
   password,
   setSuccessMessage,
@@ -111,14 +113,17 @@ export const signUpUser = async (
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
+    const isAdmin = email.includes("admin"); // Set isAdmin based on email or another condition
+    const role = isAdmin ? "Admin" : "Employee"; // Set role based on isAdmin
+
     const newUser = {
       id: newUserRef.key,
-      isAdmin: true, // Set isAdmin to true
-      name: "Admin User", // Set the name to "Admin User"
+      isAdmin: isAdmin,
+      name,
       email,
       password: hashedPassword,
-      role: "Admin", // Set role to Admin
-      contact: "",
+      role,
+      contact: phone,
       cv_list: [
         {
           cv_skill: "",
@@ -132,11 +137,15 @@ export const signUpUser = async (
         },
       ],
       createdAt: new Date().toISOString(),
-      projectIds: [1], // Example project ID
+      projectIds: isAdmin ? [] : [1], // Example project ID for employees
       skills: "",
-      status: "Available",
+      status: isAdmin ? "" : "Available",
     };
+
     await set(newUserRef, newUser);
+
+    // Lưu toàn bộ đối tượng người dùng vào localStorage sau khi đăng ký thành công
+    localStorage.setItem("user", JSON.stringify(newUser));
 
     console.log("New User Object:", newUser); // Console log the new user object
 

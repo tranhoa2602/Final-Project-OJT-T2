@@ -6,6 +6,7 @@ import TechList from "../Tech/TechList";
 import AddTech from "../Tech/AddTech";
 import EditTech from "../Tech/EditTech";
 import Login from "../../pages/Login";
+import Register from "../../pages/Register";
 import Admin from "../../pages/Admin";
 import AdminRoute from "../Admin/AdminRoute";
 
@@ -17,7 +18,6 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      navigate(storedUser.role === "Admin" ? "/admin" : "/employee");
     } else {
       navigate("/");
     }
@@ -27,6 +27,7 @@ const Main = () => {
     <main className="main-content">
       <Routes>
         <Route path="/" element={<Login setUser={setUser} />} />
+        <Route path="/register" element={<Register setUser={setUser} />} />
         <Route
           path="/admin"
           element={

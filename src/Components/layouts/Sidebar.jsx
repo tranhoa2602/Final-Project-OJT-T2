@@ -163,7 +163,13 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <Layout style={layoutStyle}>
-      <Sider width="15%" style={siderStyle} collapsed={collapsed}>
+      <Sider
+        width="15%"
+        style={siderStyle}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={toggleCollapse}
+      >
         <Menu
           defaultSelectedKeys={["1"]}
           defaultOpenKeys={["sub1"]}

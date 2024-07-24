@@ -2,48 +2,40 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { loginUser, signUpUser } from "../service/authService.js";
+import { loginUser } from "../service/authService.js";
 import styles from "../styles/layouts/Login.module.scss";
 
 const { Title } = Typography;
 
 function Login({ setUser }) {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
-      navigate(storedUser.role === "Admin" ? "/admin" : "/employee");
+    const storedUser = localStorage.getItem("user");
+    try {
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setUser(user);
+        navigate(user.role === "Admin" ? "/admin" : "/employee");
+      }
+    } catch (e) {
+      console.error("Invalid user data in localStorage:", e);
+      localStorage.removeItem("user"); // Remove invalid data
     }
   }, [setUser, navigate]);
 
   const handleSubmit = async (values) => {
     const { email, password } = values;
-    if (isSignUp) {
-      const { success, error } = await signUpUser(
-        email,
-        password,
-        setSuccessMessage,
-        setError
-      );
-      if (!success) {
-        setError(error);
-      }
-    } else {
-      const { user, error } = await loginUser(
-        email,
-        password,
-        setUser,
-        setError,
-        navigate
-      );
-      if (!user) {
-        setError(error);
-      }
+    const { user, error } = await loginUser(
+      email,
+      password,
+      setUser,
+      setError,
+      navigate
+    );
+    if (!user) {
+      setError(error);
     }
   };
 
@@ -56,7 +48,7 @@ function Login({ setUser }) {
       <div className={styles["login-form"]}>
         <div className={styles["header-form"]}>
           <Title level={2} className={styles["title"]}>
-            {isSignUp ? "Sign Up" : "Login"}
+            Login
           </Title>
         </div>
         <Form onFinish={handleSubmit}>
@@ -73,9 +65,6 @@ function Login({ setUser }) {
             <Input.Password placeholder="Input your password" />
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}
-          {successMessage && (
-            <Alert message={successMessage} type="success" showIcon />
-          )}
           <Form.Item>
             <Button
               className={styles["btn-login"]}
@@ -83,7 +72,7 @@ function Login({ setUser }) {
               htmlType="submit"
               block
             >
-              {isSignUp ? "Sign Up" : "Login"}
+              Login
             </Button>
             <Button
               type="link"
@@ -97,12 +86,10 @@ function Login({ setUser }) {
         <Button
           type="link"
           className={styles["link-button"]}
-          onClick={() => setIsSignUp(!isSignUp)}
+          onClick={() => navigate("/register")}
           block
         >
-          {isSignUp
-            ? "Already have an account? Login"
-            : "Need an account? Sign Up"}
+          Need an account? Sign Up
         </Button>
       </div>
     </div>

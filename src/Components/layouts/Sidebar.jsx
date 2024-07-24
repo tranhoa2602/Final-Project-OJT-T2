@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import "../../styles/layouts/Sidebar.css";
+import React, { useState, useEffect } from "react";
+import "../../styles/layouts/Sidebar.scss";
 import {
   AppstoreOutlined,
   ContainerOutlined,
@@ -11,8 +11,10 @@ import {
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
@@ -30,17 +32,37 @@ const layoutStyle = {
   maxWidth: "calc(100% - 8px)",
 };
 
+const buttonStyle = {
+  position: "absolute",
+  bottom: 16,
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "90%",
+};
+
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUserRole(storedUser.role);
+    }
+  }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem("userId");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
+  };
+
   const items = [
-    {
+    userRole === "Admin" && {
       key: "sub1",
       icon: <UserOutlined />,
       label: "Manage Accounts",
@@ -116,21 +138,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       ],
     },
     {
-      key: "sub6",
-      icon: <GlobalOutlined />,
-      label: "Translate",
-      children: [
-        {
-          key: "10",
-          label: <Link to="/../Employee/EmployeeList">Vietnamese</Link>,
-        },
-        {
-          key: "11",
-          label: <Link to="/../Employee/EmployeeList">English</Link>,
-        },
-      ],
-    },
-    {
       key: "12",
       icon: <SolutionOutlined />,
       label: <Link to="/../Employee/EmployeeList">CV</Link>,
@@ -152,11 +159,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </button>
       ),
     },
-  ];
+  ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
   return (
     <Layout style={layoutStyle}>
-      <Sider width="15%" style={siderStyle} collapsible collapsed={collapsed}>
+      <Sider width="15%" style={siderStyle} collapsed={collapsed}>
         <Menu
           defaultSelectedKeys={["1"]}
           defaultOpenKeys={["sub1"]}
@@ -164,6 +171,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           theme="dark"
           items={items}
         />
+        <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </Button>
       </Sider>
     </Layout>
   );

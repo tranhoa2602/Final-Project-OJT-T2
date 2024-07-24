@@ -1,5 +1,4 @@
-import { database } from "../../firebaseConfig.js";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
@@ -13,6 +12,14 @@ function Login({ setUser }) {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
+      navigate(storedUser.role === "Admin" ? "/admin" : "/employee");
+    }
+  }, [setUser, navigate]);
 
   const handleSubmit = async (values) => {
     const { email, password } = values;
@@ -54,14 +61,12 @@ function Login({ setUser }) {
         </div>
         <Form onFinish={handleSubmit}>
           <Form.Item
-            // label="Email"
             name="email"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
             <Input type="email" placeholder="Input your email" />
           </Form.Item>
           <Form.Item
-            // label="Password"
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >

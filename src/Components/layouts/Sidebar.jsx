@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../styles/layouts/Sidebar.css";
 import {
   AppstoreOutlined,
@@ -11,8 +11,10 @@ import {
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
@@ -30,17 +32,37 @@ const layoutStyle = {
   maxWidth: "calc(100% - 8px)",
 };
 
+const buttonStyle = {
+  position: "absolute",
+  bottom: 16,
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "90%",
+};
+
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUserRole(storedUser.role);
+    }
+  }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem("userId");
+    localStorage.removeItem("user");
     navigate("/");
   };
 
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
+  };
+
   const items = [
-    {
+    userRole === "Admin" && {
       key: "sub1",
       icon: <UserOutlined />,
       label: "Manage Accounts",
@@ -152,7 +174,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </button>
       ),
     },
-  ];
+  ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
   return (
     <Layout style={layoutStyle}>
@@ -164,6 +186,9 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           theme="dark"
           items={items}
         />
+        <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </Button>
       </Sider>
     </Layout>
   );

@@ -1,5 +1,3 @@
-//authService.jsx
-
 import {
   getDatabase,
   ref,
@@ -11,6 +9,7 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
+import { database } from "../../firebaseConfig";
 
 // Hàm cập nhật mật khẩu đã mã hóa cho tất cả người dùng hiện có
 const updateExistingPasswords = async () => {
@@ -54,13 +53,10 @@ export const loginUser = async (
   navigate
 ) => {
   try {
-    const db = getDatabase();
-    const userRef = ref(db, "users");
+    const userRef = ref(database, "users");
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
     const userData = snapshot.val();
-
-    console.log("User Data from DB:", userData); // Console log user data
 
     if (userData) {
       const userId = Object.keys(userData)[0];
@@ -70,15 +66,11 @@ export const loginUser = async (
       const match = await bcrypt.compare(password, user.password);
 
       if (match) {
-        localStorage.setItem("userId", JSON.stringify(user)); // Lưu toàn bộ đối tượng người dùng
+        localStorage.setItem("user", JSON.stringify(user)); // Lưu toàn bộ đối tượng người dùng
         setUser(user);
 
         // Điều hướng dựa trên vai trò người dùng
-        if (user.role === "Admin") {
-          navigate("/account-management");
-        } else {
-          navigate("/employee");
-        }
+        navigate(user.role === "Admin" ? "/admin" : "/employee");
         return { user, error: null };
       } else {
         setError("Invalid password");
@@ -120,22 +112,29 @@ export const signUpUser = async (
 
     const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
     const newUser = {
+      id: newUserRef.key,
+      isAdmin: true, // Set isAdmin to true
+      name: "Admin User", // Set the name to "Admin User"
       email,
       password: hashedPassword,
+      role: "Admin", // Set role to Admin
       contact: "",
       cv_list: [
         {
-          title: "",
-          description: "",
-          file: "",
-          updatedAt: new Date().toISOString(),
+          cv_skill: "",
+          cv_experience: [
+            {
+              work_position: "",
+              time_work: "",
+              description: "",
+            },
+          ],
         },
       ],
-      role: email === "admin@gmail.com" ? "admin" : "employee",
       createdAt: new Date().toISOString(),
-      projetcIds: "",
-      skill: "",
-      Status: "",
+      projectIds: [1], // Example project ID
+      skills: "",
+      status: "Available",
     };
     await set(newUserRef, newUser);
 

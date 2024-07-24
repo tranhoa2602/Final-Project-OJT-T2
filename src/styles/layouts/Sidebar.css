@@ -7,14 +7,12 @@
   background-color: #000;
 }
 
-/* src/Sidebar.scss */
 .sidebar {
   position: fixed;
   width: 25%;
   left: 0;
   top: 0;
   height: 100vh;
-  /* background-color: aquamarine; */
 
   &.open {
     left: 0;

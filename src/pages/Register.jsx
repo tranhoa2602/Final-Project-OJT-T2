@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { signUpUser, loginUser } from "../service/authService.js";
+import { signUpUser } from "../service/authService.js";
 import styles from "../styles/layouts/Register.module.scss";
 
 const { Title } = Typography;
@@ -31,23 +31,16 @@ function Register({ setUser }) {
     if (!success) {
       setError(error);
     } else {
-      // Optionally log in the user immediately after registration
-      const { user, error } = await loginUser(
-        email,
-        password,
-        setUser,
-        setError,
-        navigate
-      );
-      if (!user) {
-        setError(error);
-      }
+      setSuccessMessage("Account created successfully! Redirecting to login.");
+      setTimeout(() => {
+        navigate("/"); // Điều hướng về trang đăng nhập sau 2 giây
+      }, 1000);
     }
   };
 
   return (
-    <div className={styles["login-container"]}>
-      <div className={styles["login-form"]}>
+    <div className={styles["register-container"]}>
+      <div className={styles["register-form"]}>
         <div className={styles["header-form"]}>
           <Title level={2} className={styles["title"]}>
             Sign Up
@@ -94,7 +87,7 @@ function Register({ setUser }) {
           )}
           <Form.Item>
             <Button
-              className={styles["btn-login"]}
+              className={styles["btn-register"]}
               type="primary"
               htmlType="submit"
               block
@@ -106,7 +99,7 @@ function Register({ setUser }) {
         <Button
           type="link"
           className={styles["link-button"]}
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/")}
           block
         >
           Already have an account? Login

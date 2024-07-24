@@ -102,8 +102,6 @@ export const signUpUser = async (
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
 
-    console.log("Snapshot for Sign Up Check:", snapshot.val()); // Console log snapshot for sign up
-
     if (snapshot.val()) {
       setError("Email already in use");
       return { success: false, error: "Email already in use" };
@@ -113,46 +111,19 @@ export const signUpUser = async (
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
-    const isAdmin = email.includes("admin"); // Set isAdmin based on email or another condition
-    const role = isAdmin ? "Admin" : "Employee"; // Set role based on isAdmin
-
     const newUser = {
-      id: newUserRef.key,
-      isAdmin: isAdmin,
       name,
+      phone,
       email,
       password: hashedPassword,
-      role,
-      contact: phone,
-      cv_list: [
-        {
-          cv_skill: "",
-          cv_experience: [
-            {
-              work_position: "",
-              time_work: "",
-              description: "",
-            },
-          ],
-        },
-      ],
+      role: "Employee", // Hoặc role dựa trên logic của bạn
       createdAt: new Date().toISOString(),
-      projectIds: isAdmin ? [] : [1], // Example project ID for employees
-      skills: "",
-      status: isAdmin ? "" : "Available",
     };
-
     await set(newUserRef, newUser);
 
-    // Lưu toàn bộ đối tượng người dùng vào localStorage sau khi đăng ký thành công
-    localStorage.setItem("user", JSON.stringify(newUser));
-
-    console.log("New User Object:", newUser); // Console log the new user object
-
-    setSuccessMessage("Account created successfully! Please log in.");
+    setSuccessMessage("Account created successfully!");
     return { success: true, error: "" };
   } catch (error) {
-    console.error("Error signing up: ", error);
     setError("An error occurred during sign up");
     return { success: false, error: "An error occurred during sign up" };
   }

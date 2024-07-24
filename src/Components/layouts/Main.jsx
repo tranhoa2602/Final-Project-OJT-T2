@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/layouts/main.css";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import Create from "../Employee/Employee_Information/CreateEmployee";
 import TechList from "../Tech/TechList";
 import AddTech from "../Tech/AddTech";
@@ -13,15 +13,21 @@ import AdminRoute from "../Admin/AdminRoute";
 const Main = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
+      if (location.pathname === "/" || location.pathname === "/register") {
+        navigate(storedUser.role === "Admin" ? "/admin" : "/employee");
+      }
     } else {
-      navigate("/");
+      if (location.pathname !== "/register" && location.pathname !== "/") {
+        navigate("/");
+      }
     }
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   return (
     <main className="main-content">

@@ -11,7 +11,8 @@
     {
       "id": "",
       "isAdmin": false,
-      "name": "Employee User",
+      "name": "",
+      "phone": "",
       "email": "",
       "password": "",
       "role": "Employee",

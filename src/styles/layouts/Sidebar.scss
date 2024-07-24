@@ -7,6 +7,11 @@
   background-color: #000;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .sidebar {
   position: fixed;
   width: 25%;
@@ -90,7 +95,7 @@
       }
 
       &.expanded {
-        max-height: 500px; /* Arbitrary large value to allow full expansion */
+        max-height: 500px; // Arbitrary large value to allow full expansion
       }
     }
   }

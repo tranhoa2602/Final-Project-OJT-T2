@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../styles/layouts/Sidebar.css";
+import "../../styles/layouts/Sidebar.scss";
 import {
   AppstoreOutlined,
   ContainerOutlined,

@@ -14,10 +14,16 @@ function Login({ setUser }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
-      navigate(storedUser.role === "Admin" ? "/admin" : "/employee");
+    const storedUser = localStorage.getItem("user");
+    try {
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setUser(user);
+        navigate(user.role === "Admin" ? "/admin" : "/employee");
+      }
+    } catch (e) {
+      console.error("Invalid user data in localStorage:", e);
+      localStorage.removeItem("user"); // Remove invalid data
     }
   }, [setUser, navigate]);
 

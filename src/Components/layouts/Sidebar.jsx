@@ -138,21 +138,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       ],
     },
     {
-      key: "sub6",
-      icon: <GlobalOutlined />,
-      label: "Translate",
-      children: [
-        {
-          key: "10",
-          label: <Link to="/../Employee/EmployeeList">Vietnamese</Link>,
-        },
-        {
-          key: "11",
-          label: <Link to="/../Employee/EmployeeList">English</Link>,
-        },
-      ],
-    },
-    {
       key: "12",
       icon: <SolutionOutlined />,
       label: <Link to="/../Employee/EmployeeList">CV</Link>,
@@ -178,7 +163,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <Layout style={layoutStyle}>
-      <Sider width="15%" style={siderStyle} collapsible collapsed={collapsed}>
+      <Sider width="15%" style={siderStyle} collapsed={collapsed}>
         <Menu
           defaultSelectedKeys={["1"]}
           defaultOpenKeys={["sub1"]}

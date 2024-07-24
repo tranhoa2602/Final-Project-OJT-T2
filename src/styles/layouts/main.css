@@ -1,4 +1,6 @@
 .main-content {
- text-align: left;
- padding-left: 2%;
+  position: absolute;
+  width: 50%;
+  left: 25%;
+  top: 0;
 }

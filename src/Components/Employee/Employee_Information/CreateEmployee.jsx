@@ -1,17 +1,6 @@
 import React from "react";
-import {
-  Button,
-  Cascader,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Mentions,
-  Select,
-  TreeSelect,
-} from "antd";
-
-const { RangePicker } = DatePicker;
+import { Button, DatePicker, Form, Input, Mentions, Select } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const formItemLayout = {
   labelCol: {
@@ -24,89 +13,71 @@ const formItemLayout = {
   },
 };
 
-const Create = () => (
-  <Form {...formItemLayout} style={{ height: "100vh" }}>
-    <Form.Item
-      label="User Name"
-      name="username"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Input />
-    </Form.Item>
+const Create = () => {
+  const navigate = useNavigate();
 
-    <Form.Item
-      label="Unkniown"
-      name="InputNumber"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <InputNumber style={{ width: "100%" }} />
-    </Form.Item>
+  const gotoEmployeeList = () => {
+    navigate("/user-list");
+  };
 
-    <Form.Item
-      label="TextArea"
-      name="TextArea"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Input.TextArea />
-    </Form.Item>
+  return (
+    <Form {...formItemLayout} style={{ height: "100vh" }}>
+      <Form.Item
+        label="User Name"
+        name="username"
+        rules={[{ required: true, message: "Please input!" }]}
+      >
+        <Input />
+      </Form.Item>
 
-    <Form.Item
-      label="Mentions"
-      name="Mentions"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Mentions />
-    </Form.Item>
+      <Form.Item
+        label="Mentions"
+        name="Mentions"
+        rules={[{ required: true, message: "Please input!" }]}
+      >
+        <Mentions />
+      </Form.Item>
 
-    <Form.Item
-      label="Role"
-      name="Select"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Select>
-        <Select.Option value="admin">Admin</Select.Option>
-        <Select.Option value="employee">Employee</Select.Option>
-      </Select>
-    </Form.Item>
+      <Form.Item
+        label="Role"
+        name="Select"
+        rules={[{ required: true, message: "Please input!" }]}
+      >
+        <Select>
+          <Select.Option value="admin">Admin</Select.Option>
+          <Select.Option value="employee">Employee</Select.Option>
+        </Select>
+      </Form.Item>
 
-    <Form.Item
-      label="Cascader"
-      name="Cascader"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <Cascader />
-    </Form.Item>
+      <Form.Item
+        label="DatePicker"
+        name="DatePicker"
+        rules={[{ required: true, message: "Please input!" }]}
+      >
+        <DatePicker />
+      </Form.Item>
 
-    <Form.Item
-      label="TreeSelect"
-      name="TreeSelect"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <TreeSelect />
-    </Form.Item>
+      <Form.Item
+        label="TextArea"
+        name="TextArea"
+        rules={[{ required: true, message: "Please input!" }]}
+      >
+        <Input.TextArea />
+      </Form.Item>
 
-    <Form.Item
-      label="DatePicker"
-      name="DatePicker"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <DatePicker />
-    </Form.Item>
+      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+        <Button type="primary" htmlType="submit">
+          Submit
+        </Button>
+      </Form.Item>
 
-    <Form.Item
-      label="RangePicker"
-      name="RangePicker"
-      rules={[{ required: true, message: "Please input!" }]}
-    >
-      <RangePicker />
-    </Form.Item>
-
-    <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-      <Button type="primary" htmlType="submit">
-        Submit
-      </Button>
-    </Form.Item>
-  </Form>
-);
+      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+        <Button type="primary" htmlType="submit" onClick={gotoEmployeeList}>
+          Empl. List
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+};
 
 export default Create;

@@ -89,6 +89,8 @@ export const loginUser = async (
 
 // Hàm đăng ký người dùng
 export const signUpUser = async (
+  name,
+  phone,
   email,
   password,
   setSuccessMessage,
@@ -117,11 +119,11 @@ export const signUpUser = async (
     const newUser = {
       id: newUserRef.key,
       isAdmin: isAdmin,
-      name: isAdmin ? "Admin User" : "Employee User", // Set the name based on the role
+      name,
       email,
       password: hashedPassword,
-      role: role,
-      contact: "",
+      role,
+      contact: phone,
       cv_list: [
         {
           cv_skill: "",

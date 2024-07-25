@@ -73,7 +73,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         },
         {
           key: "2",
-          label: <Link to="/../Employee/EmployeeList">Reset Password</Link>,
+          label: <Link to="">Reset Password</Link>,
         },
       ],
     },
@@ -124,7 +124,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub5",
-      label: "Programing Languages",
+      label: "Programming Languages",
       icon: <GlobalOutlined />,
       children: [
         {

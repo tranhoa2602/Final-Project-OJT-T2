@@ -1,9 +1,8 @@
-// admin.jsx
-
-import { Button, Form, Input, List, message, Modal, Select } from "antd";
-import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import React, { useEffect, useState } from "react";
+import { Button, Form, Input, message, Modal, Select } from "antd";
+import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
+import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
 
@@ -19,28 +18,29 @@ function Admin() {
   const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const db = getDatabase();
-        const userRef = ref(db, "users");
-        const snapshot = await get(userRef);
-        const userData = snapshot.val();
-        if (userData) {
-          setUsers(Object.values(userData));
-        }
-      } catch (error) {
-        message.error("Error fetching users");
+  const fetchUsers = async () => {
+    try {
+      const db = getDatabase();
+      const userRef = ref(db, "users");
+      const snapshot = await get(userRef);
+      const userData = snapshot.val();
+      if (userData) {
+        setUsers(
+          Object.entries(userData).map(([key, user]) => ({ ...user, key }))
+        );
       }
-    };
-
+    } catch (error) {
+      message.error("Error fetching users");
+    }
+  };
+  useEffect(() => {
     fetchUsers();
   }, []);
+  console.log(users);
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser && currentUser.role !== "admin") {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    if (currentUser && currentUser.role !== "Admin") {
       navigate("/employee");
     }
   }, [navigate]);
@@ -112,7 +112,12 @@ function Admin() {
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
       if (updatedUserData) {
-        setUsers(Object.values(updatedUserData));
+        setUsers(
+          Object.entries(updatedUserData).map(([key, user]) => ({
+            ...user,
+            key,
+          }))
+        );
       }
     } catch (error) {
       message.error("Error adding or updating user");
@@ -144,7 +149,12 @@ function Admin() {
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
       if (updatedUserData) {
-        setUsers(Object.values(updatedUserData));
+        setUsers(
+          Object.entries(updatedUserData).map(([key, user]) => ({
+            ...user,
+            key,
+          }))
+        );
       } else {
         setUsers([]);
       }
@@ -176,9 +186,13 @@ function Admin() {
   };
 
   return (
-    <div>
+    <div className={styles["admin-page"]}>
       <h1>Admin Page</h1>
-      <Button type="primary" onClick={() => setModalVisible(true)}>
+      <Button
+        type="primary"
+        onClick={() => setModalVisible(true)}
+        className={styles["add-user-button"]}
+      >
         Add User
       </Button>
       <Modal
@@ -186,6 +200,7 @@ function Admin() {
         open={modalVisible} // Updated
         onCancel={handleModalCancel}
         footer={null}
+        className={styles["modal"]}
       >
         <Form
           onFinish={handleAddOrUpdateUser}
@@ -248,29 +263,42 @@ function Admin() {
       </Modal>
 
       <h2>Current Users</h2>
-      <List
-        dataSource={users}
-        renderItem={(user) => (
-          <List.Item
-            actions={[
-              <Button onClick={() => handleEditUser(user)} key="edit">
-                Edit
-              </Button>,
-              !user.isAdmin && (
-                <Button
-                  type="danger"
-                  onClick={() => handleDeleteUser(user.email)}
-                  key="delete"
-                >
-                  Delete
-                </Button>
-              ),
-            ]}
-          >
-            {user.email} - {user.role}
-          </List.Item>
-        )}
-      />
+      <table className={styles["user-table"]}>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users &&
+            users.map((user, key) => (
+              <tr key={key}>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td className={styles["actions"]}>
+                  <Button
+                    onClick={() => handleEditUser(user)}
+                    key="edit"
+                    type="primary"
+                  >
+                    Edit
+                  </Button>
+                  {!user.isAdmin && (
+                    <Button
+                      type="danger"
+                      onClick={() => handleDeleteUser(user.email)}
+                      key="delete"
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -9,7 +9,8 @@ function App() {
   const showSidebar =
     location.pathname !== "/" &&
     location.pathname !== "/register" &&
-    location.pathname !== "/forget-password";
+    location.pathname !== "/forget-password" &&
+    !location.pathname.startsWith("/reset-password");
 
   return (
     <>

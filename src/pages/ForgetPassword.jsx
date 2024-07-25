@@ -1,27 +1,82 @@
-import React, { useState } from "react";
+import emailjs from "emailjs-com";
+import React, { useState, useEffect } from "react";
+import { get, getDatabase, ref } from "firebase/database";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/layouts/ForgetPassword.module.scss";
+import {
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID,
+  EMAILJS_USER_ID,
+} from "../../emailConfig"; // Import cấu hình email
 
 const { Title } = Typography;
 
 const ForgetPassword = () => {
-  const [email, setEmail] = useState("");
+  const [employeeEmail, setEmployeeEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [employees, setEmployees] = useState([]);
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const db = getDatabase();
+        const userRef = ref(db, "users");
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
+        if (userData) {
+          const employeesData = Object.values(userData).filter(
+            (user) => user.role === "Employee"
+          );
+          setEmployees(employeesData);
+        }
+      } catch (error) {
+        console.error("Error fetching employees: ", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
+  const sendResetPasswordEmail = async (email, resetLink) => {
     try {
-      await sendPasswordResetEmail(auth, email);
+      const templateParams = {
+        to_name: email,
+        from_name: "Your Company Name",
+        message: `Click this link to reset your password: ${resetLink}`,
+      };
+
+      const result = await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_USER_ID
+      );
+
+      console.log("SUCCESS!", result.status, result.text);
       setMessage("Password reset email sent! Check your inbox.");
       setError("");
     } catch (error) {
+      console.error("FAILED...", error);
       setError("Failed to send password reset email. Please try again.");
       setMessage("");
     }
+  };
+
+  const handleSubmit = async () => {
+    const employee = employees.find((emp) => emp.email === employeeEmail);
+
+    if (!employee) {
+      setError("Employee email not found. Please check and try again.");
+      return;
+    }
+
+    const resetLink = `${
+      window.location.origin
+    }/reset-password?email=${encodeURIComponent(employee.email)}`;
+    sendResetPasswordEmail(employee.email, resetLink);
   };
 
   return (
@@ -35,13 +90,15 @@ const ForgetPassword = () => {
         <Form onFinish={handleSubmit}>
           <Form.Item
             name="email"
-            rules={[{ required: true, message: "Please input your email!" }]}
+            rules={[
+              { required: true, message: "Please input the employee's email!" },
+            ]}
           >
             <Input
               type="email"
-              placeholder="Input your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter employee's email"
+              value={employeeEmail}
+              onChange={(e) => setEmployeeEmail(e.target.value)}
             />
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}

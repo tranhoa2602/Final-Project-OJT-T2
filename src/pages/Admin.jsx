@@ -219,7 +219,7 @@ function Admin() {
             />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="Password"
             name="password"
             rules={[
@@ -242,7 +242,7 @@ function Admin() {
                 </Button>
               )}
             />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item label="Role" name="role">
             <Select value={role} onChange={(value) => setRole(value)}>

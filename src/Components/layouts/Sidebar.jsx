@@ -114,7 +114,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       children: [
         {
           key: "7",
-          label: <Link to="create-user">Employee Profile</Link>,
+          label: <Link to="/list">Employee Profile</Link>,
         },
         {
           key: "8",
@@ -140,7 +140,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     {
       key: "12",
       icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">CV</Link>,
+      label: <Link to="exportcv">CV</Link>,
     },
     {
       key: "13",

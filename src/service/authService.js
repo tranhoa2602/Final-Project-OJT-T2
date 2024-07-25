@@ -9,6 +9,7 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
 import { database } from "../../firebaseConfig";
 
 // Hàm cập nhật mật khẩu đã mã hóa cho tất cả người dùng hiện có
@@ -96,9 +97,11 @@ export const signUpUser = async (
 
     // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
+    const userKey = uuidv4(); // Generate new UUID for the user
 
-    const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
+    const newUserRef = ref(db, `users/${userKey}`);
     const newUser = {
+      id: userKey,
       name,
       phone,
       email,

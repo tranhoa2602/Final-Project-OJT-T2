@@ -15,7 +15,7 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
 
@@ -44,7 +44,6 @@ const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -63,22 +62,17 @@ const Sidebar = () => {
   };
 
   const items = [
-    location.pathname === "/admin" &&
-      userRole === "Admin" && {
-        key: "sub1",
-        icon: <UserOutlined />,
-        label: "Manage Accounts",
-        children: [
-          {
-            key: "1",
-            label: <Link to="/admin">Account Info</Link>,
-          },
-          {
-            key: "2",
-            label: <Link to="">Reset Password</Link>,
-          },
-        ],
-      },
+    userRole === "Admin" && {
+      key: "sub1",
+      icon: <UserOutlined />,
+      label: "Manage Accounts",
+      children: [
+        {
+          key: "1",
+          label: <Link to="/admin">Account Info</Link>,
+        },
+      ],
+    },
     {
       key: "sub2",
       icon: <FundProjectionScreenOutlined />,
@@ -86,15 +80,15 @@ const Sidebar = () => {
       children: [
         {
           key: "3",
-          label: <Link to="/../Employee/EmployeeList">Project Info</Link>,
+          label: <Link to="/projects/info">Project Info</Link>,
         },
         {
           key: "4",
-          label: <Link to="/../Employee/EmployeeList">Assign Employees</Link>,
+          label: <Link to="/projects/assign">Assign Employees</Link>,
         },
         {
           key: "5",
-          label: <Link to="/../Employee/EmployeeList">Project Tracking</Link>,
+          label: <Link to="/projects/tracking">Project Tracking</Link>,
         },
       ],
     },
@@ -105,7 +99,7 @@ const Sidebar = () => {
       children: [
         {
           key: "6",
-          label: <Link to="/../Employee/EmployeeList">Technology Info</Link>,
+          label: <Link to="/tech-info">Technology Info</Link>,
         },
       ],
     },
@@ -116,36 +110,32 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="create-user">Employee Profile</Link>,
+          label: <Link to="/create-user">Employee Profile</Link>,
         },
         {
           key: "8",
-          label: <Link to="/../Employee/EmployeeList">Assign Project</Link>,
+          label: <Link to="/employee/assign-project">Assign Project</Link>,
         },
       ],
     },
     {
       key: "sub5",
-      label: "Programing Languages",
+      label: "Programming Languages",
       icon: <GlobalOutlined />,
       children: [
         {
           key: "9",
-          label: (
-            <Link to="/../Employee/EmployeeList">
-              Programming Language Info
-            </Link>
-          ),
+          label: <Link to="/languages/info">Programming Language Info</Link>,
         },
       ],
     },
     {
-      key: "12",
+      key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">CV</Link>,
+      label: <Link to="/cv">CV</Link>,
     },
     {
-      key: "13",
+      key: "11",
       icon: <LogoutOutlined />,
       label: (
         <button

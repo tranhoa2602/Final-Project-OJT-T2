@@ -3,6 +3,7 @@ import { Button, Form, Input, message, Modal, Select } from "antd";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
+import { v4 as uuidv4 } from "uuid"; // Import UUID library for generating unique IDs
 
 const { Option } = Select;
 
@@ -14,36 +15,31 @@ function Admin() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
-  const [editUserEmail, setEditUserEmail] = useState("");
+  const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
   const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
   const navigate = useNavigate();
-  const fetchUsers = async () => {
-    try {
-      const db = getDatabase();
-      const userRef = ref(db, "users");
-      const snapshot = await get(userRef);
-      const userData = snapshot.val();
-      if (userData) {
-        setUsers(
-          Object.entries(userData).map(([key, user]) => ({ ...user, key }))
-        );
-      }
-    } catch (error) {
-      message.error("Error fetching users");
-    }
-  };
+
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const db = getDatabase();
+        const userRef = ref(db, "users");
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
+        if (userData) {
+          setUsers(
+            Object.entries(userData).map(([key, user]) => ({ ...user, key }))
+          );
+        }
+      } catch (error) {
+        message.error("Error fetching users");
+      }
+    };
+
     fetchUsers();
   }, []);
   console.log(users);
-
-  useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("user"));
-    if (currentUser && currentUser.role !== "Admin") {
-      navigate("/employee");
-    }
-  }, [navigate]);
 
   const handleAddOrUpdateUser = async (values) => {
     const { email, password, role } = values;
@@ -65,8 +61,10 @@ function Admin() {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${email.replace(".", ",")}`);
+      const userKey = editMode ? editUserKey : uuidv4(); // Generate new key if not in edit mode
+      const userRef = ref(db, `users/${userKey}`);
       let userData = {
+        id: userKey,
         email,
         password,
         contact: "",
@@ -107,7 +105,7 @@ function Admin() {
       setPassword("");
       setRole("employee");
       setEditMode(false);
-      setEditUserEmail("");
+      setEditUserKey("");
 
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
@@ -124,10 +122,10 @@ function Admin() {
     }
   };
 
-  const handleDeleteUser = async (userEmail) => {
+  const handleDeleteUser = async (userKey) => {
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${userEmail.replace(".", ",")}`);
+      const userRef = ref(db, `users/${userKey}`);
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
@@ -168,7 +166,7 @@ function Admin() {
     setPassword(user.password);
     setRole(user.role);
     setEditMode(true);
-    setEditUserEmail(user.email);
+    setEditUserKey(user.key); // Update to setEditUserKey
     setModalVisible(true); // Open modal for editing
   };
 
@@ -212,37 +210,8 @@ function Admin() {
             name="email"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input
-              disabled={editMode}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
           </Form.Item>
-
-          {/* <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              {
-                min: 6,
-                message: "Password must be at least 6 characters long",
-              },
-            ]}
-          >
-            <Input.Password
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              iconRender={(visible) => (
-                <Button
-                  type="text"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {visible ? "Hide" : "Show"}
-                </Button>
-              )}
-            />
-          </Form.Item> */}
 
           <Form.Item label="Role" name="role">
             <Select value={role} onChange={(value) => setRole(value)}>
@@ -272,31 +241,30 @@ function Admin() {
           </tr>
         </thead>
         <tbody>
-          {users &&
-            users.map((user, key) => (
-              <tr key={key}>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td className={styles["actions"]}>
+          {users.map((user) => (
+            <tr key={user.key}>
+              <td>{user.email}</td>
+              <td>{user.role}</td>
+              <td className={styles["actions"]}>
+                <Button
+                  onClick={() => handleEditUser(user)}
+                  key="edit"
+                  type="primary"
+                >
+                  Edit
+                </Button>
+                {!user.isAdmin && (
                   <Button
-                    onClick={() => handleEditUser(user)}
-                    key="edit"
-                    type="primary"
+                    type="danger"
+                    onClick={() => handleDeleteUser(user.key)}
+                    key="delete"
                   >
-                    Edit
+                    Delete
                   </Button>
-                  {!user.isAdmin && (
-                    <Button
-                      type="danger"
-                      onClick={() => handleDeleteUser(user.email)}
-                      key="delete"
-                    >
-                      Delete
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
+                )}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

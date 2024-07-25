@@ -1,61 +1,95 @@
-import React from "react";
-import { Space, Table, Tag, Button } from "antd";
+import React, { useEffect, useState } from "react";
+import { Space, Table, Button, message } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { firebaseConfig } from "../../../firebaseConfig";
 
-const columns = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a> {text} </a>,
-  },
-  {
-    title: "Type",
-    dataIndex: "type",
-    key: "type",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-  },
-  {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <a> Edit </a> <a> Delete </a>{" "}
-      </Space>
-    ),
-  },
-];
-const data = [
-  {
-    key: "1",
-    name: "Laravel",
-    type: "Farmwork Web",
-    status: "Active",
-    description: "Basic, Easy to use",
-  },
-  {
-    key: "2",
-    name: "React JS",
-    type: "Farmwork Web",
-    status: "Active",
-    description: "Front End Website Popular",
-  },
-  {
-    key: "3",
-    name: "TypeScript",
-    type: "Farmwork Web",
-    status: "Active",
-    description: "New Farmwork Web ",
-  },
-];
+const ViewLanguage = () => {
+  const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
-const ViewLanguage = () => <Table columns={columns} dataSource={data} />;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${firebaseConfig.databaseURL}/programmingLanguages.json`
+        );
+        const result = response.data;
+        const techList = [];
+
+        for (const key in result) {
+          techList.push({ id: key, ...result[key] });
+        }
+
+        setData(techList);
+      } catch (error) {
+        console.error("Error fetching programmingLanguages: ", error);
+        message.error("Failed to fetch programmingLanguages.");
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(
+        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
+      );
+      message.success("Programing Languages deleted successfully!");
+      setData(data.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Error deleting Programing Languages: ", error);
+      message.error("Failed to delete Programing Languages.");
+    }
+  };
+
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "programingname",
+      key: "programingname",
+      render: (text) => <a> {text} </a>,
+    },
+    {
+      title: "Type",
+      dataIndex: "programingtype",
+      key: "programingtype",
+    },
+    {
+      title: "Status",
+      dataIndex: "programingstatus",
+      key: "programingstatus",
+    },
+    {
+      title: "Description",
+      dataIndex: "programingdescription",
+      key: "programingdescription",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Link to={`/EditLanguage/${record.id}`}> Edit </Link>{" "}
+          <a onClick={() => handleDelete(record.id)}> Delete </a>{" "}
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <Button
+        type="primary"
+        style={{ marginBottom: 16 }}
+        onClick={() => navigate("/AddLanguage")}
+      >
+        Add Programing Language{" "}
+      </Button>{" "}
+      <Table columns={columns} dataSource={data} rowKey="id" />
+    </>
+  );
+};
+
 export default ViewLanguage;

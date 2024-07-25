@@ -5,6 +5,9 @@ import Create from "../Employee/Employee_Information/CreateEmployee";
 import TechList from "../Tech/TechList";
 import AddTech from "../Tech/AddTech";
 import EditTech from "../Tech/EditTech";
+import ViewLanguage from "../Language/ViewLanguage";
+import AddLanguage from "../Language/AddLanguage";
+import EditLanguage from "../Language/EditLanguage";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
 import ForgetPassword from "../../pages/ForgetPassword"; // Import trang ForgetPassword
@@ -35,7 +38,7 @@ const Main = () => {
       <Routes>
         <Route path="/" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register setUser={setUser} />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />{" "}
         <Route
           path="/admin"
           element={
@@ -46,8 +49,11 @@ const Main = () => {
         />{" "}
         <Route path="/create" element={<Create />} />{" "}
         <Route path="/AddTech" element={<AddTech />} />{" "}
-        <Route path="/EditTech" element={<EditTech />} />{" "}
+        <Route path="/EditTech/:id" element={<EditTech />} />{" "}
         <Route path="/TechList" element={<TechList />} />{" "}
+        <Route path="/AddLanguage" element={<AddLanguage />} />{" "}
+        <Route path="/EditLanguage/:id" element={<EditLanguage />} />{" "}
+        <Route path="/ViewLanguage" element={<ViewLanguage />} />{" "}
         <Route path="/employee" element={<div> Employee Dashboard </div>} />
       </Routes>{" "}
     </main>

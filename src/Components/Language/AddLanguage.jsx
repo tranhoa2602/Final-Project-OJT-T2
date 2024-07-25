@@ -1,5 +1,10 @@
 import React from "react";
-import { Button, Form, Input, Typography } from "antd";
+import { Button, Form, Input, Typography, message } from "antd";
+import axios from "axios";
+import { firebaseConfig } from "../../../firebaseConfig";
+import { useNavigate } from "react-router-dom";
+
+const { Title } = Typography;
 
 const formItemLayout = {
   labelCol: {
@@ -12,37 +17,89 @@ const formItemLayout = {
   },
 };
 
-const { Title } = Typography;
+const AddLanguage = () => {
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-const AddLanguage = () => (
-  <Form {...formItemLayout} style={{ height: "100vh" }}>
-    <Title level={2}> Add New Technology </Title>{" "}
-    <Form.Item
-      label="TechName"
-      name="techname"
-      rules={[{ required: true, message: "Please input Tech Name!" }]}
+  const handleSubmit = async (values) => {
+    try {
+      await axios.post(
+        `${firebaseConfig.databaseURL}/programmingLanguages.json`,
+        values
+      );
+
+      message.success("Programming Languages added successfully!");
+
+      form.resetFields();
+      navigate("/ViewLanguage");
+    } catch (error) {
+      console.error("Error adding programming languages: ", error);
+      message.error("Failed to add programming languages.");
+    }
+  };
+
+  const handleFailure = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
+
+  return (
+    <Form
+      {...formItemLayout}
+      form={form}
+      onFinish={handleSubmit}
+      onFinishFailed={handleFailure}
+      style={{ height: "100vh" }}
     >
-      <Input />
-    </Form.Item>{" "}
-    <Form.Item
-      label="TechType"
-      name="techtype"
-      rules={[{ required: true, message: "Please input Tech Type!" }]}
-    >
-      <Input />
-    </Form.Item>{" "}
-    <Form.Item label="TechStatus" name="techstatus">
-      <Input />
-    </Form.Item>{" "}
-    <Form.Item label="TechDescription" name="techdescription">
-      <Input />
-    </Form.Item>{" "}
-    <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-      <Button type="primary" htmlType="submit">
-        Submit{" "}
-      </Button>{" "}
-    </Form.Item>{" "}
-  </Form>
-);
+      <Title level={2}> Add New Programing Language </Title>{" "}
+      <Form.Item
+        label="Programming Language Name"
+        name="programingname"
+        rules={[
+          {
+            required: true,
+            message: "Please input Programming Language Name!",
+          },
+        ]}
+      >
+        <Input />
+      </Form.Item>{" "}
+      <Form.Item
+        label="Programming Language Type"
+        name="programingtype"
+        rules={[
+          {
+            required: true,
+            message: "Please input Programming Language Name!",
+          },
+        ]}
+      >
+        <Input />
+      </Form.Item>{" "}
+      <Form.Item
+        label="Programming Language Status"
+        name="programingstatus"
+        rules={[
+          {
+            required: true,
+            message: "Please select Programming Language Name!",
+          },
+        ]}
+      >
+        <Input />
+      </Form.Item>{" "}
+      <Form.Item
+        label="Programming Language Description"
+        name="programingdescription"
+      >
+        <Input />
+      </Form.Item>{" "}
+      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+        <Button type="primary" htmlType="submit">
+          Submit{" "}
+        </Button>{" "}
+      </Form.Item>{" "}
+    </Form>
+  );
+};
 
 export default AddLanguage;

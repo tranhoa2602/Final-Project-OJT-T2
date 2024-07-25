@@ -129,11 +129,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       children: [
         {
           key: "9",
-          label: (
-            <Link to="/../Employee/EmployeeList">
-              Programming Language Info{" "}
-            </Link>
-          ),
+          label: <Link to="/ViewLanguage">Programming Language Info </Link>,
         },
       ],
     },

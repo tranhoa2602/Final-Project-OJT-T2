@@ -17,7 +17,11 @@ function Login({ setUser }) {
       if (storedUser) {
         const user = JSON.parse(storedUser);
         setUser(user);
-        navigate(user.email === "Admin" ? "/admin" : "/employee");
+        navigate(
+          user.email === "admin1@gmail.com"
+            ? "/admin/account-info"
+            : "/employee"
+        );
       }
     } catch (e) {
       console.error("Invalid user data in localStorage:", e);
@@ -31,7 +35,9 @@ function Login({ setUser }) {
     if (user) {
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
-      navigate(user.email === "Admin" ? "/admin" : "/employee");
+      navigate(
+        user.email === "admin1@gmail.com" ? "/admin/account-info" : "/employee"
+      );
     } else {
       setError(error);
     }

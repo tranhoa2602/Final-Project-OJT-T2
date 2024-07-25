@@ -32,7 +32,7 @@ const Main = () => {
         navigate("/");
       }
     }
-  }, [navigate, location.pathname]);
+  }, []);
 
   return (
     <main className="main-content">

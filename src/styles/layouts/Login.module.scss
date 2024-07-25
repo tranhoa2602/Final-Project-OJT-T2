@@ -1,52 +1,101 @@
+body {
+  background-color: #e4e3e3;
+}
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f2f5;
 }
 
 .login-form {
-  background: #fff;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 400px;
-}
+  padding: 20px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-weight: 500;
 
-.header-form {
-  text-align: center;
-  margin-bottom: 24px;
-}
+  .header-form {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
 
-.title {
-  margin-bottom: 0;
-}
-
-.btn-login {
-  background-color: #1890ff;
-  color: white;
-  border: none;
-  height: 40px;
-  font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: #40a9ff;
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1e90ff;
+    }
   }
 
-  &:focus {
-    background-color: #096dd9;
-  }
-}
+  .ant-form-item {
+    margin-bottom: 16px;
 
-.link-forget,
-.link-button {
-  display: block;
-  text-align: center;
-  margin-top: 8px;
-  color: #1890ff;
-  cursor: pointer;
+    input {
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 4px;
+      border: 1px solid #d9d9d9;
+      &:focus {
+        border-color: #1890ff;
+        box-shadow: 0 0 8px rgba(24, 144, 255, 0.2);
+      }
+    }
+  }
+
+  .btn-login {
+    width: 100%;
+    height: 40px;
+    background-color: #0093e9;
+    background-image: linear-gradient(160deg, #0093e9 0%, #80d0c7 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #40a9ff;
+    }
+
+    &:focus {
+      background-color: #096dd9;
+      box-shadow: none;
+    }
+  }
+
+  .link-forget {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    color: #1890ff;
+    font-weight: 450;
+    font-size: 14px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .link-button {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #1890ff;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .ant-alert {
+    margin-bottom: 16px;
+  }
 }

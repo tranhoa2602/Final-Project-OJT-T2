@@ -8,6 +8,10 @@ import ForgetPassword from "../../pages/ForgetPassword";
 import ResetPassword from "../../pages/ResetPassword"; // Import trang ResetPassword
 import Admin from "../../pages/Admin";
 import AdminRoute from "../Admin/AdminRoute";
+import EditEmployee from "../Employee/Employee_Information/EditEmployee";
+import EmployeeList from "../Employee/Employee_Information/EmployeeList";
+import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
+import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -49,6 +53,15 @@ const Main = () => {
             )
           }
         />
+        <Route path="/create" element={<Create />} />
+        <Route path="/edit" element={<EditEmployee></EditEmployee>}></Route>
+        <Route path="/list" element={<EmployeeList></EmployeeList>}></Route>
+        <Route
+          path="/details"
+          element={<EmployeeDetails></EmployeeDetails>}
+        ></Route>
+        <Route path="/employee" element={<div>Employee Dashboard</div>} />
+        <Route path="/exportcv" element={<CVExport></CVExport>}></Route>
         <Route
           path="/create"
           element={user ? <Create /> : <Login setUser={setUser} />}

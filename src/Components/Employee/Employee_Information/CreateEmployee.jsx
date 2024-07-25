@@ -71,11 +71,6 @@ const Create = () => {
         </Button>
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit" onClick={gotoEmployeeList}>
-          Empl. List
-        </Button>
-      </Form.Item>
     </Form>
   );
 };

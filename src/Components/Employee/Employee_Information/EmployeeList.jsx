@@ -1,6 +1,7 @@
 import React from "react";
-import { Space, Table, Tag } from "antd";
-import Password from "antd/es/input/Password";
+import { Space, Table, Tag, Button } from "antd";
+import { exportToPDF } from "./ExportEmployeeList";
+
 const columns = [
   {
     title: "Name",
@@ -78,5 +79,22 @@ const data = [
     roles: ["employee"],
   },
 ];
-const EmployeeList = () => <Table columns={columns} dataSource={data} />;
+const EmployeeList = () => {
+  return (
+    <div>
+      <Button type="primary" htmlType="button" style={{ marginBottom: 16 }}>
+        Add Employee
+      </Button>
+      <Table columns={columns} dataSource={data} id="employee-table" />
+      <Button
+        type="primary"
+        htmlType="button"
+        onClick={() => exportToPDF("employee-table", "employee-list.pdf")}
+        style={{ marginTop: 16 }}
+      >
+        Export to PDF
+      </Button>
+    </div>
+  );
+};
 export default EmployeeList;

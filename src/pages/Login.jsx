@@ -17,7 +17,7 @@ function Login({ setUser }) {
       if (storedUser) {
         const user = JSON.parse(storedUser);
         setUser(user);
-        navigate(user.role === "Admin" ? "/admin" : "/employee");
+        navigate(user.email === "Admin" ? "/admin" : "/employee");
       }
     } catch (e) {
       console.error("Invalid user data in localStorage:", e);
@@ -27,14 +27,12 @@ function Login({ setUser }) {
 
   const handleSubmit = async (values) => {
     const { email, password } = values;
-    const { user, error } = await loginUser(
-      email,
-      password,
-      setUser,
-      setError,
-      navigate
-    );
-    if (!user) {
+    const { user, error } = await loginUser(email, password);
+    if (user) {
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate(user.email === "Admin" ? "/admin" : "/employee");
+    } else {
       setError(error);
     }
   };

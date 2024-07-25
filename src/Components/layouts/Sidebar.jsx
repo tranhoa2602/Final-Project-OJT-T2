@@ -15,7 +15,7 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const { Sider } = Layout;
 
@@ -40,10 +40,11 @@ const buttonStyle = {
   width: "90%",
 };
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -62,21 +63,22 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   const items = [
-    userRole === "Admin" && {
-      key: "sub1",
-      icon: <UserOutlined />,
-      label: "Manage Accounts",
-      children: [
-        {
-          key: "1",
-          label: <Link to="/admin">Account Info</Link>,
-        },
-        {
-          key: "2",
-          label: <Link to="/../Employee/EmployeeList">Reset Password</Link>,
-        },
-      ],
-    },
+    location.pathname === "/admin" &&
+      userRole === "Admin" && {
+        key: "sub1",
+        icon: <UserOutlined />,
+        label: "Manage Accounts",
+        children: [
+          {
+            key: "1",
+            label: <Link to="/admin">Account Info</Link>,
+          },
+          {
+            key: "2",
+            label: <Link to="">Reset Password</Link>,
+          },
+        ],
+      },
     {
       key: "sub2",
       icon: <FundProjectionScreenOutlined />,
@@ -114,7 +116,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       children: [
         {
           key: "7",
-          label: <Link to="/list">Employee Profile</Link>,
+          label: <Link to="create-user">Employee Profile</Link>,
         },
         {
           key: "8",
@@ -140,7 +142,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     {
       key: "12",
       icon: <SolutionOutlined />,
-      label: <Link to="exportcv">CV</Link>,
+      label: <Link to="/../Employee/EmployeeList">CV</Link>,
     },
     {
       key: "13",

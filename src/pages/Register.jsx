@@ -33,7 +33,7 @@ function Register({ setUser }) {
     } else {
       setSuccessMessage("Account created successfully! Redirecting to login.");
       setTimeout(() => {
-        navigate("/"); // Điều hướng về trang đăng nhập sau 2 giây
+        navigate("/");
       }, 1000);
     }
   };

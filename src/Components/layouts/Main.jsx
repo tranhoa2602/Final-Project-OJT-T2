@@ -7,6 +7,7 @@ import AddTech from "../Tech/AddTech";
 import EditTech from "../Tech/EditTech";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
+import ForgetPassword from "../../pages/ForgetPassword"; // Import trang ForgetPassword
 import Admin from "../../pages/Admin";
 import AdminRoute from "../Admin/AdminRoute";
 
@@ -19,11 +20,11 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      if (location.pathname === "/" || location.pathname === "/register") {
-        navigate(storedUser.role === "Admin" ? "/admin" : "/employee");
-      }
     } else {
-      if (location.pathname !== "/register" && location.pathname !== "/") {
+      if (
+        location.pathname !== "/register" &&
+        location.pathname !== "/forget-password"
+      ) {
         navigate("/");
       }
     }
@@ -34,6 +35,7 @@ const Main = () => {
       <Routes>
         <Route path="/" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register setUser={setUser} />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
         <Route
           path="/admin"
           element={

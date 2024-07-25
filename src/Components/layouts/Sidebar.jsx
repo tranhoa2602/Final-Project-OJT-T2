@@ -124,7 +124,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub5",
-      label: "Languages",
+      label: "Programing Languages",
       icon: <GlobalOutlined />,
       children: [
         {

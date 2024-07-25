@@ -1,5 +1,3 @@
-//authService.jsx
-
 import {
   getDatabase,
   ref,
@@ -11,6 +9,7 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
+import { database } from "../../firebaseConfig";
 
 // Hàm cập nhật mật khẩu đã mã hóa cho tất cả người dùng hiện có
 const updateExistingPasswords = async () => {
@@ -54,13 +53,10 @@ export const loginUser = async (
   navigate
 ) => {
   try {
-    const db = getDatabase();
-    const userRef = ref(db, "users");
+    const userRef = ref(database, "users");
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
     const userData = snapshot.val();
-
-    console.log("User Data from DB:", userData); // Console log user data
 
     if (userData) {
       const userId = Object.keys(userData)[0];
@@ -70,15 +66,11 @@ export const loginUser = async (
       const match = await bcrypt.compare(password, user.password);
 
       if (match) {
-        localStorage.setItem("userId", JSON.stringify(user)); // Lưu toàn bộ đối tượng người dùng
+        localStorage.setItem("user", JSON.stringify(user)); // Lưu toàn bộ đối tượng người dùng
         setUser(user);
 
         // Điều hướng dựa trên vai trò người dùng
-        if (user.role === "Admin") {
-          navigate("/account-management");
-        } else {
-          navigate("/employee");
-        }
+        navigate(user.role === "Admin" ? "/admin" : "/employee");
         return { user, error: null };
       } else {
         setError("Invalid password");
@@ -97,6 +89,8 @@ export const loginUser = async (
 
 // Hàm đăng ký người dùng
 export const signUpUser = async (
+  name,
+  phone,
   email,
   password,
   setSuccessMessage,
@@ -108,8 +102,6 @@ export const signUpUser = async (
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
 
-    console.log("Snapshot for Sign Up Check:", snapshot.val()); // Console log snapshot for sign up
-
     if (snapshot.val()) {
       setError("Email already in use");
       return { success: false, error: "Email already in use" };
@@ -120,31 +112,18 @@ export const signUpUser = async (
 
     const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
     const newUser = {
+      name,
+      phone,
       email,
       password: hashedPassword,
-      contact: "",
-      cv_list: [
-        {
-          title: "",
-          description: "",
-          file: "",
-          updatedAt: new Date().toISOString(),
-        },
-      ],
-      role: email === "admin@gmail.com" ? "admin" : "employee",
+      role: "Employee", // Hoặc role dựa trên logic của bạn
       createdAt: new Date().toISOString(),
-      projetcIds: "",
-      skill: "",
-      Status: "",
     };
     await set(newUserRef, newUser);
 
-    console.log("New User Object:", newUser); // Console log the new user object
-
-    setSuccessMessage("Account created successfully! Please log in.");
+    setSuccessMessage("Account created successfully!");
     return { success: true, error: "" };
   } catch (error) {
-    console.error("Error signing up: ", error);
     setError("An error occurred during sign up");
     return { success: false, error: "An error occurred during sign up" };
   }

@@ -8,7 +8,7 @@ function App() {
   const [user, setUser] = useState(null);
   const location = useLocation();
   const showSidebar =
-    location.pathname !== "/Login" && location.pathname !== "/";
+    location.pathname !== "/" && location.pathname !== "/register";
 
   return (
     <>

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from "react";
 import { Route, Routes, useResolvedPath } from "react-router-dom";
 import EmployeeList from "../Components/Employee/Employee_Information/EmployeeList";
@@ -30,7 +29,6 @@ const EmployeeRoutes = () => {
     </Routes>
   );
 };
-=======
 // import React from "react";
 // import { Route, Switch, useRouteMatch } from "react-router-dom";
 // import EmployeeList from "../Components/Employee/Employee_Information/ExportEmployeeList";
@@ -68,6 +66,5 @@ const EmployeeRoutes = () => {
 //     </Switch>
 //   );
 // };
->>>>>>> c7a8476455e6ea5c6a69c4d6d58cccf2e3c3e586
 
-// export default EmployeeRoutes;
+export default EmployeeRoutes;

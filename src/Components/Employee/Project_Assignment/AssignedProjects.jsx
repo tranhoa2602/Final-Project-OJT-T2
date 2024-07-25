@@ -6,16 +6,18 @@ const AssignedProjects = () => {
     const { id } = useParams();
     const [assignedProjects, setAssignedProjects] = useState([]);
 
+    const fetchAssignedProjects = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/assignedProjects?employeeId=${id}`);
+            setAssignedProjects(response.data);
+        } catch (error) {
+            console.error("Error fetching assigned projects:", error);
+        }
+    };
+    //write api for react to crud write by component
+    //Hỏi tạo crud cho project có tính điểm thêm hay không
+    //Hỏi model của user
     useEffect(() => {
-        const fetchAssignedProjects = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5000/assignedProjects?employeeId=${id}`);
-                setAssignedProjects(response.data);
-            } catch (error) {
-                console.error("Error fetching assigned projects:", error);
-            }
-        };
-
         fetchAssignedProjects();
     }, [id]);
 

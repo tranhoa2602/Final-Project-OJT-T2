@@ -80,3 +80,5 @@ const data = [
 ];
 const EmployeeList = () => <Table columns={columns} dataSource={data} />;
 export default EmployeeList;
+
+

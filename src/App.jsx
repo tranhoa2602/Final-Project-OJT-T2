@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Sidebar from "./Components/layouts/Sidebar";
 import Main from "./Components/layouts/Main";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Router, Routes, useLocation } from "react-router-dom";
+
 
 function App() {
   const [user, setUser] = useState(null);

@@ -5,7 +5,7 @@ import Create from "../Employee/Employee_Information/CreateEmployee";
 import Login from "../../pages/Login";
 import Admin from "../../pages/Admin";
 import AdminRoute from "../Admin/AdminRoute";
-
+import Project from '../Project/Project';
 const Main = () => {
   const [user, setUser] = useState(null);
 
@@ -22,6 +22,7 @@ const Main = () => {
           }
         />
         <Route path="/create" element={<Create />} />
+        <Route path="/project" element={<Project />} />
       </Routes>
     </main>
   );

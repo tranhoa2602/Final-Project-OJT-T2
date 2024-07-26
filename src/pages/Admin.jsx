@@ -14,7 +14,7 @@ import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import * as XLSX from "xlsx";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const { Option } = Select;

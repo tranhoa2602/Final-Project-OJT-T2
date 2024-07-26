@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, message, Modal, Select, Pagination } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Pagination,
+  Table,
+  Tag,
+} from "antd";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -20,6 +30,7 @@ function Admin() {
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -192,14 +203,73 @@ function Admin() {
     setCurrentPage(page);
   };
 
-  const paginatedUsers = users.slice(
+  const filteredUsers = users.filter((user) =>
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
-  const changeLanguage = (language) => {
-    i18n.changeLanguage(language);
-  };
+  const columns = [
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      filters: [
+        { text: "Admin", value: "Admin" },
+        { text: "Employee", value: "Employee" },
+      ],
+      onFilter: (value, record) => record.role?.includes(value),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        { text: "Active", value: "active" },
+        { text: "Inactive", value: "inactive" },
+      ],
+      onFilter: (value, record) => record.status?.includes(value),
+      render: (status) =>
+        status ? (
+          <Tag color={status === "active" ? "green" : "red"}>
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Tag>
+        ) : null,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, user) => (
+        <span className={styles["actions"]}>
+          <Button
+            onClick={() => handleEditUser(user)}
+            key="edit"
+            type="primary"
+          >
+            Edit
+          </Button>
+          {!user.isAdmin && (
+            <Button
+              type="danger"
+              onClick={() => handleDeleteUser(user.key)}
+              key="delete"
+            >
+              Delete
+            </Button>
+          )}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className={styles["admin-page"]}>
@@ -218,9 +288,24 @@ function Admin() {
       >
         {t("Export to Excel")}
       </Button>
+      <h2>Current Users</h2>
+      <Input
+        className={styles["search-input"]}
+        placeholder="Search by email"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <Table columns={columns} dataSource={paginatedUsers} pagination={false} />
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={filteredUsers.length}
+        onChange={handlePageChange}
+        className={styles["pagination"]}
+      />
       <Modal
-        title={editMode ? t("Edit User") : t("Add User")}
-        open={modalVisible} // Updated
+        title={editMode ? "Edit User" : "Add User"}
+        open={modalVisible}
         onCancel={handleModalCancel}
         footer={null}
         className={styles["modal"]}
@@ -230,9 +315,9 @@ function Admin() {
           onFinish={handleAddOrUpdateUser}
           initialValues={{
             email: "",
-            role: "employee",
+            role: "Employee",
             status: "active",
-          }} // Add status
+          }}
           layout="vertical"
         >
           <Form.Item
@@ -249,8 +334,8 @@ function Admin() {
             rules={[{ required: true, message: t("Please select a role!") }]}
           >
             <Select>
-              <Option value="employee">{t("Employee")}</Option>
-              <Option value="admin">{t("Admin")}</Option>
+              <Option value="Employee">Employee</Option>
+              <Option value="Admin">Admin</Option>
             </Select>
           </Form.Item>
 
@@ -275,63 +360,6 @@ function Admin() {
           </Form.Item>
         </Form>
       </Modal>
-
-      <h2>{t("Current Users")}</h2>
-      <table className={styles["user-table"]}>
-        <thead>
-          <tr>
-            <th>{t("Email")}</th>
-            <th>{t("Role")}</th>
-            <th>{t("Status")}</th>
-            <th>{t("Actions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedUsers.map((user) => (
-            <tr key={user.key}>
-              <td>{user.email}</td>
-              <td>{t(user.role)}</td>
-              <td>
-                <span
-                  className={
-                    user.status === "active"
-                      ? styles["status-active"]
-                      : styles["status-inactive"]
-                  }
-                >
-                  {user.status === "active" ? t("Active") : t("Inactive")}
-                </span>
-              </td>
-              <td className={styles["actions"]}>
-                <Button
-                  onClick={() => handleEditUser(user)}
-                  key="edit"
-                  type="primary"
-                >
-                  {t("Edit")}
-                </Button>
-                {!user.isAdmin && (
-                  <Button
-                    type="danger"
-                    onClick={() => handleDeleteUser(user.key)}
-                    key="delete"
-                  >
-                    {t("Delete")}
-                  </Button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={users.length}
-        onChange={handlePageChange}
-        className={styles["pagination"]}
-      />
-
     </div>
   );
 }

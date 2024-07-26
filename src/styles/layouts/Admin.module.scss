@@ -118,6 +118,16 @@
     }
   }
 
+  .search-input {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .pagination {
+    margin-top: 20px;
+    text-align: center;
+  }
+
   .user-table {
     width: 100%;
     border-collapse: collapse;
@@ -176,23 +186,6 @@
             background-color: #096dd9;
           }
         }
-      }
-    }
-
-    td {
-      & > span {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: bold;
-        color: white;
-      }
-
-      & > .status-active {
-        background-color: #39d353; /* Neon green */
-      }
-
-      & > .status-inactive {
-        background-color: #ff4d4f; /* Neon red */
       }
     }
   }

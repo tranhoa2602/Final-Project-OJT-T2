@@ -41,6 +41,9 @@ const Main = () => {
       ) {
         navigate(userRolePath);
       }
+    } else {
+      // If there is no stored user, navigate to the login page
+      navigate("/");
     }
   }, []);
 

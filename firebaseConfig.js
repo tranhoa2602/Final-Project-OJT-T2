@@ -17,7 +17,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
+
 const techRef = ref(database, "technologies");
 
 export { database, auth, techRef, firebaseConfig };
 export default app;
+

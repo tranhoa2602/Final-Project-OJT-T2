@@ -9,15 +9,12 @@ import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS mod
 const { Option } = Select;
 
 function Admin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("employee");
+  const [form] = Form.useForm();
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
-  const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
   const navigate = useNavigate();
 
@@ -40,23 +37,12 @@ function Admin() {
 
     fetchUsers();
   }, []);
-  console.log(users);
 
   const handleAddOrUpdateUser = async (values) => {
-    const { email, password, role } = values;
+    const { email, password, role, status } = values; // Thêm trạng thái
 
-    if (!email || !password) {
+    if (!email || (!password && !editMode) || !role || !status) {
       message.error("Please fill in all fields");
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      message.error("Invalid email format");
-      return;
-    }
-
-    if (password.length < 6) {
-      message.error("Password must be at least 6 characters long");
       return;
     }
 
@@ -78,10 +64,10 @@ function Admin() {
           },
         ],
         role,
+        status, // Thêm trạng thái
         createdAt: new Date().toISOString(),
         projetcIds: "",
         skill: "",
-        Status: "",
       };
 
       if (editMode) {
@@ -102,9 +88,7 @@ function Admin() {
         message.success("User added successfully!");
       }
 
-      setEmail("");
-      setPassword("");
-      setRole("employee");
+      form.resetFields();
       setEditMode(false);
       setEditUserKey("");
 
@@ -163,20 +147,21 @@ function Admin() {
   };
 
   const handleEditUser = (user) => {
-    setEmail(user.email);
-    setPassword(user.password);
-    setRole(user.role);
+    form.setFieldsValue({
+      email: user.email,
+      password: user.password,
+      role: user.role,
+      status: user.status,
+    });
     setEditMode(true);
     setEditUserKey(user.key); // Update to setEditUserKey
     setModalVisible(true); // Open modal for editing
   };
 
   const handleModalCancel = () => {
+    form.resetFields();
     setModalVisible(false);
     setEditMode(false);
-    setEmail("");
-    setPassword("");
-    setRole("employee");
   };
 
   const validateEmail = (email) => {
@@ -192,7 +177,7 @@ function Admin() {
         CreatedAt: user.createdAt,
         Contact: user.contact,
         Skills: user.skill,
-        Status: user.Status,
+        Status: user.status,
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -225,8 +210,14 @@ function Admin() {
         className={styles["modal"]}
       >
         <Form
+          form={form}
           onFinish={handleAddOrUpdateUser}
-          initialValues={{ email, password, role }}
+          initialValues={{
+            email: "",
+            password: "",
+            role: "employee",
+            status: "active",
+          }} // Thêm trạng thái
           layout="vertical"
         >
           <Form.Item
@@ -234,38 +225,40 @@ function Admin() {
             name="email"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input />
+          </Form.Item>
+
+          {!editMode && (
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
+            >
+              <Input.Password />
+            </Form.Item>
+          )}
+
+          <Form.Item
+            label="Role"
+            name="role"
+            rules={[{ required: true, message: "Please select a role!" }]}
+          >
+            <Select>
+              <Option value="employee">Employee</Option>
+              <Option value="admin">Admin</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              {
-                min: 6,
-                message: "Password must be at least 6 characters long",
-              },
-            ]}
+            label="Status"
+            name="status"
+            rules={[{ required: true, message: "Please select a status!" }]}
           >
-            <Input.Password
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              iconRender={(visible) => (
-                <Button
-                  type="text"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {visible ? "Hide" : "Show"}
-                </Button>
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item label="Role" name="role">
-            <Select value={role} onChange={(value) => setRole(value)}>
-              <Option value="employee">Employee</Option>
-              <Option value="admin">Admin</Option>
+            <Select>
+              <Option value="active">Active</Option>
+              <Option value="inactive">Inactive</Option>
             </Select>
           </Form.Item>
 
@@ -286,6 +279,7 @@ function Admin() {
           <tr>
             <th>Email</th>
             <th>Role</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -294,6 +288,18 @@ function Admin() {
             <tr key={user.key}>
               <td>{user.email}</td>
               <td>{user.role}</td>
+              <td>
+                <span
+                  className={
+                    user.status === "active"
+                      ? styles["status-active"]
+                      : styles["status-inactive"]
+                  }
+                >
+                  {user.status}
+                </span>
+              </td>{" "}
+              {/* Hiển thị trạng thái */}
               <td className={styles["actions"]}>
                 <Button
                   onClick={() => handleEditUser(user)}

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Typography, Alert } from "antd";
+import { Form, Input, Button, Typography, Alert, Select } from "antd";
 import { signUpUser } from "../service/authService.js";
 import styles from "../styles/layouts/Register.module.scss";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 function Register({ setUser }) {
   const [error, setError] = useState("");
@@ -13,7 +14,7 @@ function Register({ setUser }) {
   const navigate = useNavigate();
 
   const handleSubmit = async (values) => {
-    const { name, phone, email, password, confirmPassword } = values;
+    const { name, phone, email, password, confirmPassword, role } = values;
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -25,6 +26,7 @@ function Register({ setUser }) {
       phone,
       email,
       password,
+      role,
       setSuccessMessage,
       setError
     );
@@ -80,6 +82,15 @@ function Register({ setUser }) {
             ]}
           >
             <Input.Password placeholder="Confirm your password" />
+          </Form.Item>
+          <Form.Item
+            name="role"
+            rules={[{ required: true, message: "Please select your role!" }]}
+          >
+            <Select placeholder="Select a role">
+              <Option value="Employee">Employee</Option>
+              <Option value="Admin">Admin</Option>
+            </Select>
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}
           {successMessage && (

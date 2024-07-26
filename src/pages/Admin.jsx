@@ -20,7 +20,7 @@ import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS mod
 const { Option } = Select;
 
 function Admin() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
@@ -187,11 +187,11 @@ function Admin() {
     const worksheet = XLSX.utils.json_to_sheet(
       users.map((user) => ({
         Email: user.email,
-        Role: user.role,
+        Role: t(user.role),  // Sử dụng dịch ngôn ngữ
         CreatedAt: user.createdAt,
         Contact: user.contact,
         Skills: user.skill,
-        Status: user.status,
+        Status: t(user.status),  // Sử dụng dịch ngôn ngữ
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -214,39 +214,40 @@ function Admin() {
 
   const columns = [
     {
-      title: "Email",
+      title: t("Email"),
       dataIndex: "email",
       key: "email",
       sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
-      title: "Role",
+      title: t("Role"),
       dataIndex: "role",
       key: "role",
       filters: [
-        { text: "Admin", value: "Admin" },
-        { text: "Employee", value: "Employee" },
+        { text: t("Admin"), value: "admin" },
+        { text: t("Employee"), value: "employee" },
       ],
       onFilter: (value, record) => record.role?.includes(value),
+      render: (role) => t(role.charAt(0).toUpperCase() + role.slice(1))
     },
     {
-      title: "Status",
+      title: t("Status"),
       dataIndex: "status",
       key: "status",
       filters: [
-        { text: "Active", value: "active" },
-        { text: "Inactive", value: "inactive" },
+        { text: t("Active"), value: "active" },
+        { text: t("Inactive"), value: "inactive" },
       ],
       onFilter: (value, record) => record.status?.includes(value),
       render: (status) =>
         status ? (
           <Tag color={status === "active" ? "green" : "red"}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {t(status.charAt(0).toUpperCase() + status.slice(1))}
           </Tag>
         ) : null,
     },
     {
-      title: "Actions",
+      title: t("Actions"),
       key: "actions",
       render: (text, user) => (
         <span className={styles["actions"]}>
@@ -255,7 +256,7 @@ function Admin() {
             key="edit"
             type="primary"
           >
-            Edit
+            {t("Edit")}
           </Button>
           {!user.isAdmin && (
             <Button
@@ -263,7 +264,7 @@ function Admin() {
               onClick={() => handleDeleteUser(user.key)}
               key="delete"
             >
-              Delete
+              {t("Delete")}
             </Button>
           )}
         </span>
@@ -288,10 +289,10 @@ function Admin() {
       >
         {t("Export to Excel")}
       </Button>
-      <h2>Current Users</h2>
+      <h2>{t("Current Users")}</h2>
       <Input
         className={styles["search-input"]}
-        placeholder="Search by email"
+        placeholder={t("Search by email")}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -304,7 +305,7 @@ function Admin() {
         className={styles["pagination"]}
       />
       <Modal
-        title={editMode ? "Edit User" : "Add User"}
+        title={editMode ? t("Edit User") : t("Add User")}
         open={modalVisible}
         onCancel={handleModalCancel}
         footer={null}
@@ -334,8 +335,8 @@ function Admin() {
             rules={[{ required: true, message: t("Please select a role!") }]}
           >
             <Select>
-              <Option value="Employee">Employee</Option>
-              <Option value="Admin">Admin</Option>
+              <Option value="employee">{t("Employee")}</Option>
+              <Option value="admin">{t("Admin")}</Option>
             </Select>
           </Form.Item>
 

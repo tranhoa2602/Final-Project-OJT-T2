@@ -94,7 +94,16 @@ i18n
                     'Edit Technology': 'Edit Technology',
                     'Technology updated successfully!': 'Technology updated successfully!',
                     'Failed to update technology.': 'Failed to update technology.',
-
+                    'Please fill in all fields': 'Please fill in all fields',
+                    'Search by email': 'Search by email',
+                    'User updated successfully!': 'User updated successfully!',
+                    'User added successfully!': 'User added successfully!',
+                    'Error adding or updating user': 'Error adding or updating user',
+                    'Cannot delete the only admin user': 'Cannot delete the only admin user',
+                    'Cannot delete an admin user': 'Cannot delete an admin user',
+                    'User deleted successfully!': 'User deleted successfully!',
+                    'Error deleting user': 'Error deleting user',
+                    'Error fetching users': 'Error fetching users'
                 }
             },
             vi: {
@@ -185,10 +194,17 @@ i18n
                     'Failed to add technology.': 'Thêm Công nghệ thất bại.',
                     'Edit Technology': 'Chỉnh sửa Công nghệ',
                     'Technology updated successfully!': 'Cập nhật Công nghệ thành công!',
-                    'Failed to update technology.': 'Cập nhật Công nghệ thất bại.'
-
-
-
+                    'Failed to update technology.': 'Cập nhật Công nghệ thất bại.',
+                    'Please fill in all fields': 'Vui lòng điền vào tất cả các trường',
+                    'Search by email': 'Tìm kiếm theo email',
+                    'User updated successfully!': 'Cập nhật người dùng thành công!',
+                    'User added successfully!': 'Thêm người dùng thành công!',
+                    'Error adding or updating user': 'Lỗi khi thêm hoặc cập nhật người dùng',
+                    'Cannot delete the only admin user': 'Không thể xóa người quản trị duy nhất',
+                    'Cannot delete an admin user': 'Không thể xóa người quản trị',
+                    'User deleted successfully!': 'Xóa người dùng thành công!',
+                    'Error deleting user': 'Lỗi khi xóa người dùng',
+                    'Error fetching users': 'Lỗi khi lấy thông tin người dùng'
                 }
             }
         },

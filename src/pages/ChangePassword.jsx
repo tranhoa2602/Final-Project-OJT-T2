@@ -41,7 +41,7 @@ const ChangePassword = () => {
       setSuccessMessage("Password changed successfully!");
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 1000);
     } catch (error) {
       console.error("Error changing password: ", error);
       setError("Failed to change password. Please try again.");

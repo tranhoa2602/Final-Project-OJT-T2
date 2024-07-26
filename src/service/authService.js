@@ -9,6 +9,7 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
 import { database } from "../../firebaseConfig";
 
 // Hàm cập nhật mật khẩu đã mã hóa cho tất cả người dùng hiện có
@@ -45,15 +46,10 @@ const updateExistingPasswords = async () => {
 };
 
 // Hàm đăng nhập người dùng
-export const loginUser = async (
-  email,
-  password,
-  setUser,
-  setError,
-  navigate
-) => {
+export const loginUser = async (email, password) => {
   try {
-    const userRef = ref(database, "users");
+    const db = getDatabase();
+    const userRef = ref(db, "users");
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
     const userData = snapshot.val();
@@ -66,24 +62,16 @@ export const loginUser = async (
       const match = await bcrypt.compare(password, user.password);
 
       if (match) {
-        localStorage.setItem("user", JSON.stringify(user)); // Lưu toàn bộ đối tượng người dùng
-        setUser(user);
-
-        // Điều hướng dựa trên vai trò người dùng
-        navigate(user.role === "Admin" ? "/admin" : "/employee");
-        return { user, error: null };
+        return { user };
       } else {
-        setError("Invalid password");
-        return { user: null, error: "Invalid password" };
+        return { error: "Invalid password" };
       }
     } else {
-      setError("User not found");
-      return { user: null, error: "User not found" };
+      return { error: "User not found" };
     }
   } catch (error) {
     console.error("Error fetching data: ", error);
-    setError("An error occurred");
-    return { user: null, error: "An error occurred" };
+    return { error: "An error occurred" };
   }
 };
 
@@ -109,9 +97,11 @@ export const signUpUser = async (
 
     // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
+    const userKey = uuidv4(); // Generate new UUID for the user
 
-    const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
+    const newUserRef = ref(db, `users/${userKey}`);
     const newUser = {
+      id: userKey,
       name,
       phone,
       email,

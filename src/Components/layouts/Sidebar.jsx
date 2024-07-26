@@ -40,7 +40,7 @@ const buttonStyle = {
   width: "90%",
 };
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
@@ -124,7 +124,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub5",
-      label: "Programing Languages",
+      label: "Programming Languages",
       icon: <GlobalOutlined />,
       children: [
         {
@@ -134,12 +134,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       ],
     },
     {
-      key: "12",
+      key: "10",
       icon: <SolutionOutlined />,
       label: <Link to="/../Employee/EmployeeList"> CV </Link>,
     },
     {
-      key: "13",
+      key: "11",
       icon: <LogoutOutlined />,
       label: (
         <button

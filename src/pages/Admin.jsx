@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, message, Modal, Select } from "antd";
+import { Button, Form, Input, message, Modal, Select, Pagination } from "antd";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -16,6 +16,8 @@ function Admin() {
   const [editMode, setEditMode] = useState(false);
   const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(6);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -163,6 +165,11 @@ function Admin() {
     setEditMode(false);
   };
 
+  const validateEmail = (email) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+  };
+
   const handleExportExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       users.map((user) => ({
@@ -178,6 +185,15 @@ function Admin() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
     XLSX.writeFile(workbook, "users.xlsx");
   };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const paginatedUsers = users.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <div className={styles["admin-page"]}>
@@ -265,7 +281,7 @@ function Admin() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {paginatedUsers.map((user) => (
             <tr key={user.key}>
               <td>{user.email}</td>
               <td>{user.role}</td>
@@ -302,6 +318,13 @@ function Admin() {
           ))}
         </tbody>
       </table>
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={users.length}
+        onChange={handlePageChange}
+        className={styles["pagination"]}
+      />
     </div>
   );
 }

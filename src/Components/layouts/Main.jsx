@@ -30,22 +30,23 @@ const Main = () => {
     if (storedUser) {
       setUser(storedUser);
       const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
+      if (location.pathname === "/") {
+        navigate(userRolePath);
+      }
+    } else {
+      // If there is no stored user, navigate to the login page
       if (
-        location.pathname === "/" ||
-        [
+        ![
           "/register",
           "/forget-password",
           "/reset-password",
           "/change-password",
         ].includes(location.pathname)
       ) {
-        navigate(userRolePath);
+        navigate("/");
       }
-    } else {
-      // If there is no stored user, navigate to the login page
-      navigate("/");
     }
-  }, []);
+  }, [location.pathname, navigate]);
 
   return (
     <main className="main-content">

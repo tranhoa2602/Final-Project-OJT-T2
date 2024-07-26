@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, message, Modal, Select, Pagination } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Pagination,
+  Table,
+  Tag,
+} from "antd";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -192,13 +202,72 @@ function Admin() {
   };
 
   const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+
+  const columns = [
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      filters: [
+        { text: "Admin", value: "Admin" },
+        { text: "Employee", value: "Employee" },
+      ],
+      onFilter: (value, record) => record.role?.includes(value),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        { text: "Active", value: "active" },
+        { text: "Inactive", value: "inactive" },
+      ],
+      onFilter: (value, record) => record.status?.includes(value),
+      render: (status) =>
+        status ? (
+          <Tag color={status === "active" ? "green" : "red"}>
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Tag>
+        ) : null,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, user) => (
+        <span className={styles["actions"]}>
+          <Button
+            onClick={() => handleEditUser(user)}
+            key="edit"
+            type="primary"
+          >
+            Edit
+          </Button>
+          {!user.isAdmin && (
+            <Button
+              type="danger"
+              onClick={() => handleDeleteUser(user.key)}
+              key="delete"
+            >
+              Delete
+            </Button>
+          )}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div className={styles["admin-page"]}>
@@ -224,53 +293,7 @@ function Admin() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <table className={styles["user-table"]}>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedUsers.map((user) => (
-            <tr key={user.key}>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>
-                <span
-                  className={
-                    user.status === "active"
-                      ? styles["status-active"]
-                      : styles["status-inactive"]
-                  }
-                >
-                  {user.status}
-                </span>
-              </td>
-              <td className={styles["actions"]}>
-                <Button
-                  onClick={() => handleEditUser(user)}
-                  key="edit"
-                  type="primary"
-                >
-                  Edit
-                </Button>
-                {!user.isAdmin && (
-                  <Button
-                    type="danger"
-                    onClick={() => handleDeleteUser(user.key)}
-                    key="delete"
-                  >
-                    Delete
-                  </Button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table columns={columns} dataSource={paginatedUsers} pagination={false} />
       <Pagination
         current={currentPage}
         pageSize={pageSize}
@@ -278,6 +301,63 @@ function Admin() {
         onChange={handlePageChange}
         className={styles["pagination"]}
       />
+      <Modal
+        title={editMode ? "Edit User" : "Add User"}
+        open={modalVisible}
+        onCancel={handleModalCancel}
+        footer={null}
+        className={styles["modal"]}
+      >
+        <Form
+          form={form}
+          onFinish={handleAddOrUpdateUser}
+          initialValues={{
+            email: "",
+            role: "Employee",
+            status: "active",
+          }}
+          layout="vertical"
+        >
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[{ required: true, message: "Please input your email!" }]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Role"
+            name="role"
+            rules={[{ required: true, message: "Please select a role!" }]}
+          >
+            <Select>
+              <Option value="Employee">Employee</Option>
+              <Option value="Admin">Admin</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Status"
+            name="status"
+            rules={[{ required: true, message: "Please select a status!" }]}
+          >
+            <Select>
+              <Option value="active">Active</Option>
+              <Option value="inactive">Inactive</Option>
+            </Select>
+          </Form.Item>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              {editMode ? "Update User" : "Add User"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

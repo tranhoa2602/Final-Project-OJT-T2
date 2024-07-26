@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import "../../styles/layouts/main.css";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import Create from "../Employee/Employee_Information/CreateEmployee";
+import TechList from "../Tech/TechList";
+import AddTech from "../Tech/AddTech";
+import EditTech from "../Tech/EditTech";
+import ViewLanguage from "../Language/ViewLanguage";
+import AddLanguage from "../Language/AddLanguage";
+import EditLanguage from "../Language/EditLanguage";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
 import ForgetPassword from "../../pages/ForgetPassword";
@@ -12,6 +18,7 @@ import EditEmployee from "../Employee/Employee_Information/EditEmployee"; // Imp
 import EmployeeList from "../Employee/Employee_Information/EmployeeList"; // Import trang EmployeeList
 import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails"; // Import trang EmployeeDetails
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV"; // Import trang CVExport
+import ChangePassword from "../../pages/ChangePassword"; // Import Change Password page
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -22,23 +29,23 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      // Check if the current path is not one of the public paths or the appropriate user role path
       const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
       if (
-        location.pathname !== userRolePath &&
-        !["/register", "/forget-password", "/reset-password"].includes(
-          location.pathname
-        )
+        location.pathname === "/" ||
+        [
+          "/register",
+          "/forget-password",
+          "/reset-password",
+          "/change-password",
+        ].includes(location.pathname)
       ) {
-        // No automatic navigation to user role path
+        navigate(userRolePath);
       }
     } else {
-      const publicPaths = ["/register", "/forget-password", "/reset-password"];
-      if (!publicPaths.includes(location.pathname)) {
-        navigate("/");
-      }
+      // If there is no stored user, navigate to the login page
+      navigate("/");
     }
-  }, [navigate, location.pathname]);
+  }, []);
 
   return (
     <main className="main-content">
@@ -65,6 +72,14 @@ const Main = () => {
         <Route path="/details" element={<EmployeeDetails />} />
         <Route path="/employee" element={<div>Employee Dashboard</div>} />
         <Route path="/exportcv" element={<CVExport />} />
+        <Route path="/AddTech" element={<AddTech />} />
+        <Route path="/EditTech/:id" element={<EditTech />} />
+        <Route path="/TechList" element={<TechList />} />
+        <Route path="/AddLanguage" element={<AddLanguage />} />
+        <Route path="/EditLanguage/:id" element={<EditLanguage />} />
+        <Route path="/ViewLanguage" element={<ViewLanguage />} />
+        <Route path="/change-password" element={<ChangePassword />} />{" "}
+        {/* Add Change Password route */}
       </Routes>
     </main>
   );

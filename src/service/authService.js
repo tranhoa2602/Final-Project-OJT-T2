@@ -81,6 +81,7 @@ export const signUpUser = async (
   phone,
   email,
   password,
+  role,
   setSuccessMessage,
   setError
 ) => {
@@ -106,7 +107,8 @@ export const signUpUser = async (
       phone,
       email,
       password: hashedPassword,
-      role: "Employee", // Hoặc role dựa trên logic của bạn
+      role, // role được truyền vào
+      isAdmin: role === "Admin", // Đặt isAdmin thành true nếu role là Admin
       createdAt: new Date().toISOString(),
     };
     await set(newUserRef, newUser);

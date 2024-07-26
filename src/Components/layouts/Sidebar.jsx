@@ -69,7 +69,11 @@ const Sidebar = () => {
       children: [
         {
           key: "1",
-          label: <Link to="/admin">Account Info</Link>,
+          label: <Link to="/admin"> Account Info </Link>,
+        },
+        {
+          key: "2",
+          label: <Link to="/change-password"> Change Password </Link>,
         },
       ],
     },
@@ -80,15 +84,15 @@ const Sidebar = () => {
       children: [
         {
           key: "3",
-          label: <Link to="/projects/info">Project Info</Link>,
+          label: <Link to="/../Employee/EmployeeList"> Project Info </Link>,
         },
         {
           key: "4",
-          label: <Link to="/projects/assign">Assign Employees</Link>,
+          label: <Link to="/../Employee/EmployeeList"> Assign Employees </Link>,
         },
         {
           key: "5",
-          label: <Link to="/projects/tracking">Project Tracking</Link>,
+          label: <Link to="/../Employee/EmployeeList"> Project Tracking </Link>,
         },
       ],
     },
@@ -99,7 +103,7 @@ const Sidebar = () => {
       children: [
         {
           key: "6",
-          label: <Link to="/tech-info">Technology Info</Link>,
+          label: <Link to="/TechList"> Technology Info </Link>,
         },
       ],
     },
@@ -110,11 +114,11 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="/create-user">Employee Profile</Link>,
+          label: <Link to="create-user"> Employee Profile </Link>,
         },
         {
           key: "8",
-          label: <Link to="/employee/assign-project">Assign Project</Link>,
+          label: <Link to="/../Employee/EmployeeList"> Assign Project </Link>,
         },
       ],
     },
@@ -125,14 +129,14 @@ const Sidebar = () => {
       children: [
         {
           key: "9",
-          label: <Link to="/languages/info">Programming Language Info</Link>,
+          label: <Link to="/ViewLanguage">Programming Language Info </Link>,
         },
       ],
     },
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/cv">CV</Link>,
+      label: <Link to="/../Employee/EmployeeList"> CV </Link>,
     },
     {
       key: "11",
@@ -147,7 +151,7 @@ const Sidebar = () => {
             cursor: "pointer",
           }}
         >
-          Logout
+          Logout{" "}
         </button>
       ),
     },
@@ -168,11 +172,12 @@ const Sidebar = () => {
           mode="inline"
           theme="dark"
           items={items}
-        />
+        />{" "}
         <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </Button>
-      </Sider>
+          {" "}
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}{" "}
+        </Button>{" "}
+      </Sider>{" "}
     </Layout>
   );
 };

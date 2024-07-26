@@ -21,5 +21,9 @@ const database = getDatabase(app);
 const techRef = ref(database, "technologies");
 
 export { database, auth, techRef, firebaseConfig };
+<<<<<<< HEAD
 export default app;
 
+=======
+export default app;
+>>>>>>> e92ce5b0172705b58e0693095b58f7bc54f306e4

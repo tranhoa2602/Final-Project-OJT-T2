@@ -1,0 +1,166 @@
+.admin-page {
+  padding: 20px;
+
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .add-user-button {
+    display: flex; /* Sử dụng Flexbox */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin: 0 auto 20px;
+    font-size: 16px;
+    padding: 12px 24px; /* Tăng kích thước padding */
+    background-color: #4caf50; /* Màu xanh lá cây */
+    color: white;
+    border: none;
+    border-radius: 25px; /* Bo góc tròn */
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng */
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+
+    &:hover {
+      background-color: #45a049; /* Màu xanh lá cây khi di chuột */
+      transform: scale(1.05);
+      box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15); /* Hiệu ứng bóng khi di chuột */
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:active {
+      background-color: #388e3c; /* Màu xanh lá cây đậm khi nhấn */
+      transform: scale(0.95);
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Giảm hiệu ứng bóng khi nhấn */
+    }
+  }
+
+  .modal {
+    .ant-modal-header {
+      background-color: #f0f0f0;
+    }
+
+    .ant-modal-title {
+      color: #333;
+    }
+
+    .ant-modal-close-x {
+      color: #999;
+    }
+
+    .ant-form {
+      .ant-form-item {
+        margin-bottom: 16px;
+
+        label {
+          font-weight: bold;
+        }
+
+        input,
+        .ant-input-password {
+          height: 40px;
+          border-radius: 4px;
+        }
+
+        .ant-btn-text {
+          margin-left: 10px;
+        }
+      }
+
+      .ant-form-item-control-input-content {
+        display: flex;
+        align-items: center;
+
+        .ant-btn-text {
+          margin-left: 10px;
+        }
+      }
+
+      .ant-btn-primary {
+        width: 100%;
+        height: 40px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #1890ff;
+        border-color: #1890ff;
+
+        &:hover {
+          background-color: #40a9ff;
+          border-color: #40a9ff;
+        }
+
+        &:focus {
+          background-color: #096dd9;
+          border-color: #096dd9;
+        }
+      }
+    }
+  }
+
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+
+      .ant-btn {
+        margin: 0;
+        font-size: 14px;
+        padding: 6px 12px;
+
+        &-danger {
+          background-color: #ff4d4f;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #ff7875;
+          }
+
+          &:focus {
+            background-color: #d9363e;
+          }
+        }
+
+        &-primary {
+          background-color: #1890ff;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #40a9ff;
+          }
+
+          &:focus {
+            background-color: #096dd9;
+          }
+        }
+      }
+    }
+  }
+}

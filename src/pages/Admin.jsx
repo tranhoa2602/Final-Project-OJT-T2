@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Button, Form, Input, message, Modal, Select } from "antd";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import * as XLSX from "xlsx";
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
-import { v4 as uuidv4 } from "uuid"; // Import UUID library for generating unique IDs
 
 const { Option } = Select;
 
@@ -183,6 +184,22 @@ function Admin() {
     return re.test(String(email).toLowerCase());
   };
 
+  const handleExportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      users.map((user) => ({
+        Email: user.email,
+        Role: user.role,
+        CreatedAt: user.createdAt,
+        Contact: user.contact,
+        Skills: user.skill,
+        Status: user.Status,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users.xlsx");
+  };
+
   return (
     <div className={styles["admin-page"]}>
       <h1>Admin Page</h1>
@@ -192,6 +209,13 @@ function Admin() {
         className={styles["add-user-button"]}
       >
         Add User
+      </Button>
+      <Button
+        type="primary"
+        onClick={handleExportExcel}
+        className={styles["export-button"]}
+      >
+        Export to Excel
       </Button>
       <Modal
         title={editMode ? "Edit User" : "Add User"}
@@ -211,6 +235,31 @@ function Admin() {
             rules={[{ required: true, message: "Please input your email!" }]}
           >
             <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              { required: true, message: "Please input your password!" },
+              {
+                min: 6,
+                message: "Password must be at least 6 characters long",
+              },
+            ]}
+          >
+            <Input.Password
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              iconRender={(visible) => (
+                <Button
+                  type="text"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {visible ? "Hide" : "Show"}
+                </Button>
+              )}
+            />
           </Form.Item>
 
           <Form.Item label="Role" name="role">

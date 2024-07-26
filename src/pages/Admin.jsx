@@ -18,6 +18,7 @@ function Admin() {
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -190,7 +191,11 @@ function Admin() {
     setCurrentPage(page);
   };
 
-  const paginatedUsers = users.slice(
+  const filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
@@ -212,65 +217,13 @@ function Admin() {
       >
         Export to Excel
       </Button>
-      <Modal
-        title={editMode ? "Edit User" : "Add User"}
-        open={modalVisible} // Updated
-        onCancel={handleModalCancel}
-        footer={null}
-        className={styles["modal"]}
-      >
-        <Form
-          form={form}
-          onFinish={handleAddOrUpdateUser}
-          initialValues={{
-            email: "",
-            role: "employee",
-            status: "active",
-          }} // Add status
-          layout="vertical"
-        >
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: "Please input your email!" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Role"
-            name="role"
-            rules={[{ required: true, message: "Please select a role!" }]}
-          >
-            <Select>
-              <Option value="employee">Employee</Option>
-              <Option value="admin">Admin</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Status"
-            name="status"
-            rules={[{ required: true, message: "Please select a status!" }]}
-          >
-            <Select>
-              <Option value="active">Active</Option>
-              <Option value="inactive">Inactive</Option>
-            </Select>
-          </Form.Item>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              {editMode ? "Update User" : "Add User"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
-
       <h2>Current Users</h2>
+      <Input
+        className={styles["search-input"]}
+        placeholder="Search by email"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       <table className={styles["user-table"]}>
         <thead>
           <tr>
@@ -321,7 +274,7 @@ function Admin() {
       <Pagination
         current={currentPage}
         pageSize={pageSize}
-        total={users.length}
+        total={filteredUsers.length}
         onChange={handlePageChange}
         className={styles["pagination"]}
       />

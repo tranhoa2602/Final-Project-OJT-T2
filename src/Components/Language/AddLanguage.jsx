@@ -3,6 +3,7 @@ import { Button, Form, Input, Typography, message } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
 
@@ -18,6 +19,7 @@ const formItemLayout = {
 };
 
 const AddLanguage = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -28,13 +30,13 @@ const AddLanguage = () => {
         values
       );
 
-      message.success("Programming Languages added successfully!");
+      message.success(t("Programming Languages added successfully!"));
 
       form.resetFields();
       navigate("/ViewLanguage");
     } catch (error) {
       console.error("Error adding programming languages: ", error);
-      message.error("Failed to add programming languages.");
+      message.error(t("Failed to add programming languages."));
     }
   };
 
@@ -50,54 +52,54 @@ const AddLanguage = () => {
       onFinishFailed={handleFailure}
       style={{ height: "100vh" }}
     >
-      <Title level={2}> Add New Programing Language </Title>{" "}
+      <Title level={2}>{t("Add New Programming Language")}</Title>
       <Form.Item
-        label="Programming Language Name"
+        label={t("Programming Language Name")}
         name="programingname"
         rules={[
           {
             required: true,
-            message: "Please input Programming Language Name!",
+            message: t("Please input Programming Language Name!"),
           },
         ]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
-        label="Programming Language Type"
+        label={t("Programming Language Type")}
         name="programingtype"
         rules={[
           {
             required: true,
-            message: "Please input Programming Language Name!",
+            message: t("Please input Programming Language Type!"),
           },
         ]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
-        label="Programming Language Status"
+        label={t("Programming Language Status")}
         name="programingstatus"
         rules={[
           {
             required: true,
-            message: "Please select Programming Language Name!",
+            message: t("Please select Programming Language Status!"),
           },
         ]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
-        label="Programming Language Description"
+        label={t("Programming Language Description")}
         name="programingdescription"
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit{" "}
-        </Button>{" "}
-      </Form.Item>{" "}
+          {t("Submit")}
+        </Button>
+      </Form.Item>
     </Form>
   );
 };

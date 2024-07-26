@@ -3,6 +3,7 @@ import { Button, Form, Input, Typography, message } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
 
@@ -18,6 +19,7 @@ const formItemLayout = {
 };
 
 const EditLanguage = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -33,12 +35,12 @@ const EditLanguage = () => {
         form.setFieldsValue(response.data);
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
-        message.error("Failed to fetch Programming Languages.");
+        message.error(t("Failed to fetch programmingLanguages."));
       }
     };
 
     fetchTech();
-  }, [id, form]);
+  }, [id, form, t]);
 
   const handleSubmit = async (values) => {
     try {
@@ -46,11 +48,11 @@ const EditLanguage = () => {
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
         values
       );
-      message.success("Programming Languages updated successfully!");
+      message.success(t("Programming Languages updated successfully!"));
       navigate("/ViewLanguage");
     } catch (error) {
       console.error("Error updating Programming Languages: ", error);
-      message.error("Failed to update Programming Languages.");
+      message.error(t("Failed to update Programming Languages."));
     }
   };
 
@@ -67,54 +69,54 @@ const EditLanguage = () => {
       style={{ height: "100vh" }}
       initialValues={initialValues}
     >
-      <Title level={2}> Edit Programming Languages </Title>{" "}
+      <Title level={2}>{t("Edit Programming Languages")}</Title>
       <Form.Item
-        label="Programming Languages Name"
+        label={t("Programming Language Name")}
         name="programingname"
         rules={[
           {
             required: true,
-            message: "Please input Programming Languages Name!",
+            message: t("Please input Programming Language Name!"),
           },
         ]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
-        label="Programming Languages Type"
+        label={t("Programming Language Type")}
         name="programingtype"
         rules={[
           {
             required: true,
-            message: "Please input Programming Languages Type!",
+            message: t("Please input Programming Language Type!"),
           },
         ]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
-        label="Programming Languages Status"
+        label={t("Programming Language Status")}
         name="programingstatus"
         rules={[
           {
             required: true,
-            message: "Please select Programming Languages Status!",
+            message: t("Please select Programming Language Status!"),
           },
         ]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
-        label="Programming Languages Description"
+        label={t("Programming Language Description")}
         name="programingdescription"
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit{" "}
-        </Button>{" "}
-      </Form.Item>{" "}
+          {t("Submit")}
+        </Button>
+      </Form.Item>
     </Form>
   );
 };

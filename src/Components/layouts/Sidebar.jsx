@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n'; // Đảm bảo đường dẫn này đúng
 import "../../styles/layouts/Sidebar.scss";
@@ -34,11 +34,33 @@ const layoutStyle = {
   maxWidth: "calc(100% - 8px)",
 };
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const buttonStyle = {
+  position: "absolute",
+  bottom: 16,
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "90%",
+};
+
+const Sidebar = () => {
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const navigate = useNavigate();
 
-  const toggleCollapsed = () => {
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUserRole(storedUser.role);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
+  const toggleCollapse = () => {
     setCollapsed(!collapsed);
   };
 
@@ -47,28 +69,24 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   const items = [
-    {
+    userRole === "Admin" && {
       key: "sub1",
-      icon: <PieChartOutlined />,
+      icon: <UserOutlined />,
       label: t('Manage Accounts'),
       children: [
         {
           key: "1",
-          label: (
-            <Link to="../Employee/Employee_Information/CreateEmployee">
-              {t('Account Info')}
-            </Link>
-          ),
+          label: <Link to="/admin">{t('Account Info')}</Link>,
         },
         {
           key: "2",
-          label: <Link to="/../Employee/EmployeeList">{t('Reset Password')}</Link>,
+          label: <Link to="/change-password">{t('Reset Password')}</Link>,
         },
       ],
     },
     {
       key: "sub2",
-      icon: <DesktopOutlined />,
+      icon: <FundProjectionScreenOutlined />,
       label: t('Manage Projects'),
       children: [
         {
@@ -87,23 +105,23 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub3",
-      icon: <ContainerOutlined />,
+      icon: <DeploymentUnitOutlined />,
       label: t('Technology'),
       children: [
         {
           key: "6",
-          label: <Link to="/../Employee/EmployeeList">{t('Technology Info')}</Link>,
+          label: <Link to="/TechList">{t('Technology Info')}</Link>,
         },
       ],
     },
     {
       key: "sub4",
-      icon: <MailOutlined />,
       label: t('Employee'),
+      icon: <TeamOutlined />,
       children: [
         {
           key: "7",
-          label: <Link to="/../Employee/EmployeeDetails">{t('Employee Profile')}</Link>,
+          label: <Link to="create-user">{t('Employee Profile')}</Link>,
         },
         {
           key: "8",
@@ -113,70 +131,68 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       key: "sub5",
-      icon: <AppstoreOutlined />,
       label: t('Languages'),
+      icon: <GlobalOutlined />,
       children: [
         {
           key: "9",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t('Programming Language Info')}</Link>
-          ),
+          label: <Link to="/ViewLanguage">{t('Programming Language Info')}</Link>,
         },
       ],
     },
     {
-      key: 'sub6',
-      icon: <ContainerOutlined />,
-      label: t('Translate'),
-      children: [
-        {
-          key: '10',
-          label: (
-            <div className="language-button" onClick={() => changeLanguage('vi')}>
-              {t('Vietnamese')}
-            </div>
-          ),
-        },
-        {
-          key: '11',
-          label: (
-            <div className="language-button" onClick={() => changeLanguage('en')}>
-              {t('English')}
-            </div>
-          ),
-        },
-      ],
-    },
-    {
-      key: "12",
-      icon: <ContainerOutlined />,
+      key: "10",
+      icon: <SolutionOutlined />,
       label: <Link to="/../Employee/EmployeeList">{t('CV')}</Link>,
     },
-  ];
+    {
+      key: "11",
+      icon: <LogoutOutlined />,
+      label: (
+        <button
+          onClick={handleLogout}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          {t('Logout')}
+        </button>
+      ),
+    },
+  ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
   return (
-    <Flex gap="middle" wrap>
-      <Layout style={layoutStyle}>
-        <Sider
-          width="20%"
-          style={siderStyle}
-          collapsible
-          collapsed={collapsed}
-          onCollapse={toggleCollapsed}
-        >
-          <Menu
-            defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
-            mode="inline"
-            theme="dark"
-            items={items}
-          />
-        </Sider>
-        <Content style={contentStyle}>
-          <Main />
-        </Content>
-      </Layout>
-    </Flex>
+    <Layout style={layoutStyle}>
+      <Sider
+        width="15%"
+        style={siderStyle}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={toggleCollapse}
+      >
+        <Menu
+          defaultSelectedKeys={["1"]}
+          defaultOpenKeys={["sub1"]}
+          mode="inline"
+          theme="dark"
+          items={items}
+        />
+        <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </Button>
+        <div style={{ textAlign: "center", padding: "10px 0" }}>
+          <Button onClick={() => changeLanguage('vi')} style={{ marginRight: 10 }}>
+            {t('Vietnamese')}
+          </Button>
+          <Button onClick={() => changeLanguage('en')}>
+            {t('English')}
+          </Button>
+        </div>
+      </Sider>
+    </Layout>
   );
 };
 

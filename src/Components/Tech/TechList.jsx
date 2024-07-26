@@ -3,8 +3,10 @@ import { Space, Table, Button, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
+import { useTranslation } from "react-i18next";
 
 const TechList = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
@@ -24,55 +26,55 @@ const TechList = () => {
         setData(techList);
       } catch (error) {
         console.error("Error fetching technologies: ", error);
-        message.error("Failed to fetch technologies.");
+        message.error(t("Failed to fetch technologies."));
       }
     };
 
     fetchData();
-  }, []);
+  }, [t]);
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`
       );
-      message.success("Technology deleted successfully!");
+      message.success(t("Technology deleted successfully!"));
       setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting technology: ", error);
-      message.error("Failed to delete technology.");
+      message.error(t("Failed to delete technology."));
     }
   };
 
   const columns = [
     {
-      title: "Name",
+      title: t("Tech Name"),
       dataIndex: "techname",
       key: "techname",
-      render: (text) => <a> {text} </a>,
+      render: (text) => <a>{text}</a>,
     },
     {
-      title: "Type",
+      title: t("Tech Type"),
       dataIndex: "techtype",
       key: "techtype",
     },
     {
-      title: "Status",
+      title: t("Tech Status"),
       dataIndex: "techstatus",
       key: "techstatus",
     },
     {
-      title: "Description",
+      title: t("Tech Description"),
       dataIndex: "techdescription",
       key: "techdescription",
     },
     {
-      title: "Action",
+      title: t("Action"),
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditTech/${record.id}`}> Edit </Link>{" "}
-          <a onClick={() => handleDelete(record.id)}> Delete </a>{" "}
+          <Link to={`/EditTech/${record.id}`}>{t("Edit")}</Link>
+          <a onClick={() => handleDelete(record.id)}>{t("Delete")}</a>
         </Space>
       ),
     },
@@ -85,8 +87,8 @@ const TechList = () => {
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddTech")}
       >
-        Add Tech{" "}
-      </Button>{" "}
+        {t("Add Tech")}
+      </Button>
       <Table columns={columns} dataSource={data} rowKey="id" />
     </>
   );

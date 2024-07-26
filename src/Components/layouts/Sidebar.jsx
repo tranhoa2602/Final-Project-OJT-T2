@@ -73,7 +73,7 @@ const Sidebar = () => {
         },
         {
           key: "2",
-          label: <Link to="/../Employee/EmployeeList"> Reset Password </Link>,
+          label: <Link to="/change-password"> Change Password </Link>,
         },
       ],
     },

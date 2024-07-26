@@ -22,19 +22,16 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      // Check if the current path is not one of the public paths or the appropriate user role path
       const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
+      if (location.pathname === "/") {
+        navigate(userRolePath);
+      }
+    } else {
       if (
-        location.pathname !== userRolePath &&
         !["/register", "/forget-password", "/reset-password"].includes(
           location.pathname
         )
       ) {
-        // No automatic navigation to user role path
-      }
-    } else {
-      const publicPaths = ["/register", "/forget-password", "/reset-password"];
-      if (!publicPaths.includes(location.pathname)) {
         navigate("/");
       }
     }

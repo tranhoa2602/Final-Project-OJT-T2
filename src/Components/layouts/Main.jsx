@@ -45,7 +45,7 @@ const Main = () => {
       // If there is no stored user, navigate to the login page
       navigate("/");
     }
-  }, []);
+  }, [navigate, location.pathname]);
 
   return (
     <main className="main-content">

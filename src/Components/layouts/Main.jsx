@@ -32,18 +32,17 @@ const Main = () => {
       const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
       if (
         location.pathname === "/" ||
-        ["/register", "/forget-password", "/reset-password"].includes(
-          location.pathname
-        )
+        [
+          "/register",
+          "/forget-password",
+          "/reset-password",
+          "/change-password",
+        ].includes(location.pathname)
       ) {
         navigate(userRolePath);
       }
-    } else {
-      if (location.pathname !== "/") {
-        navigate("/");
-      }
     }
-  }, [navigate, location.pathname]);
+  }, []);
 
   return (
     <main className="main-content">

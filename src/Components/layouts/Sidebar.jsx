@@ -110,7 +110,7 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="/create-user">Employee Profile</Link>,
+          label: <Link to="/list">Employee Profile</Link>,
         },
         {
           key: "8",

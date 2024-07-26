@@ -39,9 +39,9 @@ function Admin() {
   }, []);
 
   const handleAddOrUpdateUser = async (values) => {
-    const { email, password, role, status } = values; // Thêm trạng thái
+    const { email, role, status } = values; // Remove password from the required fields
 
-    if (!email || (!password && !editMode) || !role || !status) {
+    if (!email || !role || !status) {
       message.error("Please fill in all fields");
       return;
     }
@@ -53,7 +53,6 @@ function Admin() {
       let userData = {
         id: userKey,
         email,
-        password,
         contact: "",
         cv_list: [
           {
@@ -64,7 +63,7 @@ function Admin() {
           },
         ],
         role,
-        status, // Thêm trạng thái
+        status, // Add status
         createdAt: new Date().toISOString(),
         projetcIds: "",
         skill: "",
@@ -104,6 +103,7 @@ function Admin() {
       }
     } catch (error) {
       message.error("Error adding or updating user");
+      console.error("Error adding or updating user: ", error);
     }
   };
 
@@ -149,7 +149,6 @@ function Admin() {
   const handleEditUser = (user) => {
     form.setFieldsValue({
       email: user.email,
-      password: user.password,
       role: user.role,
       status: user.status,
     });
@@ -162,11 +161,6 @@ function Admin() {
     form.resetFields();
     setModalVisible(false);
     setEditMode(false);
-  };
-
-  const validateEmail = (email) => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(String(email).toLowerCase());
   };
 
   const handleExportExcel = () => {
@@ -214,10 +208,9 @@ function Admin() {
           onFinish={handleAddOrUpdateUser}
           initialValues={{
             email: "",
-            password: "",
             role: "employee",
             status: "active",
-          }} // Thêm trạng thái
+          }} // Add status
           layout="vertical"
         >
           <Form.Item
@@ -227,18 +220,6 @@ function Admin() {
           >
             <Input />
           </Form.Item>
-
-          {!editMode && (
-            <Form.Item
-              label="Password"
-              name="password"
-              rules={[
-                { required: true, message: "Please input your password!" },
-              ]}
-            >
-              <Input.Password />
-            </Form.Item>
-          )}
 
           <Form.Item
             label="Role"
@@ -298,8 +279,7 @@ function Admin() {
                 >
                   {user.status}
                 </span>
-              </td>{" "}
-              {/* Hiển thị trạng thái */}
+              </td>
               <td className={styles["actions"]}>
                 <Button
                   onClick={() => handleEditUser(user)}

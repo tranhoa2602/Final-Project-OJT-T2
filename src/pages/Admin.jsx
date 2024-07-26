@@ -1,23 +1,23 @@
-// admin.jsx
-
-import { Button, Form, Input, List, message, Modal, Select } from "antd";
-import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import React, { useEffect, useState } from "react";
+import { Button, Form, Input, message, Modal, Select, Pagination } from "antd";
+import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import * as XLSX from "xlsx";
+import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
 
 function Admin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("employee");
+  const [form] = Form.useForm();
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
-  const [editUserEmail, setEditUserEmail] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
   const [modalVisible, setModalVisible] = useState(false); // For modal visibility
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(6);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +28,9 @@ function Admin() {
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         if (userData) {
-          setUsers(Object.values(userData));
+          setUsers(
+            Object.entries(userData).map(([key, user]) => ({ ...user, key }))
+          );
         }
       } catch (error) {
         message.error("Error fetching users");
@@ -38,37 +40,21 @@ function Admin() {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser && currentUser.role !== "admin") {
-      navigate("/employee");
-    }
-  }, [navigate]);
-
   const handleAddOrUpdateUser = async (values) => {
-    const { email, password, role } = values;
+    const { email, role, status } = values; // Remove password from the required fields
 
-    if (!email || !password) {
+    if (!email || !role || !status) {
       message.error("Please fill in all fields");
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      message.error("Invalid email format");
-      return;
-    }
-
-    if (password.length < 6) {
-      message.error("Password must be at least 6 characters long");
       return;
     }
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${email.replace(".", ",")}`);
+      const userKey = editMode ? editUserKey : uuidv4(); // Generate new key if not in edit mode
+      const userRef = ref(db, `users/${userKey}`);
       let userData = {
+        id: userKey,
         email,
-        password,
         contact: "",
         cv_list: [
           {
@@ -79,10 +65,10 @@ function Admin() {
           },
         ],
         role,
+        status, // Add status
         createdAt: new Date().toISOString(),
         projetcIds: "",
         skill: "",
-        Status: "",
       };
 
       if (editMode) {
@@ -103,26 +89,30 @@ function Admin() {
         message.success("User added successfully!");
       }
 
-      setEmail("");
-      setPassword("");
-      setRole("employee");
+      form.resetFields();
       setEditMode(false);
-      setEditUserEmail("");
+      setEditUserKey("");
 
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
       if (updatedUserData) {
-        setUsers(Object.values(updatedUserData));
+        setUsers(
+          Object.entries(updatedUserData).map(([key, user]) => ({
+            ...user,
+            key,
+          }))
+        );
       }
     } catch (error) {
       message.error("Error adding or updating user");
+      console.error("Error adding or updating user: ", error);
     }
   };
 
-  const handleDeleteUser = async (userEmail) => {
+  const handleDeleteUser = async (userKey) => {
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${userEmail.replace(".", ",")}`);
+      const userRef = ref(db, `users/${userKey}`);
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
@@ -144,7 +134,12 @@ function Admin() {
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
       if (updatedUserData) {
-        setUsers(Object.values(updatedUserData));
+        setUsers(
+          Object.entries(updatedUserData).map(([key, user]) => ({
+            ...user,
+            key,
+          }))
+        );
       } else {
         setUsers([]);
       }
@@ -154,20 +149,20 @@ function Admin() {
   };
 
   const handleEditUser = (user) => {
-    setEmail(user.email);
-    setPassword(user.password);
-    setRole(user.role);
+    form.setFieldsValue({
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    });
     setEditMode(true);
-    setEditUserEmail(user.email);
+    setEditUserKey(user.key); // Update to setEditUserKey
     setModalVisible(true); // Open modal for editing
   };
 
   const handleModalCancel = () => {
+    form.resetFields();
     setModalVisible(false);
     setEditMode(false);
-    setEmail("");
-    setPassword("");
-    setRole("employee");
   };
 
   const validateEmail = (email) => {
@@ -175,21 +170,63 @@ function Admin() {
     return re.test(String(email).toLowerCase());
   };
 
+  const handleExportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      users.map((user) => ({
+        Email: user.email,
+        Role: user.role,
+        CreatedAt: user.createdAt,
+        Contact: user.contact,
+        Skills: user.skill,
+        Status: user.status,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users.xlsx");
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const paginatedUsers = users.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
-    <div>
+    <div className={styles["admin-page"]}>
       <h1>Admin Page</h1>
-      <Button type="primary" onClick={() => setModalVisible(true)}>
+      <Button
+        type="primary"
+        onClick={() => setModalVisible(true)}
+        className={styles["add-user-button"]}
+      >
         Add User
+      </Button>
+      <Button
+        type="primary"
+        onClick={handleExportExcel}
+        className={styles["export-button"]}
+      >
+        Export to Excel
       </Button>
       <Modal
         title={editMode ? "Edit User" : "Add User"}
         open={modalVisible} // Updated
         onCancel={handleModalCancel}
         footer={null}
+        className={styles["modal"]}
       >
         <Form
+          form={form}
           onFinish={handleAddOrUpdateUser}
-          initialValues={{ email, password, role }}
+          initialValues={{
+            email: "",
+            role: "employee",
+            status: "active",
+          }} // Add status
           layout="vertical"
         >
           <Form.Item
@@ -197,42 +234,28 @@ function Admin() {
             name="email"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input
-              disabled={editMode}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <Input />
           </Form.Item>
 
           <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              {
-                min: 6,
-                message: "Password must be at least 6 characters long",
-              },
-            ]}
+            label="Role"
+            name="role"
+            rules={[{ required: true, message: "Please select a role!" }]}
           >
-            <Input.Password
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              iconRender={(visible) => (
-                <Button
-                  type="text"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {visible ? "Hide" : "Show"}
-                </Button>
-              )}
-            />
-          </Form.Item>
-
-          <Form.Item label="Role" name="role">
-            <Select value={role} onChange={(value) => setRole(value)}>
+            <Select>
               <Option value="employee">Employee</Option>
               <Option value="admin">Admin</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Status"
+            name="status"
+            rules={[{ required: true, message: "Please select a status!" }]}
+          >
+            <Select>
+              <Option value="active">Active</Option>
+              <Option value="inactive">Inactive</Option>
             </Select>
           </Form.Item>
 
@@ -248,28 +271,59 @@ function Admin() {
       </Modal>
 
       <h2>Current Users</h2>
-      <List
-        dataSource={users}
-        renderItem={(user) => (
-          <List.Item
-            actions={[
-              <Button onClick={() => handleEditUser(user)} key="edit">
-                Edit
-              </Button>,
-              !user.isAdmin && (
-                <Button
-                  type="danger"
-                  onClick={() => handleDeleteUser(user.email)}
-                  key="delete"
+      <table className={styles["user-table"]}>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedUsers.map((user) => (
+            <tr key={user.key}>
+              <td>{user.email}</td>
+              <td>{user.role}</td>
+              <td>
+                <span
+                  className={
+                    user.status === "active"
+                      ? styles["status-active"]
+                      : styles["status-inactive"]
+                  }
                 >
-                  Delete
+                  {user.status}
+                </span>
+              </td>
+              <td className={styles["actions"]}>
+                <Button
+                  onClick={() => handleEditUser(user)}
+                  key="edit"
+                  type="primary"
+                >
+                  Edit
                 </Button>
-              ),
-            ]}
-          >
-            {user.email} - {user.role}
-          </List.Item>
-        )}
+                {!user.isAdmin && (
+                  <Button
+                    type="danger"
+                    onClick={() => handleDeleteUser(user.key)}
+                    key="delete"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Pagination
+        current={currentPage}
+        pageSize={pageSize}
+        total={users.length}
+        onChange={handlePageChange}
+        className={styles["pagination"]}
       />
     </div>
   );

@@ -7,14 +7,17 @@
   background-color: #000;
 }
 
-/* src/Sidebar.scss */
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .sidebar {
   position: fixed;
   width: 25%;
   left: 0;
   top: 0;
   height: 100vh;
-  /* background-color: aquamarine; */
 
   &.open {
     left: 0;
@@ -92,8 +95,7 @@
       }
 
       &.expanded {
-        max-height: 500px;
-        /* Arbitrary large value to allow full expansion */
+        max-height: 500px; // Arbitrary large value to allow full expansion
       }
     }
   }

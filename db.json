@@ -1,74 +1,74 @@
 {
-  "positions": [
+  "users": [
     {
-      "description": "",
+      "id": "",
+      "isAdmin": true,
+      "name": "Admin User",
+      "email": "",
+      "password": "",
+      "role": "Admin"
+    },
+    {
+      "id": "",
+      "isAdmin": false,
+      "name": "",
+      "phone": "",
+      "email": "",
+      "password": "",
+      "role": "Employee",
+      "status": "Available",
+      "positionId": 1,
+      "projectIds": [1],
+      "skills": "",
+      "contact": "",
+      "cv_list": [
+        {
+          "cv_skill": "",
+          "cv_experience": [
+            {
+              "work_position": "",
+              "time_work": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
       "id": "",
       "name": "",
+      "description": "",
+      "startDate": "",
+      "finishDate": "",
+      "managerId": 2,
+      "technologyId": 1,
+      "status": "Completed"
+    }
+  ],
+  "positions": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "status": "Active"
+    }
+  ],
+  "technologies": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
       "status": "Active"
     }
   ],
   "programmingLanguages": [
     {
-      "description": "",
       "id": "",
       "name": "",
+      "description": "",
       "status": "Active"
-    }
-  ],
-  "projects": [
-    {
-      "description": "",
-      "finishDate": "",
-      "id": "",
-      "managerId": 2,
-      "name": "",
-      "startDate": "",
-      "status": "Completed",
-      "technologyId": 1
-    }
-  ],
-  "technologies": [
-    {
-      "description": "",
-      "id": "",
-      "name": "",
-      "status": "Active"
-    }
-  ],
-  "users": [
-    {
-      "email": "",
-      "isAdmin": true,
-      "name": "Admin User",
-      "password": "",
-      "role": "Admin"
-    },
-    {
-      "contact": "",
-      "cv_list": [
-        {
-          "cv_experience": [
-            {
-              "description": "",
-              "time_work": "",
-              "work_position": ""
-            }
-          ],
-          "cv_skill": ""
-        }
-      ],
-      "email": "",
-      "id": "",
-      "isAdmin": false,
-      "name": "Employee User",
-      "password": "",
-      "positionId": 1,
-      "projectIds": [
-        1
-      ],
-      "role": "Employee",
-      "skills": "",
-      "status": "Available"
     }
   ]
 }

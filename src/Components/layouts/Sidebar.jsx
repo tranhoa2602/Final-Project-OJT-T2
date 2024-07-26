@@ -1,30 +1,28 @@
 import React, { useState } from "react";
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n'; // Đảm bảo đường dẫn này đúng
-import "../../styles/layouts/Sidebar.css";
+import "../../styles/layouts/Sidebar.scss";
 import {
   AppstoreOutlined,
   ContainerOutlined,
   DesktopOutlined,
-  MailOutlined,
-  PieChartOutlined,
+  LogoutOutlined,
+  TeamOutlined,
+  UserOutlined,
+  FundProjectionScreenOutlined,
+  GlobalOutlined,
+  SolutionOutlined,
+  DeploymentUnitOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
-import { Flex, Layout, Menu } from "antd";
-import { Link } from "react-router-dom";
-import Main from "./Main";
+import { Layout, Menu, Button } from "antd";
+import { Link, useNavigate } from "react-router-dom";
 
-const { Sider, Content } = Layout;
-
-const contentStyle = {
-  textAlign: "center",
-  minHeight: 120,
-  height: "100%",
-  color: "#fff",
-};
+const { Sider } = Layout;
 
 const siderStyle = {
-  textAlign: "center",
-  lineHeight: "120px",
+  textAlign: "left",
   color: "#fff",
 };
 

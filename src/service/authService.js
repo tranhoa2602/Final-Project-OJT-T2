@@ -11,6 +11,8 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import { database } from "../../firebaseConfig";
 
 // Hàm cập nhật mật khẩu đã mã hóa cho tất cả người dùng hiện có
 const updateExistingPasswords = async () => {
@@ -46,21 +48,13 @@ const updateExistingPasswords = async () => {
 };
 
 // Hàm đăng nhập người dùng
-export const loginUser = async (
-  email,
-  password,
-  setUser,
-  setError,
-  navigate
-) => {
+export const loginUser = async (email, password) => {
   try {
     const db = getDatabase();
     const userRef = ref(db, "users");
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
     const userData = snapshot.val();
-
-    console.log("User Data from DB:", userData); // Console log user data
 
     if (userData) {
       const userId = Object.keys(userData)[0];
@@ -70,28 +64,26 @@ export const loginUser = async (
       const match = await bcrypt.compare(password, user.password);
 
       if (match) {
-        localStorage.setItem("userId", JSON.stringify(user)); // Lưu toàn bộ đối tượng người dùng
-        setUser(user);
-
-        // Điều hướng dựa trên vai trò người dùng
-        navigate(user.role === "admin" ? "/account-management" : "/employee");
-        return { user, error: null };
+        return { user };
       } else {
-        return { user: null, error: "Invalid password" };
+        return { error: "Invalid password" };
       }
     } else {
-      return { user: null, error: "User not found" };
+      return { error: "User not found" };
     }
   } catch (error) {
     console.error("Error fetching data: ", error);
-    return { user: null, error: "An error occurred" };
+    return { error: "An error occurred" };
   }
 };
 
 // Hàm đăng ký người dùng
 export const signUpUser = async (
+  name,
+  phone,
   email,
   password,
+  role,
   setSuccessMessage,
   setError
 ) => {
@@ -101,8 +93,6 @@ export const signUpUser = async (
     const userQuery = query(userRef, orderByChild("email"), equalTo(email));
     const snapshot = await get(userQuery);
 
-    console.log("Snapshot for Sign Up Check:", snapshot.val()); // Console log snapshot for sign up
-
     if (snapshot.val()) {
       setError("Email already in use");
       return { success: false, error: "Email already in use" };
@@ -110,34 +100,24 @@ export const signUpUser = async (
 
     // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
+    const userKey = uuidv4(); // Generate new UUID for the user
 
-    const newUserRef = ref(db, `users/${email.replace(".", ",")}`);
+    const newUserRef = ref(db, `users/${userKey}`);
     const newUser = {
+      id: userKey,
+      name,
+      phone,
       email,
       password: hashedPassword,
-      contact: "",
-      cv_list: [
-        {
-          title: "",
-          description: "",
-          file: "",
-          updatedAt: new Date().toISOString(),
-        },
-      ],
-      role: email === "admin@gmail.com" ? "admin" : "employee",
+      role, // role được truyền vào
+      isAdmin: role === "Admin", // Đặt isAdmin thành true nếu role là Admin
       createdAt: new Date().toISOString(),
-      projetcIds: "",
-      skill: "",
-      Status: "",
     };
     await set(newUserRef, newUser);
 
-    console.log("New User Object:", newUser); // Console log the new user object
-
-    setSuccessMessage("Account created successfully! Please log in.");
+    setSuccessMessage("Account created successfully!");
     return { success: true, error: "" };
   } catch (error) {
-    console.error("Error signing up: ", error);
     setError("An error occurred during sign up");
     return { success: false, error: "An error occurred during sign up" };
   }

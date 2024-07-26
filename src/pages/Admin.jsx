@@ -54,7 +54,7 @@ function Admin() {
   }, [t]);
 
   const handleAddOrUpdateUser = async (values) => {
-    const { email, role, status } = values; // Remove password from the required fields
+    const { email, role, status } = values;
 
     if (!email || !role || !status) {
       message.error(t("Please fill in all fields"));
@@ -63,7 +63,7 @@ function Admin() {
 
     try {
       const db = getDatabase();
-      const userKey = editMode ? editUserKey : uuidv4(); // Generate new key if not in edit mode
+      const userKey = editMode ? editUserKey : uuidv4();
       const userRef = ref(db, `users/${userKey}`);
       let userData = {
         id: userKey,
@@ -78,7 +78,7 @@ function Admin() {
           },
         ],
         role,
-        status, // Add status
+        status,
         createdAt: new Date().toISOString(),
         projetcIds: "",
         skill: "",
@@ -168,8 +168,8 @@ function Admin() {
       status: user.status,
     });
     setEditMode(true);
-    setEditUserKey(user.key); // Update to setEditUserKey
-    setModalVisible(true); // Open modal for editing
+    setEditUserKey(user.key);
+    setModalVisible(true);
   };
 
   const handleModalCancel = () => {
@@ -187,11 +187,11 @@ function Admin() {
     const worksheet = XLSX.utils.json_to_sheet(
       users.map((user) => ({
         Email: user.email,
-        Role: t(user.role),  // Sử dụng dịch ngôn ngữ
+        Role: t(user.role),
         CreatedAt: user.createdAt,
         Contact: user.contact,
         Skills: user.skill,
-        Status: t(user.status),  // Sử dụng dịch ngôn ngữ
+        Status: t(user.status),
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -224,11 +224,11 @@ function Admin() {
       dataIndex: "role",
       key: "role",
       filters: [
-        { text: t("Admin"), value: "admin" },
-        { text: t("Employee"), value: "employee" },
+        { text: t("Admin"), value: "Admin" },
+        { text: t("Employee"), value: "Employee" },
       ],
-      onFilter: (value, record) => record.role?.includes(value),
-      render: (role) => t(role.charAt(0).toUpperCase() + role.slice(1))
+      onFilter: (value, record) => record.role === value,
+      render: (role) => t(role.charAt(0).toUpperCase() + role.slice(1)),
     },
     {
       title: t("Status"),
@@ -238,7 +238,7 @@ function Admin() {
         { text: t("Active"), value: "active" },
         { text: t("Inactive"), value: "inactive" },
       ],
-      onFilter: (value, record) => record.status?.includes(value),
+      onFilter: (value, record) => record.status === value,
       render: (status) =>
         status ? (
           <Tag color={status === "active" ? "green" : "red"}>

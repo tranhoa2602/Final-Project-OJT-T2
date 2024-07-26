@@ -3,8 +3,10 @@ import { Space, Table, Button, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
+import { useTranslation } from "react-i18next";
 
 const ViewLanguage = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
@@ -24,55 +26,55 @@ const ViewLanguage = () => {
         setData(techList);
       } catch (error) {
         console.error("Error fetching programmingLanguages: ", error);
-        message.error("Failed to fetch programmingLanguages.");
+        message.error(t("Failed to fetch programmingLanguages."));
       }
     };
 
     fetchData();
-  }, []);
+  }, [t]);
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
       );
-      message.success("Programing Languages deleted successfully!");
+      message.success(t("Programming Languages deleted successfully!"));
       setData(data.filter((item) => item.id !== id));
     } catch (error) {
-      console.error("Error deleting Programing Languages: ", error);
-      message.error("Failed to delete Programing Languages.");
+      console.error("Error deleting Programming Languages: ", error);
+      message.error(t("Failed to delete Programming Languages."));
     }
   };
 
   const columns = [
     {
-      title: "Name",
+      title: t("Name"),
       dataIndex: "programingname",
       key: "programingname",
-      render: (text) => <a> {text} </a>,
+      render: (text) => <a>{text}</a>,
     },
     {
-      title: "Type",
+      title: t("Type"),
       dataIndex: "programingtype",
       key: "programingtype",
     },
     {
-      title: "Status",
+      title: t("Status"),
       dataIndex: "programingstatus",
       key: "programingstatus",
     },
     {
-      title: "Description",
+      title: t("Description"),
       dataIndex: "programingdescription",
       key: "programingdescription",
     },
     {
-      title: "Action",
+      title: t("Actions"),
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditLanguage/${record.id}`}> Edit </Link>{" "}
-          <a onClick={() => handleDelete(record.id)}> Delete </a>{" "}
+          <Link to={`/EditLanguage/${record.id}`}>{t("Edit")}</Link>
+          <a onClick={() => handleDelete(record.id)}>{t("Delete")}</a>
         </Space>
       ),
     },
@@ -85,8 +87,8 @@ const ViewLanguage = () => {
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddLanguage")}
       >
-        Add Programing Language{" "}
-      </Button>{" "}
+        {t("Add Programming Language")}
+      </Button>
       <Table columns={columns} dataSource={data} rowKey="id" />
     </>
   );

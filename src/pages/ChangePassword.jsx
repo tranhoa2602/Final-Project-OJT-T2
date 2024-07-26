@@ -3,9 +3,11 @@ import { Form, Input, Button, message, Alert } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import bcrypt from "bcryptjs";
+import { useTranslation } from 'react-i18next';
 import styles from "../styles/layouts/ChangePassword.module.scss";
 
 const ChangePassword = () => {
+  const { t } = useTranslation();
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
@@ -15,7 +17,7 @@ const ChangePassword = () => {
     const { currentPassword, newPassword, confirmPassword } = values;
 
     if (newPassword !== confirmPassword) {
-      setError("New passwords do not match.");
+      setError(t("New passwords do not match."));
       return;
     }
 
@@ -31,20 +33,20 @@ const ChangePassword = () => {
       );
 
       if (!isPasswordCorrect) {
-        setError("Current password is incorrect.");
+        setError(t("Current password is incorrect."));
         return;
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await update(userRef, { password: hashedPassword });
 
-      setSuccessMessage("Password changed successfully!");
+      setSuccessMessage(t("Password changed successfully!"));
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (error) {
       console.error("Error changing password: ", error);
-      setError("Failed to change password. Please try again.");
+      setError(t("Failed to change password. Please try again."));
     }
   };
 
@@ -52,7 +54,7 @@ const ChangePassword = () => {
     <div className={styles["change-password-container"]}>
       <div className={styles["change-password-form"]}>
         <div className={styles["header-form"]}>
-          <h2 className={styles["title"]}>Change Password</h2>
+          <h2 className={styles["title"]}>{t("Change Password")}</h2>
         </div>
         <Form onFinish={handleChangePassword}>
           <Form.Item
@@ -60,27 +62,27 @@ const ChangePassword = () => {
             rules={[
               {
                 required: true,
-                message: "Please input your current password!",
+                message: t("Please input your current password!"),
               },
             ]}
           >
-            <Input.Password placeholder="Current Password" />
+            <Input.Password placeholder={t("Current Password")} />
           </Form.Item>
           <Form.Item
             name="newPassword"
             rules={[
-              { required: true, message: "Please input your new password!" },
+              { required: true, message: t("Please input your new password!") },
             ]}
           >
-            <Input.Password placeholder="New Password" />
+            <Input.Password placeholder={t("New Password")} />
           </Form.Item>
           <Form.Item
             name="confirmPassword"
             rules={[
-              { required: true, message: "Please confirm your new password!" },
+              { required: true, message: t("Please confirm your new password!") },
             ]}
           >
-            <Input.Password placeholder="Confirm New Password" />
+            <Input.Password placeholder={t("Confirm New Password")} />
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}
           {successMessage && (
@@ -88,7 +90,7 @@ const ChangePassword = () => {
           )}
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              Change Password
+              {t("Change Password")}
             </Button>
           </Form.Item>
         </Form>

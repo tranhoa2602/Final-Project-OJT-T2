@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { getDatabase, ref, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  query,
+  orderByChild,
+  equalTo,
+  get,
+  update,
+} from "firebase/database";
+import bcrypt from "bcryptjs";
 import styles from "../styles/layouts/ResetPassword.module.scss";
 
 const { Title } = Typography;
@@ -30,12 +39,25 @@ const ResetPassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${email.replace(".", ",")}`);
-      await update(userRef, { password: newPassword });
-      setMessage(
-        "Password reset successfully! You can now log in with your new password."
+      const userRef = query(
+        ref(db, "users"),
+        orderByChild("email"),
+        equalTo(email)
       );
-      setError("");
+      const snapshot = await get(userRef);
+      const userData = snapshot.val();
+      if (userData) {
+        const userKey = Object.keys(userData)[0];
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await update(ref(db, `users/${userKey}`), { password: hashedPassword });
+        setMessage(
+          "Password reset successfully! You can now log in with your new password."
+        );
+        setError("");
+      } else {
+        setError("User not found.");
+        setMessage("");
+      }
     } catch (error) {
       console.error("Error updating password: ", error);
       setError("Failed to reset password. Please try again.");

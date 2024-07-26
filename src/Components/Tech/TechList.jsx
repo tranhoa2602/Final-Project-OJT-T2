@@ -69,7 +69,7 @@ const TechList = () => {
       key: "techdescription",
     },
     {
-      title: t("Action"),
+      title: t("Actions"),
       key: "action",
       render: (_, record) => (
         <Space size="middle">

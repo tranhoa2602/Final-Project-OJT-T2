@@ -12,22 +12,22 @@ import RemoveEmployeeFromProject from "../Components/Employee/Project_Assignment
 import EmailNotification from "../Components/Employee/Project_Assignment/EmailNotification";
 
 const EmployeeRoutes = () => {
-  let resolvedPath = useResolvedPath("");
+    let resolvedPath = useResolvedPath("");
 
-  return (
-    <Routes>
-      <Route path={`${resolvedPath.pathnameBase}/`} element={<EmployeeList />} />
-      <Route path={`${resolvedPath.pathnameBase}/details/:id`} element={<EmployeeDetails />} />
-      <Route path={`${resolvedPath.pathnameBase}/create`} element={<CreateEmployee />} />
-      <Route path={`${resolvedPath.pathnameBase}/edit/:id`} element={<EditEmployee />} />
-      <Route path={`${resolvedPath.pathnameBase}/export-list`} element={<ExportEmployeeList />} />
-      <Route path={`${resolvedPath.pathnameBase}/export-cv/:id`} element={<ExportEmployeeCV />} />
-      <Route path={`${resolvedPath.pathnameBase}/assign/:id`} element={<AssignProject />} />
-      <Route path={`${resolvedPath.pathnameBase}/assigned/:id`} element={<AssignedProjects />} />
-      <Route path={`${resolvedPath.pathnameBase}/remove/:id`} element={<RemoveEmployeeFromProject />} />
-      <Route path={`${resolvedPath.pathnameBase}/email-notification`} element={<EmailNotification />} />
-    </Routes>
-  );
+    return (
+        <Routes>
+            <Route path={`${resolvedPath.pathnameBase}/`} element={<EmployeeList />} />
+            <Route path={`${resolvedPath.pathnameBase}/details/:id`} element={<EmployeeDetails />} />
+            <Route path={`${resolvedPath.pathnameBase}/create`} element={<CreateEmployee />} />
+            <Route path={`${resolvedPath.pathnameBase}/edit/:id`} element={<EditEmployee />} />
+            <Route path={`${resolvedPath.pathnameBase}/export-list`} element={<ExportEmployeeList />} />
+            <Route path={`${resolvedPath.pathnameBase}/export-cv/:id`} element={<ExportEmployeeCV />} />
+            <Route path={`${resolvedPath.pathnameBase}/assign/:id`} element={<AssignProject />} />
+            <Route path={`${resolvedPath.pathnameBase}/assigned/:id`} element={<AssignedProjects />} />
+            <Route path={`${resolvedPath.pathnameBase}/remove/:id`} element={<RemoveEmployeeFromProject />} />
+            <Route path={`${resolvedPath.pathnameBase}/email-notification`} element={<EmailNotification />} />
+        </Routes>
+    );
 };
 // import React from "react";
 // import { Route, Switch, useRouteMatch } from "react-router-dom";

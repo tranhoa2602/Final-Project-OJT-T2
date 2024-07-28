@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, message } from "antd";
+import { Space, Table, Button, Tag, Switch, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
@@ -44,6 +44,24 @@ const TechList = () => {
     }
   };
 
+  const handleStatusChange = async (id, checked) => {
+    try {
+      const tech = data.find((item) => item.id === id);
+      if (tech) {
+        const updatedTech = { ...tech, techstatus: checked ? "Active" : "Inactive" };
+        await axios.put(
+          `${firebaseConfig.databaseURL}/technologies/${id}.json`,
+          updatedTech
+        );
+        setData(data.map((item) => (item.id === id ? updatedTech : item)));
+        message.success("Technology status updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error updating technology status: ", error);
+      message.error("Failed to update technology status.");
+    }
+  };
+
   const columns = [
     {
       title: "Name",
@@ -55,11 +73,26 @@ const TechList = () => {
       title: "Type",
       dataIndex: "techtype",
       key: "techtype",
+      render: (tags) => (
+        <>
+          {Array.isArray(tags) ? tags.map((tag) => (
+            <Tag color="blue" key={tag}>
+              {tag}
+            </Tag>
+          )) : null}
+        </>
+      ),
     },
     {
       title: "Status",
       dataIndex: "techstatus",
       key: "techstatus",
+      render: (status, record) => (
+        <Switch
+          checked={status === "Active"}
+          onChange={(checked) => handleStatusChange(record.id, checked)} checkedChildren="Active" unCheckedChildren="Inactive"
+        />
+      ),
     },
     {
       title: "Description",

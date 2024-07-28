@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useParams, useNavigate } from "react-router-dom";
@@ -29,8 +29,10 @@ const EditTech = () => {
         const response = await axios.get(
           `${firebaseConfig.databaseURL}/technologies/${id}.json`
         );
-        setInitialValues(response.data);
-        form.setFieldsValue(response.data);
+        const data = response.data;
+        data.techstatus = data.techstatus === "Active";
+        setInitialValues(data);
+        form.setFieldsValue(data);
       } catch (error) {
         console.error("Error fetching technology: ", error);
         message.error("Failed to fetch technology.");
@@ -42,6 +44,8 @@ const EditTech = () => {
 
   const handleSubmit = async (values) => {
     try {
+      values.techstatus = values.techstatus ? "Active" : "Inactive";
+
       await axios.put(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`,
         values
@@ -67,36 +71,37 @@ const EditTech = () => {
       style={{ height: "100vh" }}
       initialValues={initialValues}
     >
-      <Title level={2}> Edit Technology </Title>{" "}
+      <Title level={2}>Edit Technology</Title>
       <Form.Item
         label="TechName"
         name="techname"
         rules={[{ required: true, message: "Please input Tech Name!" }]}
       >
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item
         label="TechType"
         name="techtype"
         rules={[{ required: true, message: "Please input Tech Type!" }]}
       >
-        <Input />
-      </Form.Item>{" "}
+        <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
+      </Form.Item>
       <Form.Item
         label="TechStatus"
         name="techstatus"
+        valuePropName="checked"
         rules={[{ required: true, message: "Please select Tech Status!" }]}
       >
-        <Input />
-      </Form.Item>{" "}
+        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+      </Form.Item>
       <Form.Item label="TechDescription" name="techdescription">
         <Input />
-      </Form.Item>{" "}
+      </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit{" "}
-        </Button>{" "}
-      </Form.Item>{" "}
+          Submit
+        </Button>
+      </Form.Item>
     </Form>
   );
 };

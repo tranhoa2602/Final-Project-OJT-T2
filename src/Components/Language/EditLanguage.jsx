@@ -25,6 +25,7 @@ const EditLanguage = () => {
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [existingTypes, setExistingTypes] = useState([]);
 
   useEffect(() => {
     const fetchLanguage = async () => {
@@ -44,7 +45,20 @@ const EditLanguage = () => {
       }
     };
 
+    const fetchExistingTypes = async () => {
+      try {
+        const response = await axios.get(`${firebaseConfig.databaseURL}/programmingLanguages.json`);
+        const types = response.data
+          ? Object.values(response.data).map(lang => lang.programingtype).flat()
+          : [];
+        setExistingTypes([...new Set(types)]);
+      } catch (error) {
+        console.error("Error fetching existing types: ", error);
+      }
+    };
+
     fetchLanguage();
+    fetchExistingTypes();
   }, [id, form, t]);
 
   const handleSubmit = async (values) => {
@@ -67,6 +81,11 @@ const EditLanguage = () => {
     console.log("Failed:", errorInfo);
   };
 
+  const validateDescription = (_, value) => {
+    const wordCount = value ? value.split(' ').filter(word => word).length : 0;
+    return wordCount <= 20 ? Promise.resolve() : Promise.reject(new Error(t("Description cannot exceed 20 words")));
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -80,41 +99,51 @@ const EditLanguage = () => {
       style={{ height: "100vh" }}
       initialValues={initialValues}
     >
-      <Title level={2}>Edit Programming Language</Title>
+      <Title level={2}>{t("Edit Programming Language")}</Title>
       <Form.Item
-        label="Program Language Name"
+        label={t("Program Language Name")}
         name="programingname"
-        rules={[{ required: true, message: "Please input Program Language Name!" }]}
+        rules={[{ required: true, message: t("Please input Programming Language Name!") }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label="Program Language Type"
+        label={t("Programming Language Type")}
         name="programingtype"
-        rules={[{ required: true, message: "Please input Program Language Type!" }]}
+        rules={[{ required: true, message: t("Please input Programming Language Type!") }]}
       >
-        <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          placeholder={t("Tags Mode")}
+          options={existingTypes.map(type => ({ value: type }))}
+        />
       </Form.Item>
       <Form.Item
-        label="Program Language Status"
+        label={t("Programming Language Status")}
         name="programingstatus"
         valuePropName="checked"
+        rules={[{ required: true, message: t("Please select Programming Language Status!") }]}
       >
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
-      <Form.Item label="Program Language Description" name="programingdescription">
+      <Form.Item
+        label={t("Programming Language Description")}
+        name="programingdescription"
+        rules={[{ validator: validateDescription }]}
+      >
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit
+          {t("Submit")}
         </Button>
         <Button
           type="primary"
           style={{ marginLeft: 8 }}
           onClick={() => navigate("/ViewLanguage")}
         >
-          {t("Back to Programing Language List")}
+          {t("Back to Programming Language List")}
         </Button>
       </Form.Item>
     </Form>

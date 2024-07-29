@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+
 
 const { Option } = Select;
 
@@ -15,6 +17,8 @@ const TechList = () => {
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +34,7 @@ const TechList = () => {
         }
 
         setData(techList);
-        setFilteredData(techList); // Initialize filtered data
+        setFilteredData(techList);
       } catch (error) {
         console.error("Error fetching technologies: ", error);
         message.error(t("Failed to fetch technologies."));
@@ -45,22 +49,22 @@ const TechList = () => {
       let filtered = data;
 
       if (searchName) {
-        filtered = filtered.filter(item =>
+        filtered = filtered.filter((item) =>
           item.techname.toLowerCase().includes(searchName.toLowerCase())
         );
       }
 
       if (searchType) {
-        filtered = filtered.filter(item =>
-          item.techtype.some(type =>
+        filtered = filtered.filter((item) =>
+          item.techtype.some((type) =>
             type.toLowerCase().includes(searchType.toLowerCase())
           )
         );
       }
 
       if (searchStatus) {
-        filtered = filtered.filter(item =>
-          item.techstatus.toLowerCase() === searchStatus.toLowerCase()
+        filtered = filtered.filter(
+          (item) => item.techstatus.toLowerCase() === searchStatus.toLowerCase()
         );
       }
 
@@ -72,7 +76,7 @@ const TechList = () => {
 
   const handleDelete = async (id, status) => {
     if (status === "Active") {
-      message.error("Can't delete status active");
+      message.error(t("Can't delete status active"));
       return;
     }
     try {
@@ -98,6 +102,11 @@ const TechList = () => {
 
   const handleStatusFilter = (value) => {
     setSearchStatus(value);
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
   const columns = [
@@ -133,16 +142,18 @@ const TechList = () => {
         </div>
       ),
       onFilter: (value, record) =>
-        record.techtype.some(type =>
+        record.techtype.some((type) =>
           type.toLowerCase().includes(value.toLowerCase())
         ),
       render: (tags) => (
         <>
-          {Array.isArray(tags) ? tags.map((tag) => (
-            <Tag color="blue" key={tag}>
-              {tag}
-            </Tag>
-          )) : null}
+          {Array.isArray(tags)
+            ? tags.map((tag) => (
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
+            : null}
         </>
       ),
     },
@@ -167,9 +178,7 @@ const TechList = () => {
       onFilter: (value, record) =>
         record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>
-          {status}
-        </Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
       ),
     },
     {
@@ -182,8 +191,20 @@ const TechList = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditTech/${record.id}`}> Edit </Link>{" "}
-          <a onClick={() => handleDelete(record.id, record.techstatus)}> Delete </a>{" "}
+          <Button
+            type="primary"
+            onClick={() => navigate(`/EditTech/${record.id}`)}
+          >
+            <EditOutlined /> {t("Edit")}
+          </Button>
+          <Button
+            type="primary"
+            danger
+            disabled={record.techstatus === "Active"}
+            onClick={() => handleDelete(record.id, record.techstatus)}
+          >
+            <DeleteOutlined /> {t("Delete")}
+          </Button>
         </Space>
       ),
     },
@@ -193,12 +214,19 @@ const TechList = () => {
     <>
       <Button
         type="primary"
+        icon={<PlusOutlined />}
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddTech")}
       >
         {t("Add Tech")}
       </Button>
-      <Table columns={columns} dataSource={filteredData} rowKey="id" />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        rowKey="id"
+        pagination={{ current: currentPage, pageSize: pageSize }}
+        onChange={handleTableChange}
+      />
     </>
   );
 };

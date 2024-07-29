@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import "../../styles/layouts/main.css";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
@@ -21,6 +20,10 @@ import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 import ChangePassword from "../../pages/ChangePassword";
 import ListPosition from "../PositionManager/ListPosition";
+import ProjectList from "../ProjectManager/ProjectList";
+import CreateProject from "../ProjectManager/CreateProject";
+import EditProject from "../ProjectManager/EditProject"; // Import EditProject
+import DetailProject from "../ProjectManager/DetailProject"; // Import DetailProject
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 
 const Main = () => {
@@ -70,7 +73,7 @@ const Main = () => {
               )
             }
           />
-          <Route path="/create" element={<Create />} />
+          <Route path="/create" element={<CreateEmployee />} />
           <Route path="/edit" element={<EditEmployee />} />
           <Route path="/list" element={<EmployeeList />} />
           <Route path="/details" element={<EmployeeDetails />} />
@@ -82,9 +85,12 @@ const Main = () => {
           <Route path="/AddLanguage" element={<AddLanguage />} />
           <Route path="/EditLanguage/:id" element={<EditLanguage />} />
           <Route path="/ViewLanguage" element={<ViewLanguage />} />
-          <Route path="/change-password" element={<ChangePassword />} />{" "}
+          <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/ListPosition" element={<ListPosition />} />
-          {/* Add Change Password route */}
+          <Route path="/Projects" element={<ProjectList />} />
+          <Route path="/create-project" element={<CreateProject />} />
+          <Route path="/projects/edit/:id" element={<EditProject />} />
+          <Route path="/projects/details/:id" element={<DetailProject />} />
         </Routes>
       </main>
     </EmployeeProvider>

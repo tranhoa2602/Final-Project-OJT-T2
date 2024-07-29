@@ -45,22 +45,22 @@ const TechList = () => {
       let filtered = data;
 
       if (searchName) {
-        filtered = filtered.filter(item =>
+        filtered = filtered.filter((item) =>
           item.techname.toLowerCase().includes(searchName.toLowerCase())
         );
       }
 
       if (searchType) {
-        filtered = filtered.filter(item =>
-          item.techtype.some(type =>
+        filtered = filtered.filter((item) =>
+          item.techtype.some((type) =>
             type.toLowerCase().includes(searchType.toLowerCase())
           )
         );
       }
 
       if (searchStatus) {
-        filtered = filtered.filter(item =>
-          item.techstatus.toLowerCase() === searchStatus.toLowerCase()
+        filtered = filtered.filter(
+          (item) => item.techstatus.toLowerCase() === searchStatus.toLowerCase()
         );
       }
 
@@ -133,16 +133,18 @@ const TechList = () => {
         </div>
       ),
       onFilter: (value, record) =>
-        record.techtype.some(type =>
+        record.techtype.some((type) =>
           type.toLowerCase().includes(value.toLowerCase())
         ),
       render: (tags) => (
         <>
-          {Array.isArray(tags) ? tags.map((tag) => (
-            <Tag color="blue" key={tag}>
-              {tag}
-            </Tag>
-          )) : null}
+          {Array.isArray(tags)
+            ? tags.map((tag) => (
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
+            : null}
         </>
       ),
     },
@@ -171,7 +173,6 @@ const TechList = () => {
           {status === "Active" ? t("Active") : t("Inactive")}
         </Tag>
       ),
-
     },
     {
       title: t("Tech Description"),
@@ -183,8 +184,11 @@ const TechList = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditTech/${record.id}`}>  {t("Edit")} </Link>{" "}
-          <a onClick={() => handleDelete(record.id, record.techstatus)}>   {t("Delete")} </a>{" "}
+          <Link to={`/EditTech/${record.id}`}> {t("Edit")} </Link>{" "}
+          <a onClick={() => handleDelete(record.id, record.techstatus)}>
+            {" "}
+            {t("Delete")}{" "}
+          </a>{" "}
         </Space>
       ),
     },

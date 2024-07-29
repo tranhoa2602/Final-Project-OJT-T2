@@ -1,84 +1,68 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Alert } from "antd";
-import { getDatabase, ref, get } from "firebase/database";
+import { Form, Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import bcrypt from "bcryptjs";
-import { useTranslation } from "react-i18next";
+import { getDatabase, ref, get } from "firebase/database";
 import styles from "../styles/layouts/Login.module.scss";
+import bcrypt from "bcryptjs";
 
-const Login = () => {
-  const { t } = useTranslation();
-  const [error, setError] = useState("");
+const Login = ({ setUser }) => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (values) => {
     const { email, password } = values;
+    setLoading(true);
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users`);
+      const userRef = ref(db, "users");
       const snapshot = await get(userRef);
-      const users = snapshot.val();
+      const userData = snapshot.val();
 
-      if (!users) {
-        setError(t("User not found"));
-        return;
-      }
+      const user = Object.values(userData).find((user) => user.email === email);
 
-      const user = Object.values(users).find((user) => user.email === email);
+      if (user && (await bcrypt.compare(password, user.password))) {
+        const storedUser = {
+          key: user.key,
+          role: user.role,
+        };
+        localStorage.setItem("user", JSON.stringify(storedUser));
+        setUser(storedUser);
 
-      if (!user) {
-        setError(t("User not found"));
-        return;
-      }
-
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-      if (!isPasswordCorrect) {
-        setError(t("Incorrect password"));
-        return;
-      }
-
-      // Store user in localStorage
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Redirect based on role
-      if (user.role === "Admin") {
-        navigate("/admin");
+        const userRolePath = user.role === "Admin" ? "/admin" : "/employee";
+        navigate(userRolePath);
+        message.success("Login successful!");
       } else {
-        navigate("/employee");
+        message.error("Invalid email or password.");
       }
     } catch (error) {
-      console.error("Error logging in: ", error);
-      setError(t("Failed to log in. Please try again."));
+      console.error("Error during login: ", error);
+      message.error("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles["login-container"]}>
       <div className={styles["login-form"]}>
-        <div className={styles["header-form"]}>
-          <h2 className={styles["title"]}>{t("Login")}</h2>
-        </div>
+        <h2 className={styles["title"]}>Login</h2>
         <Form onFinish={handleLogin}>
           <Form.Item
             name="email"
-            rules={[{ required: true, message: t("Please input your email!") }]}
+            rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input placeholder={t("Email")} />
+            <Input placeholder="Email" />
           </Form.Item>
           <Form.Item
             name="password"
-            rules={[
-              { required: true, message: t("Please input your password!") },
-            ]}
+            rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password placeholder={t("Password")} />
+            <Input.Password placeholder="Password" />
           </Form.Item>
-          {error && <Alert message={error} type="error" showIcon />}
           <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              {t("Login")}
+            <Button type="primary" htmlType="submit" loading={loading} block>
+              Login
             </Button>
           </Form.Item>
         </Form>

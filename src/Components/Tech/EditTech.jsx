@@ -102,6 +102,13 @@ const EditTech = () => {
         <Button type="primary" htmlType="submit">
           {t("Submit")}
         </Button>
+        <Button
+          type="primary"
+          style={{ marginLeft: 8 }}
+          onClick={() => navigate("/TechList")}
+        >
+          {t("Back to Tech List")}
+        </Button>
       </Form.Item>
     </Form>
   );

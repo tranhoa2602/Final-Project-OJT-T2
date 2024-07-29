@@ -19,6 +19,7 @@ const formItemLayout = {
 };
 
 const AddTech = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -82,6 +83,16 @@ const AddTech = () => {
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
           {t("Submit")}
+<<<<<<< HEAD
+=======
+        </Button>
+        <Button
+          type="primary"
+          style={{ marginLeft: 8 }}
+          onClick={() => navigate("/TechList")}
+        >
+          {t("Back to Tech List")}
+>>>>>>> 1823f95e177f2fa4e0f3d892dd566d9375fc8df3
         </Button>
       </Form.Item>
     </Form>

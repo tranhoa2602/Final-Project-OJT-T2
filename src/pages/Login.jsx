@@ -76,9 +76,9 @@ const Login = ({ setUser }) => {
         <a href="/forget-password" className={styles["link-forget"]}>
           Forgot password?
         </a>
-        <a href="/register" className={styles["link-button"]}>
+        {/* <a href="/register" className={styles["link-button"]}>
           Register
-        </a>
+        </a> */}
       </div>
     </div>
   );

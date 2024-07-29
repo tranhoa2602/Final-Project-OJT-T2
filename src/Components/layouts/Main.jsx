@@ -21,11 +21,6 @@ import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 import ChangePassword from "../../pages/ChangePassword";
 import ListPosition from "../PositionManager/ListPosition";
-import ListProject from "../ProjectManager/ProjectList";
-import CreateProject from "../ProjectManager/CreateProject";
-import EditProject from "../ProjectManager/EditProject";
-import DetailProject from "../ProjectManager/DetailProject";
-
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 
 const Main = () => {
@@ -75,7 +70,7 @@ const Main = () => {
               )
             }
           />
-          <Route path="/create" element={<CreateEmployee />} />
+          <Route path="/create" element={<Create />} />
           <Route path="/edit" element={<EditEmployee />} />
           <Route path="/list" element={<EmployeeList />} />
           <Route path="/details" element={<EmployeeDetails />} />
@@ -87,13 +82,9 @@ const Main = () => {
           <Route path="/AddLanguage" element={<AddLanguage />} />
           <Route path="/EditLanguage/:id" element={<EditLanguage />} />
           <Route path="/ViewLanguage" element={<ViewLanguage />} />
-          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />{" "}
           <Route path="/ListPosition" element={<ListPosition />} />
-          <Route path="/projects" element={<ListProject />} />
-          <Route path="/projects/create" element={<CreateProject visible />} />
-          <Route path="/projects/edit/:id" element={<EditProject />} />
-          <Route path="/projects/details/:id" element={<DetailProject />} />
-
+          {/* Add Change Password route */}
         </Routes>
       </main>
     </EmployeeProvider>

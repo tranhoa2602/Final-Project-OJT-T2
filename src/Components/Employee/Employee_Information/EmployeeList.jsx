@@ -5,13 +5,21 @@ import { useEmployees } from "./EmployeeContext";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
-
 const columns = (handleEdit, handleDelete, navigate) => [
+  {
+    title: "ID",
+    dataIndex: "key",
+    key: "key",
+  },
   {
     title: "Name",
     dataIndex: "name",
     key: "name",
-    render: (text) => <a onClick={() => navigate('/details', { state: { employee: text } })}>{text}</a>,
+    render: (text, record) => (
+      <a onClick={() => navigate("/details", { state: { employee: record } })}>
+        {text}
+      </a>
+    ),
   },
   {
     title: "Email",
@@ -19,35 +27,29 @@ const columns = (handleEdit, handleDelete, navigate) => [
     key: "email",
   },
   {
-    title: "Position ID",
-    dataIndex: "positionid",
-    key: "positionid",
+    title: "Position",
+    dataIndex: "positionId",
+    key: "positionId",
   },
   {
-    title: "Project ID",
-    dataIndex: "projectid",
-    key: "projectid",
+    title: "Project IDs",
+    dataIndex: "projectIds",
+    key: "projectIds",
+    render: (projectIds) => projectIds.join(", "),
   },
   {
     title: "Status",
     key: "status",
     dataIndex: "status",
-    render: (_, { status }) => {
-      const statusArray = Array.isArray(status) ? status : [status];
+    render: (status) => {
+      let color = status.length > 5 ? "geekblue" : "green";
+      if (status === "inactive") {
+        color = "volcano";
+      }
       return (
-        <>
-          {statusArray.map((stat) => {
-            let color = stat.length > 5 ? "geekblue" : "green";
-            if (stat === "inactive") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={stat}>
-                {stat.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
+        <Tag color={color} key={status}>
+          {status.toUpperCase()}
+        </Tag>
       );
     },
   },
@@ -56,8 +58,14 @@ const columns = (handleEdit, handleDelete, navigate) => [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
-        <a onClick={() => navigate('/edit', { state: { employee: record } })}>Edit</a>
-        <a onClick={() => navigate('/details', { state: { employee: record } })}>Details</a>
+        <a onClick={() => navigate("/edit", { state: { employee: record } })}>
+          Edit
+        </a>
+        <a
+          onClick={() => navigate("/details", { state: { employee: record } })}
+        >
+          Details
+        </a>
         <a onClick={() => handleDelete(record.key)}>Delete</a>
       </Space>
     ),
@@ -65,14 +73,12 @@ const columns = (handleEdit, handleDelete, navigate) => [
 ];
 
 const EmployeeList = () => {
-  const { employees, handleAdd, handleEdit, handleDelete } = useEmployees();
+  const { employees, handleEdit, handleDelete } = useEmployees();
   const navigate = useNavigate();
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Employees");
-
-
 
     // Add header row
     worksheet.columns = [
@@ -80,7 +86,6 @@ const EmployeeList = () => {
       { header: "Name", key: "name", width: 30 },
       { header: "Email", key: "email", width: 30 },
       { header: "Password", key: "password", width: 20 },
-      { header: "Roles", key: "roles", width: 20 },
       { header: "Phone", key: "phone", width: 15 },
       { header: "Is Admin", key: "isAdmin", width: 10 },
       { header: "Status", key: "status", width: 15 },
@@ -89,7 +94,6 @@ const EmployeeList = () => {
       { header: "Skills", key: "skills", width: 30 },
       { header: "Contact", key: "contact", width: 30 },
       { header: "CV List", key: "cv_list", width: 50 },
-      { header: "CV File", key: "cv_file", width: 50 },
     ];
 
     // Add data rows
@@ -99,7 +103,6 @@ const EmployeeList = () => {
         name: employee.name,
         email: employee.email,
         password: employee.password,
-        roles: (employee.roles || []).join(", "),
         phone: employee.phone,
         isAdmin: employee.isAdmin,
         status: employee.status,
@@ -118,22 +121,23 @@ const EmployeeList = () => {
                 .join("; ")}`
           )
           .join("\n"),
-          cv_file: employee.cv_list[0].cv_file,
       });
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type:  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"  });
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     saveAs(blob, "employee-list.xlsx");
   };
 
-
-  console.log('Rendering EmployeeList with employees:', employees); // Debug log
-
   return (
     <div>
-\
-      <Table columns={columns(handleEdit, handleDelete, navigate)} dataSource={employees} id="employee-table" />
+      <Table
+        columns={columns(handleEdit, handleDelete, navigate)}
+        dataSource={employees}
+        id="employee-table"
+      />
       <Button
         type="primary"
         htmlType="button"
@@ -155,5 +159,3 @@ const EmployeeList = () => {
 };
 
 export default EmployeeList;
-
-

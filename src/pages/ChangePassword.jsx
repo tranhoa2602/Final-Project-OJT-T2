@@ -23,22 +23,34 @@ const ChangePassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${user.id}`);
-      const snapshot = await get(userRef);
-      const userData = snapshot.val();
+      const usersRef = ref(db, `users`);
+      const snapshot = await get(usersRef);
+      const usersData = snapshot.val();
 
-      const isPasswordCorrect = await bcrypt.compare(
-        currentPassword,
-        userData.password
-      );
+      const adminUsers = Object.entries(usersData)
+        .filter(([key, userData]) => userData.role === "Admin")
+        .map(([key, userData]) => ({ ...userData, key }));
 
-      if (!isPasswordCorrect) {
+      let currentPasswordMatch = false;
+
+      for (let admin of adminUsers) {
+        const isPasswordCorrect = await bcrypt.compare(
+          currentPassword,
+          admin.password
+        );
+
+        if (isPasswordCorrect) {
+          currentPasswordMatch = true;
+          const hashedPassword = await bcrypt.hash(newPassword, 10);
+          const userRef = ref(db, `users/${admin.key}`);
+          await update(userRef, { password: hashedPassword });
+        }
+      }
+
+      if (!currentPasswordMatch) {
         setError(t("Current password is incorrect."));
         return;
       }
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await update(userRef, { password: hashedPassword });
 
       setSuccessMessage(t("Password changed successfully!"));
       setTimeout(() => {

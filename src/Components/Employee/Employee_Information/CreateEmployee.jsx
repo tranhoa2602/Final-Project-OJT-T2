@@ -24,6 +24,8 @@ const formItemLayout = {
   },
 };
 
+const { Option } = Select;
+
 const Create = () => {
   const navigate = useNavigate();
   const { handleAdd } = useEmployees();
@@ -43,6 +45,8 @@ const Create = () => {
           ...data[key],
         }));
         setPositions(formattedData);
+      } else {
+        setPositions([]);
       }
     };
 
@@ -154,9 +158,9 @@ const Create = () => {
       >
         <Select>
           {positions.map((position) => (
-            <Select.Option key={position.id} value={position.name}>
+            <Option key={position.id} value={position.id}>
               {position.name}
-            </Select.Option>
+            </Option>
           ))}
         </Select>
       </Form.Item>
@@ -209,7 +213,7 @@ const Create = () => {
         <Input />
       </Form.Item>
 
-      <Form.Item label="Description">
+      <Form.Item label="Description" name="description">
         <Input />
       </Form.Item>
 

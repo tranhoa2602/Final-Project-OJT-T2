@@ -54,6 +54,9 @@ const ResetPassword = () => {
           "Password reset successfully! You can now log in with your new password."
         );
         setError("");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000); // Redirect to login page after 2 seconds
       } else {
         setError("User not found.");
         setMessage("");

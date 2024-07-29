@@ -96,7 +96,7 @@ const EmployeeList = () => {
         id: employee.key,
         name: employee.name,
         email: employee.email,
-        password: employee.password,
+        password: employee.password,  
         phone: employee.phone,
         isAdmin: employee.isAdmin,
         status: employee.status,

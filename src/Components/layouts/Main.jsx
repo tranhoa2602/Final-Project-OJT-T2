@@ -20,6 +20,7 @@ import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails"; 
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV"; // Import trang CVExport
 import ChangePassword from "../../pages/ChangePassword"; // Import Change Password page
 import ListPosition from "../PositionManager/ListPosition";
+import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -50,6 +51,7 @@ const Main = () => {
   }, [location.pathname, navigate]);
 
   return (
+    <EmployeeProvider>
     <main className="main-content">
       <Routes>
         <Route path="/" element={<Login setUser={setUser} />} />
@@ -85,6 +87,7 @@ const Main = () => {
         {/* Add Change Password route */}
       </Routes>
     </main>
+    </EmployeeProvider>
   );
 };
 

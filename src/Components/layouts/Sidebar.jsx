@@ -13,8 +13,6 @@ import {
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -44,7 +42,6 @@ const buttonStyle = {
 
 const Sidebar = () => {
   const { t } = useTranslation();
-  const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [openKeys, setOpenKeys] = useState([]);
   const navigate = useNavigate();
@@ -59,10 +56,6 @@ const Sidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/");
-  };
-
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
   };
 
   const changeLanguage = (language) => {
@@ -116,14 +109,15 @@ const Sidebar = () => {
       ],
     },
     {
-      key: "6",
-      icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t("Position")}</Link>,
-    },
-    {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,
-      label: <Link to="/TechList">{t("Technology")}</Link>,
+      label: t("Technology"),
+      children: [
+        {
+          key: "6",
+          label: <Link to="/TechList">{t("Technology Info")}</Link>,
+        },
+      ],
     },
     {
       key: "sub4",
@@ -131,11 +125,11 @@ const Sidebar = () => {
       icon: <TeamOutlined />,
       children: [
         {
-          key: "8",
+          key: "7",
           label: <Link to="create-user">{t("Employee Profile")}</Link>,
         },
         {
-          key: "9",
+          key: "8",
           label: (
             <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>
           ),
@@ -144,8 +138,21 @@ const Sidebar = () => {
     },
     {
       key: "sub5",
-      label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
+      label: t("Languages"),
       icon: <GlobalOutlined />,
+      children: [
+        {
+          key: "9",
+          label: (
+            <Link to="/ViewLanguage">{t("Programming Language Info")}</Link>
+          ),
+        },
+      ],
+    },
+    {
+      key: "10",
+      icon: <SolutionOutlined />,
+      label: <Link to="/../Employee/EmployeeList">{t("CV")}</Link>,
     },
     {
       key: "11",
@@ -168,13 +175,7 @@ const Sidebar = () => {
 
   return (
     <Layout style={layoutStyle}>
-      <Sider
-        width="15%"
-        style={siderStyle}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={toggleCollapse}
-      >
+      <Sider width="15%" style={siderStyle}>
         <Menu
           defaultSelectedKeys={["1"]}
           defaultOpenKeys={["sub1"]}
@@ -184,9 +185,6 @@ const Sidebar = () => {
           openKeys={openKeys}
           onOpenChange={onOpenChange}
         />
-        <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </Button>
         <div style={{ textAlign: "center", padding: "10px 0" }}>
           <Button
             onClick={() => changeLanguage("vi")}

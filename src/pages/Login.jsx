@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Form, Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
-import styles from "../styles/layouts/Login.module.scss";
 import bcrypt from "bcryptjs";
+import styles from "../styles/layouts/Login.module.scss";
 
 const Login = ({ setUser }) => {
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,9 @@ const Login = ({ setUser }) => {
   return (
     <div className={styles["login-container"]}>
       <div className={styles["login-form"]}>
-        <h2 className={styles["title"]}>Login</h2>
+        <div className={styles["header-form"]}>
+          <h2 className={styles["title"]}>Login</h2>
+        </div>
         <Form onFinish={handleLogin}>
           <Form.Item
             name="email"
@@ -61,11 +63,22 @@ const Login = ({ setUser }) => {
             <Input.Password placeholder="Password" />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              className={styles["btn-login"]}
+            >
               Login
             </Button>
           </Form.Item>
         </Form>
+        <a href="/forget-password" className={styles["link-forget"]}>
+          Forgot password?
+        </a>
+        <a href="/register" className={styles["link-button"]}>
+          Register
+        </a>
       </div>
     </div>
   );

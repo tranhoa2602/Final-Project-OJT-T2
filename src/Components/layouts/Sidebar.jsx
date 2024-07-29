@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import i18n from "../../i18n"; // Đảm bảo đường dẫn này đúng
-import "../../styles/layouts/Sidebar.scss";
+import { useTranslation } from 'react-i18next';
+import { Layout, Menu, Button } from "antd";
 import {
   AppstoreOutlined,
   ContainerOutlined,
@@ -14,8 +13,8 @@ import {
   SolutionOutlined,
   DeploymentUnitOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import i18n from "../../i18n"; // Đảm bảo đường dẫn này đúng
 
 const { Sider } = Layout;
 
@@ -90,30 +89,19 @@ const Sidebar = () => {
       children: [
         {
           key: "3",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Project Info")}</Link>
-          ),
+          label: <Link to="/projects">{t("View Projects")}</Link>,
         },
         {
           key: "4",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Assign Employees")}</Link>
-          ),
-        },
-        {
-          key: "5",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Project Tracking")}</Link>
-          ),
+          label: <Link to="/projects/create">{t("Create Project")}</Link>,
         },
       ],
     },
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/ListPosition">{t('Position')}</Link>,
+      label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
-
     {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,
@@ -130,9 +118,7 @@ const Sidebar = () => {
         },
         {
           key: "8",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>
-          ),
+          label: <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>,
         },
       ],
     },

@@ -1,7 +1,17 @@
-import React, { useState } from "react";
-import { Button, Form, Input, InputNumber, message, Upload, Switch } from "antd";
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Upload,
+  Switch,
+  Select,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
+import { getDatabase, ref, get } from "firebase/database";
 
 const formItemLayout = {
   labelCol: {
@@ -14,19 +24,40 @@ const formItemLayout = {
   },
 };
 
+const { Option } = Select;
+
 const Create = () => {
   const navigate = useNavigate();
   const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
   const [cvFile, setCvFile] = useState(null);
+  const [positions, setPositions] = useState([]);
 
+  useEffect(() => {
+    const fetchPositions = async () => {
+      const db = getDatabase();
+      const positionsRef = ref(db, "positions");
+      const snapshot = await get(positionsRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const formattedData = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setPositions(formattedData);
+      } else {
+        setPositions([]);
+      }
+    };
+
+    fetchPositions();
+  }, []);
 
   const handleFileChange = (info) => {
     const file = info.file.originFileObj;
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        console.log("CV File Content:", reader.result); // Debugging
         setCvFile(reader.result);
       };
       reader.readAsDataURL(file);
@@ -36,16 +67,15 @@ const Create = () => {
   const handleCvUpload = ({ file }) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-        setCvFile(e.target.result);
+      setCvFile(e.target.result);
     };
     reader.readAsDataURL(file);
     return false;
-};
+  };
 
-const gotoEmployeeList = () => {
-  navigate('/list'); 
-};
-
+  const gotoEmployeeList = () => {
+    navigate("/list");
+  };
 
   const handleSubmit = (values) => {
     const employeeData = {
@@ -57,7 +87,9 @@ const gotoEmployeeList = () => {
       role: "Employee",
       status: values.status ? "active" : "inactive",
       positionId: values.positionId,
-      projectIds: values.projectIds ? values.projectIds.split(",").map(Number) : [],
+      projectIds: values.projectIds
+        ? values.projectIds.split(",").map(Number)
+        : [],
       skills: values.skills,
       contact: values.contact,
       cv_file: cvFile,
@@ -74,8 +106,6 @@ const gotoEmployeeList = () => {
         },
       ],
     };
-
-    console.log("Employee Data:", employeeData); // Debugging
 
     if (cvFile) {
       handleAdd(employeeData);
@@ -117,20 +147,22 @@ const gotoEmployeeList = () => {
         <Input />
       </Form.Item>
 
-      <Form.Item
-        label="Status"
-        name="status"
-        valuePropName="checked"
-      >
+      <Form.Item label="Status" name="status" valuePropName="checked">
         <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
 
       <Form.Item
-        label="Position ID"
+        label="Position"
         name="positionId"
-        rules={[{ required: true, message: "Please input the position ID!" }]}
+        rules={[{ required: true, message: "Please select the position!" }]}
       >
-        <InputNumber />
+        <Select>
+          {positions.map((position) => (
+            <Option key={position.id} value={position.id}>
+              {position.name}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
@@ -181,9 +213,7 @@ const gotoEmployeeList = () => {
         <Input />
       </Form.Item>
 
-      <Form.Item
-        label="Description"
-      >
+      <Form.Item label="Description" name="description">
         <Input />
       </Form.Item>
 
@@ -203,7 +233,7 @@ const gotoEmployeeList = () => {
         </Button>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit" onClick={gotoEmployeeList}>
+        <Button type="primary" onClick={gotoEmployeeList}>
           Back
         </Button>
       </Form.Item>

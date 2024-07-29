@@ -129,15 +129,15 @@ function Admin() {
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
+      if (userData.status === "active") {
+        message.error(t("Cannot delete an active user"));
+        return;
+      }
+
       const adminUsers = users.filter((user) => user.isAdmin);
 
       if (userData.isAdmin && adminUsers.length === 1) {
         message.error(t("Cannot delete the only admin user"));
-        return;
-      }
-
-      if (userData.isAdmin) {
-        message.error(t("Cannot delete an admin user"));
         return;
       }
 
@@ -263,6 +263,7 @@ function Admin() {
               type="danger"
               onClick={() => handleDeleteUser(user.key)}
               key="delete"
+              disabled={user.status === "active"}
             >
               {t("Delete")}
             </Button>

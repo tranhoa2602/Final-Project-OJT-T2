@@ -15,6 +15,12 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
+import emailjs from "emailjs-com";
+import {
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID,
+  EMAILJS_USER_ID,
+} from "../../emailConfig"; // Import email configuration
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
@@ -53,6 +59,30 @@ function Admin() {
     fetchUsers();
   }, [t]);
 
+  const sendResetPasswordEmail = (email, resetLink) => {
+    const templateParams = {
+      to_name: email,
+      from_name: "Your Company Name",
+      message: `Click this link to reset your password: ${resetLink}`,
+    };
+
+    emailjs
+      .send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_USER_ID
+      )
+      .then(
+        (response) => {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        (error) => {
+          console.log("FAILED...", error);
+        }
+      );
+  };
+
   const handleAddOrUpdateUser = async (values) => {
     const { email, role, status } = values;
 
@@ -68,6 +98,7 @@ function Admin() {
       let userData = {
         id: userKey,
         email,
+        password: "1234567", // Default password
         contact: "",
         cv_list: [
           {
@@ -100,6 +131,12 @@ function Admin() {
 
         await set(userRef, userData);
         message.success(t("User added successfully!"));
+
+        // Send reset password email
+        const resetLink = `http://localhost:5173/reset-password?email=${encodeURIComponent(
+          email
+        )}`;
+        sendResetPasswordEmail(email, resetLink);
       }
 
       form.resetFields();
@@ -129,15 +166,13 @@ function Admin() {
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
-      const adminUsers = users.filter((user) => user.isAdmin);
-
-      if (userData.isAdmin && adminUsers.length === 1) {
-        message.error(t("Cannot delete the only admin user"));
+      if (userData.role === "Admin") {
+        message.error(t("Cannot delete an admin user"));
         return;
       }
 
-      if (userData.isAdmin) {
-        message.error(t("Cannot delete an admin user"));
+      if (userData.role === "Employee" && userData.status === "active") {
+        message.error(t("Cannot delete an active employee"));
         return;
       }
 
@@ -258,15 +293,21 @@ function Admin() {
           >
             {t("Edit")}
           </Button>
-          {!user.isAdmin && (
-            <Button
-              type="danger"
-              onClick={() => handleDeleteUser(user.key)}
-              key="delete"
-            >
-              {t("Delete")}
-            </Button>
-          )}
+          <Button
+            type="danger"
+            onClick={() => {
+              if (user.role === "Admin") {
+                message.error(t("Cannot delete an admin user"));
+              } else if (user.status === "active" && user.role === "Employee") {
+                message.error(t("Cannot delete an active employee"));
+              } else {
+                handleDeleteUser(user.key);
+              }
+            }}
+            key="delete"
+          >
+            {t("Delete")}
+          </Button>
         </span>
       ),
     },

@@ -142,11 +142,16 @@ const Sidebar = () => {
     },
     {
       key: "10",
+      icon: <ContainerOutlined />,
+      label: <Link to="/ListPosition">{t('Position')}</Link>,
+    },
+    {
+      key: "11",
       icon: <SolutionOutlined />,
       label: <Link to="/../Employee/EmployeeList">{t('CV')}</Link>,
     },
     {
-      key: "11",
+      key: "12",
       icon: <LogoutOutlined />,
       label: (
         <button

@@ -16,7 +16,7 @@ const columns = (handleEdit, handleDelete, navigate) => [
     dataIndex: "name",
     key: "name",
     render: (text, record) => (
-      <a onClick={() => navigate('/details', { state: { employee: record } })}>
+      <a onClick={() => navigate("/details", { state: { employee: record } })}>
         {text}
       </a>
     ),
@@ -27,7 +27,7 @@ const columns = (handleEdit, handleDelete, navigate) => [
     key: "email",
   },
   {
-    title: "Position ID",
+    title: "Position",
     dataIndex: "positionId",
     key: "positionId",
   },
@@ -58,8 +58,14 @@ const columns = (handleEdit, handleDelete, navigate) => [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
-        <a onClick={() => navigate('/edit', { state: { employee: record } })}>Edit</a>
-        <a onClick={() => navigate('/details', { state: { employee: record } })}>Details</a>
+        <a onClick={() => navigate("/edit", { state: { employee: record } })}>
+          Edit
+        </a>
+        <a
+          onClick={() => navigate("/details", { state: { employee: record } })}
+        >
+          Details
+        </a>
         <a onClick={() => handleDelete(record.key)}>Delete</a>
       </Space>
     ),
@@ -96,7 +102,7 @@ const EmployeeList = () => {
         id: employee.key,
         name: employee.name,
         email: employee.email,
-        password: employee.password,  
+        password: employee.password,
         phone: employee.phone,
         isAdmin: employee.isAdmin,
         status: employee.status,
@@ -119,13 +125,19 @@ const EmployeeList = () => {
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     saveAs(blob, "employee-list.xlsx");
   };
 
   return (
     <div>
-      <Table columns={columns(handleEdit, handleDelete, navigate)} dataSource={employees} id="employee-table" />
+      <Table
+        columns={columns(handleEdit, handleDelete, navigate)}
+        dataSource={employees}
+        id="employee-table"
+      />
       <Button
         type="primary"
         htmlType="button"

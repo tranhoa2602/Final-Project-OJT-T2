@@ -79,7 +79,7 @@ const Sidebar = () => {
         },
         {
           key: "2",
-          label: <Link to="/change-password">{t("Reset Password")}</Link>,
+          label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
@@ -111,7 +111,7 @@ const Sidebar = () => {
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/ListPosition">{t('Position')}</Link>,
+      label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
 
     {
@@ -126,7 +126,7 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="list">{t('Employee Profile')}</Link>,
+          label: <Link to="">{t("Employee Profile")}</Link>,
         },
         {
           key: "8",

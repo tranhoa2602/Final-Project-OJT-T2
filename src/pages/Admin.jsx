@@ -166,8 +166,8 @@ function Admin() {
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
-      if (userData.status === "active") {
-        message.error(t("Cannot delete an active user"));
+      if (userData.role === "Employee" && userData.status === "active") {
+        message.error(t("Cannot delete an active employee"));
         return;
       }
 
@@ -295,16 +295,19 @@ function Admin() {
           >
             {t("Edit")}
           </Button>
-          {!user.isAdmin && (
-            <Button
-              type="danger"
-              onClick={() => handleDeleteUser(user.key)}
-              key="delete"
-              disabled={user.status === "active"}
-            >
-              {t("Delete")}
-            </Button>
-          )}
+          <Button
+            type="danger"
+            onClick={() => {
+              if (user.status === "active" && user.role === "Employee") {
+                message.error(t("Cannot delete an active employee"));
+              } else {
+                handleDeleteUser(user.key);
+              }
+            }}
+            key="delete"
+          >
+            {t("Delete")}
+          </Button>
         </span>
       ),
     },

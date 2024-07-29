@@ -109,15 +109,14 @@ const Sidebar = () => {
       ],
     },
     {
+      key: "10",
+      icon: <SolutionOutlined />,
+      label: <Link to="/../Employee/EmployeeList">{t("Position")}</Link>,
+    },
+    {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,
-      label: t("Technology"),
-      children: [
-        {
-          key: "6",
-          label: <Link to="/TechList">{t("Technology Info")}</Link>,
-        },
-      ],
+      label: <Link to="/TechList">{t("Technology")}</Link>,
     },
     {
       key: "sub4",
@@ -138,21 +137,8 @@ const Sidebar = () => {
     },
     {
       key: "sub5",
-      label: t("Languages"),
+      label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
-      children: [
-        {
-          key: "9",
-          label: (
-            <Link to="/ViewLanguage">{t("Programming Language Info")}</Link>
-          ),
-        },
-      ],
-    },
-    {
-      key: "10",
-      icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t("CV")}</Link>,
     },
     {
       key: "11",

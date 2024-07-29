@@ -33,7 +33,7 @@ const ListPosition = () => {
 
     const handleAddOrUpdatePosition = async (values) => {
         const db = getDatabase();
-        const status = values.status ? "active" : "inactive"; // Chuyển đổi giá trị Boolean thành chuỗi "active" hoặc "inactive"
+        const status = values.status ? "active" : "inactive";
         if (editingPosition) {
             const positionRef = ref(db, `positions/${editingPosition.id}`);
             await update(positionRef, { ...values, status });
@@ -65,6 +65,12 @@ const ListPosition = () => {
     };
 
     const handleDelete = async (id) => {
+        const position = positions.find(position => position.id === id);
+        if (position.status === "active") {
+            message.error(t("Can't delete status active"));
+            return;
+        }
+
         const db = getDatabase();
         await remove(ref(db, `positions/${id}`));
         message.success(t("Position deleted successfully!"));
@@ -137,6 +143,7 @@ const ListPosition = () => {
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
                         style={{ marginRight: 8 }}
+                        type="primary"
                     >
                         {t("Edit")}
                     </Button>
@@ -157,7 +164,7 @@ const ListPosition = () => {
             <Button type="primary" onClick={() => {
                 form.setFieldsValue({ status: true });
                 setModalVisible(true);
-            }} style={{ marginBottom: 16 }}>
+            }} style={{ margin: 16 }}>
                 {t("Add Position")}
             </Button>
             <Table

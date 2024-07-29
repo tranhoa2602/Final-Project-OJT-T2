@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import "../../styles/layouts/main.css";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import Create from "../Employee/Employee_Information/CreateEmployee";
+import CreateEmployee from "../Employee/Employee_Information/CreateEmployee";
 import TechList from "../Tech/TechList";
 import AddTech from "../Tech/AddTech";
 import EditTech from "../Tech/EditTech";
@@ -23,7 +24,9 @@ import ListPosition from "../PositionManager/ListPosition";
 import ListProject from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
 import EditProject from "../ProjectManager/EditProject";
-import { getDatabase, ref, get } from "firebase/database";
+import DetailProject from "../ProjectManager/DetailProject";
+
+import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -33,28 +36,11 @@ const Main = () => {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
-      const fetchUserDetails = async () => {
-        const db = getDatabase();
-        const userRef = ref(db, `users/${storedUser.key}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const userDetails = snapshot.val();
-          setUser({ ...storedUser, role: userDetails.role });
-          const userRolePath =
-            userDetails.role === "Admin" ? "/admin" : "/employee";
-          if (
-            location.pathname === "/" ||
-            ["/register", "/forget-password", "/reset-password"].includes(
-              location.pathname
-            )
-          ) {
-            navigate(userRolePath);
-          }
-        } else {
-          setUser(null);
-        }
-      };
-      fetchUserDetails();
+      setUser(storedUser);
+      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
+      if (location.pathname === "/") {
+        navigate(userRolePath);
+      }
     } else {
       if (
         ![
@@ -67,46 +53,50 @@ const Main = () => {
         navigate("/");
       }
     }
-  }, [navigate, location.pathname]);
+  }, [location.pathname, navigate]);
 
   return (
-    <main className="main-content">
-      <Routes>
-        <Route path="/" element={<Login setUser={setUser} />} />
-        <Route path="/register" element={<Register setUser={setUser} />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route
-          path="/admin"
-          element={
-            user?.role === "Admin" ? (
-              <AdminRoute user={user}>
-                <Admin />
-              </AdminRoute>
-            ) : (
-              <Login setUser={setUser} />
-            )
-          }
-        />
-        <Route path="/employee" element={<div>Employee Dashboard</div>} />
-        <Route path="/create" element={<Create />} />
-        <Route path="/edit" element={<EditEmployee />} />
-        <Route path="/list" element={<EmployeeList />} />
-        <Route path="/details" element={<EmployeeDetails />} />
-        <Route path="/exportcv" element={<CVExport />} />
-        <Route path="/AddTech" element={<AddTech />} />
-        <Route path="/EditTech/:id" element={<EditTech />} />
-        <Route path="/TechList" element={<TechList />} />
-        <Route path="/AddLanguage" element={<AddLanguage />} />
-        <Route path="/EditLanguage/:id" element={<EditLanguage />} />
-        <Route path="/ViewLanguage" element={<ViewLanguage />} />
-        <Route path="/change-password" element={<ChangePassword />} />
-        <Route path="/ListPosition" element={<ListPosition />} />
-        <Route path="/projects" element={<ListProject />} />
-        <Route path="/projects/create" element={<CreateProject />} />
-        <Route path="/projects/edit/:id" element={<EditProject />} />
-      </Routes>
-    </main>
+    <EmployeeProvider>
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Login setUser={setUser} />} />
+          <Route path="/register" element={<Register setUser={setUser} />} />
+          <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            path="/admin"
+            element={
+              user?.role === "Admin" ? (
+                <AdminRoute user={user}>
+                  <Admin />
+                </AdminRoute>
+              ) : (
+                <Login setUser={setUser} />
+              )
+            }
+          />
+          <Route path="/create" element={<CreateEmployee />} />
+          <Route path="/edit" element={<EditEmployee />} />
+          <Route path="/list" element={<EmployeeList />} />
+          <Route path="/details" element={<EmployeeDetails />} />
+          <Route path="/employee" element={<div>Employee Dashboard</div>} />
+          <Route path="/exportcv" element={<CVExport />} />
+          <Route path="/AddTech" element={<AddTech />} />
+          <Route path="/EditTech/:id" element={<EditTech />} />
+          <Route path="/TechList" element={<TechList />} />
+          <Route path="/AddLanguage" element={<AddLanguage />} />
+          <Route path="/EditLanguage/:id" element={<EditLanguage />} />
+          <Route path="/ViewLanguage" element={<ViewLanguage />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/ListPosition" element={<ListPosition />} />
+          <Route path="/projects" element={<ListProject />} />
+          <Route path="/projects/create" element={<CreateProject visible />} />
+          <Route path="/projects/edit/:id" element={<EditProject />} />
+          <Route path="/projects/details/:id" element={<DetailProject />} />
+
+        </Routes>
+      </main>
+    </EmployeeProvider>
   );
 };
 

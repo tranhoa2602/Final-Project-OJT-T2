@@ -72,7 +72,7 @@ const TechList = () => {
 
   const handleDelete = async (id, status) => {
     if (status === "Active") {
-      message.error("Can't delete status active");
+      message.error(t("Can't delete status active"));
       return;
     }
     try {
@@ -168,9 +168,10 @@ const TechList = () => {
         record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
         <Tag color={status === "Active" ? "green" : "red"}>
-          {status}
+          {status === "Active" ? t("Active") : t("Inactive")}
         </Tag>
       ),
+
     },
     {
       title: t("Tech Description"),
@@ -182,8 +183,8 @@ const TechList = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditTech/${record.id}`}> Edit </Link>{" "}
-          <a onClick={() => handleDelete(record.id, record.techstatus)}> Delete </a>{" "}
+          <Link to={`/EditTech/${record.id}`}>  {t("Edit")} </Link>{" "}
+          <a onClick={() => handleDelete(record.id, record.techstatus)}>   {t("Delete")} </a>{" "}
         </Space>
       ),
     },

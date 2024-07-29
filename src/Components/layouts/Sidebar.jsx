@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
-import { Layout, Menu, Button } from "antd";
+import { useTranslation } from "react-i18next";
+import i18n from "../../i18n";
 import {
-  AppstoreOutlined,
-  ContainerOutlined,
-  DesktopOutlined,
-  LogoutOutlined,
-  TeamOutlined,
   UserOutlined,
   FundProjectionScreenOutlined,
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
+  LogoutOutlined,
+  TeamOutlined
 } from "@ant-design/icons";
+import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import i18n from "../../i18n"; // Đảm bảo đường dẫn này đúng
 
 const { Sider } = Layout;
 
@@ -29,14 +26,6 @@ const layoutStyle = {
   height: "100vh",
   width: "calc(100% - 8px)",
   maxWidth: "calc(100% - 8px)",
-};
-
-const buttonStyle = {
-  position: "absolute",
-  bottom: 16,
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "90%",
 };
 
 const Sidebar = () => {
@@ -89,19 +78,17 @@ const Sidebar = () => {
       children: [
         {
           key: "3",
-          label: <Link to="/projects">{t("View Projects")}</Link>,
+          label: <Link to="/projects">{t('Projects list')}</Link>,
         },
-        {
-          key: "4",
-          label: <Link to="/projects/create">{t("Create Project")}</Link>,
-        },
+
       ],
     },
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/ListPosition">{t("Position")}</Link>,
+      label: <Link to="/ListPosition">{t('Position')}</Link>,
     },
+
     {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,
@@ -118,7 +105,9 @@ const Sidebar = () => {
         },
         {
           key: "8",
-          label: <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>,
+          label: (
+            <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>
+          ),
         },
       ],
     },

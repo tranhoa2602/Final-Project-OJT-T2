@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useParams, useNavigate } from "react-router-dom";
@@ -31,8 +31,10 @@ const EditTech = () => {
         const response = await axios.get(
           `${firebaseConfig.databaseURL}/technologies/${id}.json`
         );
-        setInitialValues(response.data);
-        form.setFieldsValue(response.data);
+        const data = response.data;
+        data.techstatus = data.techstatus === "Active";
+        setInitialValues(data);
+        form.setFieldsValue(data);
       } catch (error) {
         console.error(t("Error fetching technology:"), error);
         message.error(t("Failed to fetch technology."));
@@ -44,6 +46,8 @@ const EditTech = () => {
 
   const handleSubmit = async (values) => {
     try {
+      values.techstatus = values.techstatus ? "Active" : "Inactive";
+
       await axios.put(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`,
         values
@@ -82,14 +86,14 @@ const EditTech = () => {
         name="techtype"
         rules={[{ required: true, message: t("Please input Tech Type!") }]}
       >
-        <Input />
+        <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
       </Form.Item>
       <Form.Item
         label={t("Tech Status")}
         name="techstatus"
-        rules={[{ required: true, message: t("Please select Tech Status!") }]}
+        valuePropName="checked"
       >
-        <Input />
+        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
       <Form.Item label={t("Tech Description")} name="techdescription">
         <Input />

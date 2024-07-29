@@ -330,7 +330,6 @@ function Admin() {
       >
         {t("Export to Excel")}
       </Button>
-      <h2>{t("Current Users")}</h2>
       <Input
         className={styles["search-input"]}
         placeholder={t("Search by email")}

@@ -103,7 +103,19 @@ i18n
                     'Cannot delete an admin user': 'Cannot delete an admin user',
                     'User deleted successfully!': 'User deleted successfully!',
                     'Error deleting user': 'Error deleting user',
-                    'Error fetching users': 'Error fetching users'
+                    'Error fetching users': 'Error fetching users',
+                    'Add Position': 'Add Position',
+                    'Edit Position': 'Edit Position',
+                    'Position added successfully!': 'Position added successfully!',
+                    'Position updated successfully!': 'Position updated successfully!',
+                    'Position deleted successfully!': 'Position deleted successfully!',
+                    'Failed to add position.': 'Failed to add position.',
+                    'Failed to update position.': 'Failed to update position.',
+                    'Failed to delete position.': 'Failed to delete position.',
+                    'Please input the name!': 'Please input the name!',
+                    'Please input the description!': 'Please input the description!',
+                    'Please select the status!': 'Please select the status!',
+                    'Position': 'Position'
                 }
             },
             vi: {
@@ -204,7 +216,19 @@ i18n
                     'Cannot delete an admin user': 'Không thể xóa người quản trị',
                     'User deleted successfully!': 'Xóa người dùng thành công!',
                     'Error deleting user': 'Lỗi khi xóa người dùng',
-                    'Error fetching users': 'Lỗi khi lấy thông tin người dùng'
+                    'Error fetching users': 'Lỗi khi lấy thông tin người dùng',
+                    'Add Position': 'Thêm Vị trí',
+                    'Edit Position': 'Chỉnh sửa Vị trí',
+                    'Position added successfully!': 'Thêm Vị trí thành công!',
+                    'Position updated successfully!': 'Cập nhật Vị trí thành công!',
+                    'Position deleted successfully!': 'Xóa Vị trí thành công!',
+                    'Failed to add position.': 'Thêm Vị trí thất bại.',
+                    'Failed to update position.': 'Cập nhật Vị trí thất bại.',
+                    'Failed to delete position.': 'Xóa Vị trí thất bại.',
+                    'Please input the name!': 'Vui lòng nhập tên!',
+                    'Please input the description!': 'Vui lòng nhập mô tả!',
+                    'Please select the status!': 'Vui lòng chọn trạng thái!',
+                    'Position': 'Vị Trí'
                 }
             }
         },

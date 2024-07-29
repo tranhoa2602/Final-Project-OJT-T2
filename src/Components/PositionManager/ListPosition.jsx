@@ -40,7 +40,7 @@ const ListPosition = () => {
 
   const handleAddOrUpdatePosition = async (values) => {
     const db = getDatabase();
-    const status = values.status ? "active" : "inactive"; // Chuyển đổi giá trị Boolean thành chuỗi "active" hoặc "inactive"
+    const status = values.status ? "active" : "inactive";
     if (editingPosition) {
       const positionRef = ref(db, `positions/${editingPosition.id}`);
       await update(positionRef, { ...values, status });
@@ -192,7 +192,7 @@ const ListPosition = () => {
       />
       <Modal
         title={editingPosition ? t("Edit Position") : t("Add Position")}
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={handleModalCancel}
         footer={null}
       >

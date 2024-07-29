@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, Tag, Switch, message } from "antd";
+import { Space, Table, Button, Tag, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
@@ -31,7 +31,11 @@ const ViewLanguage = () => {
     fetchData();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (status === "Active") {
+      message.error("Can't delete status active");
+      return;
+    }
     try {
       await axios.delete(
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
@@ -69,13 +73,10 @@ const ViewLanguage = () => {
       title: "Status",
       dataIndex: "programingstatus",
       key: "programingstatus",
-      render: (status, record) => (
-        <Switch
-          checked={status === "Active"}
-          onChange={(checked) => handleStatusChange(record.id, checked)}
-          checkedChildren="Active"
-          unCheckedChildren="Inactive"
-        />
+      render: (status) => (
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {status}
+        </Tag>
       ),
     },
     {
@@ -89,7 +90,7 @@ const ViewLanguage = () => {
       render: (_, record) => (
         <Space size="middle">
           <Link to={`/EditLanguage/${record.id}`}> Edit </Link>{" "}
-          <a onClick={() => handleDelete(record.id)}> Delete </a>{" "}
+          <a onClick={() => handleDelete(record.id, record.programingstatus)}> Delete </a>{" "}
         </Space>
       ),
     },

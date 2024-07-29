@@ -50,31 +50,31 @@ const AddTech = () => {
       onFinish={handleSubmit}
       onFinishFailed={handleFailure}
       style={{ height: "100vh" }}
+      initialValues={{ techstatus: true }}
     >
       <Title level={2}>Add New Technology</Title>
       <Form.Item
-        label="TechName"
+        label="Tech Name"
         name="techname"
         rules={[{ required: true, message: "Please input Tech Name!" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label="TechType"
+        label="Tech Type"
         name="techtype"
         rules={[{ required: true, message: "Please input Tech Type!" }]}
       >
         <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
       </Form.Item>
       <Form.Item
-        label="TechStatus"
+        label="Tech Status"
         name="techstatus"
         valuePropName="checked"
-        rules={[{ required: true, message: "Please select Tech Status!" }]}
       >
         <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
-      <Form.Item label="TechDescription" name="techdescription">
+      <Form.Item label="Tech Description" name="techdescription">
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

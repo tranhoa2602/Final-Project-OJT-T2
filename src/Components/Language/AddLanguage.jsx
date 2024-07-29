@@ -50,31 +50,31 @@ const AddLanguage = () => {
       onFinish={handleSubmit}
       onFinishFailed={handleFailure}
       style={{ height: "100vh" }}
+      initialValues={{ programingstatus: true }}
     >
       <Title level={2}>Add New Programming Language</Title>
       <Form.Item
-        label="ProgramLanguageName"
+        label="Program Language Name"
         name="programingname"
         rules={[{ required: true, message: "Please input Program Language Name!" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label="ProgramLanguageType"
+        label="Program Language Type"
         name="programingtype"
         rules={[{ required: true, message: "Please input Program Language Type!" }]}
       >
         <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
       </Form.Item>
       <Form.Item
-        label="ProgramLanguageStatus"
+        label="Program Language Status"
         name="programingstatus"
         valuePropName="checked"
-        rules={[{ required: true, message: "Please select Program Language Status!" }]}
       >
         <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
-      <Form.Item label="ProgramLanguageDescription" name="programingdescription">
+      <Form.Item label="Program Language Description" name="programingdescription">
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

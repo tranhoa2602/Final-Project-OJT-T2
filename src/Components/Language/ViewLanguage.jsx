@@ -3,8 +3,10 @@ import { Space, Table, Button, Tag, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
+import { useTranslation } from "react-i18next";
 
 const ViewLanguage = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ const ViewLanguage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [t]);
 
   const handleDelete = async (id, status) => {
     if (status === "Active") {
@@ -50,13 +52,13 @@ const ViewLanguage = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: t("Name"),
       dataIndex: "programingname",
       key: "programingname",
-      render: (text) => <a> {text} </a>,
+      render: (text) => <a>{text}</a>,
     },
     {
-      title: "Type",
+      title: t("Type"),
       dataIndex: "programingtype",
       key: "programingtype",
       render: (tags) => (
@@ -70,7 +72,7 @@ const ViewLanguage = () => {
       ),
     },
     {
-      title: "Status",
+      title: t("Status"),
       dataIndex: "programingstatus",
       key: "programingstatus",
       render: (status) => (
@@ -80,12 +82,12 @@ const ViewLanguage = () => {
       ),
     },
     {
-      title: "Description",
+      title: t("Description"),
       dataIndex: "programingdescription",
       key: "programingdescription",
     },
     {
-      title: "Action",
+      title: t("Actions"),
       key: "action",
       render: (_, record) => (
         <Space size="middle">
@@ -103,8 +105,8 @@ const ViewLanguage = () => {
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddLanguage")}
       >
-        Add Programing Language{" "}
-      </Button>{" "}
+        {t("Add Programming Language")}
+      </Button>
       <Table columns={columns} dataSource={data} rowKey="id" />
     </>
   );

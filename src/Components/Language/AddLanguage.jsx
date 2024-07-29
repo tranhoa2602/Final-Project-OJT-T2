@@ -3,6 +3,7 @@ import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
 
@@ -18,6 +19,7 @@ const formItemLayout = {
 };
 
 const AddLanguage = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -30,12 +32,12 @@ const AddLanguage = () => {
         values
       );
 
-      message.success("Programming Language added successfully!");
+      message.success(t("Programming Language added successfully!"));
       form.resetFields();
       navigate("/ViewLanguage");
     } catch (error) {
       console.error("Error adding Programming Language: ", error);
-      message.error("Failed to add Programming Language.");
+      message.error(t("Failed to add Programming Language."));
     }
   };
 
@@ -52,34 +54,53 @@ const AddLanguage = () => {
       style={{ height: "100vh" }}
       initialValues={{ programingstatus: true }}
     >
-      <Title level={2}>Add New Programming Language</Title>
+      <Title level={2}>{t("Add New Programming Language")}</Title>
       <Form.Item
-        label="Program Language Name"
+        label={t("Program Language Name")}
         name="programingname"
-        rules={[{ required: true, message: "Please input Program Language Name!" }]}
+        rules={[
+          {
+            required: true,
+            message: t("Please input Programming Language Name!"),
+          },
+        ]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label="Program Language Type"
+        label={t("Programming Language Type")}
         name="programingtype"
-        rules={[{ required: true, message: "Please input Program Language Type!" }]}
+        rules={[
+          {
+            required: true,
+            message: t("Please input Programming Language Type!"),
+          },
+        ]}
       >
-        <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
+        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
       </Form.Item>
       <Form.Item
-        label="Program Language Status"
+        label={t("Programming Language Status")}
         name="programingstatus"
         valuePropName="checked"
+        rules={[
+          {
+            required: true,
+            message: t("Please select Programming Language Status!"),
+          },
+        ]}
       >
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
-      <Form.Item label="Program Language Description" name="programingdescription">
+      <Form.Item
+        label={t("Programming Language Description")}
+        name="programingdescription"
+      >
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit
+          {t("Submit")}
         </Button>
       </Form.Item>
     </Form>

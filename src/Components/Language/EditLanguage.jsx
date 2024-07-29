@@ -3,6 +3,7 @@ import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
 
@@ -18,10 +19,12 @@ const formItemLayout = {
 };
 
 const EditLanguage = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const { id } = useParams();
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLanguage = async () => {
@@ -33,14 +36,16 @@ const EditLanguage = () => {
         data.programingstatus = data.programingstatus === "Active";
         setInitialValues(data);
         form.setFieldsValue(data);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
-        message.error("Failed to fetch Programming Languages.");
+        message.error(t("Failed to fetch programming languages."));
+        setLoading(false);
       }
     };
 
     fetchLanguage();
-  }, [id, form]);
+  }, [id, form, t]);
 
   const handleSubmit = async (values) => {
     try {
@@ -50,17 +55,21 @@ const EditLanguage = () => {
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
         values
       );
-      message.success("Programming Languages updated successfully!");
+      message.success(t("Programming language updated successfully!"));
       navigate("/ViewLanguage");
     } catch (error) {
-      console.error("Error updating Programming Languages: ", error);
-      message.error("Failed to update Programming Languages.");
+      console.error("Error updating Programming Language: ", error);
+      message.error(t("Failed to update programming language."));
     }
   };
 
   const handleFailure = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form
@@ -71,30 +80,29 @@ const EditLanguage = () => {
       style={{ height: "100vh" }}
       initialValues={initialValues}
     >
-      <Title level={2}>Edit Technology</Title>
+      <Title level={2}>Edit Programming Language</Title>
       <Form.Item
-        label="ProgramLanguageName"
+        label="Program Language Name"
         name="programingname"
         rules={[{ required: true, message: "Please input Program Language Name!" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label="ProgramLanguageType"
+        label="Program Language Type"
         name="programingtype"
-        rules={[{ required: true, message: "Please input ProgramLanguage Type!" }]}
+        rules={[{ required: true, message: "Please input Program Language Type!" }]}
       >
         <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
       </Form.Item>
       <Form.Item
-        label="ProgramLanguageStatus"
+        label="Program Language Status"
         name="programingstatus"
         valuePropName="checked"
-        rules={[{ required: true, message: "Please select Program Language Status!" }]}
       >
         <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
-      <Form.Item label="ProgramLanguageDescription" name="programingdescription">
+      <Form.Item label="Program Language Description" name="programingdescription">
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

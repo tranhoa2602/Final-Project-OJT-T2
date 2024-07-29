@@ -18,6 +18,7 @@ import EditEmployee from "../Employee/Employee_Information/EditEmployee"; // Imp
 import EmployeeList from "../Employee/Employee_Information/EmployeeList"; // Import trang EmployeeList
 import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails"; // Import trang EmployeeDetails
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV"; // Import trang CVExport
+import ChangePassword from "../../pages/ChangePassword"; // Import Change Password page
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -33,15 +34,19 @@ const Main = () => {
         navigate(userRolePath);
       }
     } else {
+      // If there is no stored user, navigate to the login page
       if (
-        !["/register", "/forget-password", "/reset-password"].includes(
-          location.pathname
-        )
+        ![
+          "/register",
+          "/forget-password",
+          "/reset-password",
+          "/change-password",
+        ].includes(location.pathname)
       ) {
         navigate("/");
       }
     }
-  }, [navigate, location.pathname]);
+  }, [location.pathname, navigate]);
 
   return (
     <main className="main-content">
@@ -74,6 +79,8 @@ const Main = () => {
         <Route path="/AddLanguage" element={<AddLanguage />} />
         <Route path="/EditLanguage/:id" element={<EditLanguage />} />
         <Route path="/ViewLanguage" element={<ViewLanguage />} />
+        <Route path="/change-password" element={<ChangePassword />} />{" "}
+        {/* Add Change Password route */}
       </Routes>
     </main>
   );

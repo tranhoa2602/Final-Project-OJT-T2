@@ -14,21 +14,13 @@ import ForgetPassword from "../../pages/ForgetPassword";
 import ResetPassword from "../../pages/ResetPassword";
 import Admin from "../../pages/Admin";
 import AdminRoute from "../Admin/AdminRoute";
-<<<<<<< HEAD
 import EditEmployee from "../Employee/Employee_Information/EditEmployee";
 import EmployeeList from "../Employee/Employee_Information/EmployeeList";
 import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 import ChangePassword from "../../pages/ChangePassword";
 import ListPosition from "../PositionManager/ListPosition";
-
-=======
-import EditEmployee from "../Employee/Employee_Information/EditEmployee"; // Import trang EditEmployee
-import EmployeeList from "../Employee/Employee_Information/EmployeeList"; // Import trang EmployeeList
-import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails"; // Import trang EmployeeDetails
-import CVExport from "../Employee/Employee_Information/ExportEmployeeCV"; // Import trang CVExport
 import { getDatabase, ref, get } from "firebase/database"; // Import the necessary Firebase functions
->>>>>>> d9274ebbf4936258c21b9fdfc1034b4afafc1644
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -57,20 +49,7 @@ const Main = () => {
       };
       fetchUserDetails();
     } else {
-<<<<<<< HEAD
-      if (
-        ![
-          "/register",
-          "/forget-password",
-          "/reset-password",
-          "/change-password",
-        ].includes(location.pathname)
-      ) {
-        navigate("/");
-      }
-=======
       navigate("/");
->>>>>>> d9274ebbf4936258c21b9fdfc1034b4afafc1644
     }
   }, [navigate, location.pathname]);
 
@@ -105,12 +84,8 @@ const Main = () => {
         <Route path="/AddLanguage" element={<AddLanguage />} />
         <Route path="/EditLanguage/:id" element={<EditLanguage />} />
         <Route path="/ViewLanguage" element={<ViewLanguage />} />
-<<<<<<< HEAD
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/ListPosition" element={<ListPosition />} />
-
-=======
->>>>>>> d9274ebbf4936258c21b9fdfc1034b4afafc1644
       </Routes>
     </main>
   );

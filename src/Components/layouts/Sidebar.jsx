@@ -111,8 +111,9 @@ const Sidebar = () => {
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t("Position")}</Link>,
+      label: <Link to="/ListPosition">{t('Position')}</Link>,
     },
+
     {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,
@@ -141,7 +142,7 @@ const Sidebar = () => {
       icon: <GlobalOutlined />,
     },
     {
-      key: "11",
+      key: "12",
       icon: <LogoutOutlined />,
       label: (
         <button

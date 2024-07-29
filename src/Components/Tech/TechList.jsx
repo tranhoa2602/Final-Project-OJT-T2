@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, Tag, message } from "antd";
+import { Space, Table, Button, Tag, message, Input, Select } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 
+const { Option } = Select;
+
 const TechList = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchName, setSearchName] = useState("");
+  const [searchType, setSearchType] = useState("");
+  const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,6 +30,7 @@ const TechList = () => {
         }
 
         setData(techList);
+        setFilteredData(techList); // Initialize filtered data
       } catch (error) {
         console.error("Error fetching technologies: ", error);
         message.error(t("Failed to fetch technologies."));
@@ -32,6 +39,36 @@ const TechList = () => {
 
     fetchData();
   }, [t]);
+
+  useEffect(() => {
+    const filterData = () => {
+      let filtered = data;
+
+      if (searchName) {
+        filtered = filtered.filter(item =>
+          item.techname.toLowerCase().includes(searchName.toLowerCase())
+        );
+      }
+
+      if (searchType) {
+        filtered = filtered.filter(item =>
+          item.techtype.some(type =>
+            type.toLowerCase().includes(searchType.toLowerCase())
+          )
+        );
+      }
+
+      if (searchStatus) {
+        filtered = filtered.filter(item =>
+          item.techstatus.toLowerCase() === searchStatus.toLowerCase()
+        );
+      }
+
+      setFilteredData(filtered);
+    };
+
+    filterData();
+  }, [searchName, searchType, searchStatus, data]);
 
   const handleDelete = async (id, status) => {
     if (status === "Active") {
@@ -44,10 +81,23 @@ const TechList = () => {
       );
       message.success(t("Technology deleted successfully!"));
       setData(data.filter((item) => item.id !== id));
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting technology: ", error);
       message.error(t("Failed to delete technology."));
     }
+  };
+
+  const handleNameFilter = (value) => {
+    setSearchName(value);
+  };
+
+  const handleTypeFilter = (value) => {
+    setSearchType(value);
+  };
+
+  const handleStatusFilter = (value) => {
+    setSearchStatus(value);
   };
 
   const columns = [
@@ -55,12 +105,37 @@ const TechList = () => {
       title: t("Tech Name"),
       dataIndex: "techname",
       key: "techname",
-      render: (text) => <a>{text}</a>,
+      filterDropdown: () => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={t("Search by Name")}
+            value={searchName}
+            onChange={(e) => handleNameFilter(e.target.value)}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+        </div>
+      ),
+      onFilter: (value, record) =>
+        record.techname.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: t("Tech Type"),
       dataIndex: "techtype",
       key: "techtype",
+      filterDropdown: () => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={t("Search by Type")}
+            value={searchType}
+            onChange={(e) => handleTypeFilter(e.target.value)}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+        </div>
+      ),
+      onFilter: (value, record) =>
+        record.techtype.some(type =>
+          type.toLowerCase().includes(value.toLowerCase())
+        ),
       render: (tags) => (
         <>
           {Array.isArray(tags) ? tags.map((tag) => (
@@ -75,6 +150,22 @@ const TechList = () => {
       title: t("Tech Status"),
       dataIndex: "techstatus",
       key: "techstatus",
+      filterDropdown: () => (
+        <div style={{ padding: 8 }}>
+          <Select
+            placeholder={t("Select Status")}
+            value={searchStatus}
+            onChange={(value) => handleStatusFilter(value)}
+            style={{ width: 200 }}
+          >
+            <Option value="">{t("All")}</Option>
+            <Option value="Active">{t("Active")}</Option>
+            <Option value="Inactive">{t("Inactive")}</Option>
+          </Select>
+        </div>
+      ),
+      onFilter: (value, record) =>
+        record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
         <Tag color={status === "Active" ? "green" : "red"}>
           {status}
@@ -107,7 +198,7 @@ const TechList = () => {
       >
         {t("Add Tech")}
       </Button>
-      <Table columns={columns} dataSource={data} rowKey="id" />
+      <Table columns={columns} dataSource={filteredData} rowKey="id" />
     </>
   );
 };

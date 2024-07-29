@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Form, Input, Typography, message } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
@@ -25,18 +25,19 @@ const AddLanguage = () => {
 
   const handleSubmit = async (values) => {
     try {
+      values.programingstatus = values.programingstatus ? "Active" : "Inactive";
+
       await axios.post(
         `${firebaseConfig.databaseURL}/programmingLanguages.json`,
         values
       );
 
-      message.success(t("Programming Languages added successfully!"));
-
+      message.success(t("Programming Language added successfully!"));
       form.resetFields();
       navigate("/ViewLanguage");
     } catch (error) {
-      console.error("Error adding programming languages: ", error);
-      message.error(t("Failed to add programming languages."));
+      console.error("Error adding Programming Language: ", error);
+      message.error(t("Failed to add Programming Language."));
     }
   };
 
@@ -51,10 +52,11 @@ const AddLanguage = () => {
       onFinish={handleSubmit}
       onFinishFailed={handleFailure}
       style={{ height: "100vh" }}
+      initialValues={{ programingstatus: true }}
     >
       <Title level={2}>{t("Add New Programming Language")}</Title>
       <Form.Item
-        label={t("Programming Language Name")}
+        label={t("Program Language Name")}
         name="programingname"
         rules={[
           {
@@ -75,11 +77,12 @@ const AddLanguage = () => {
           },
         ]}
       >
-        <Input />
+        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
       </Form.Item>
       <Form.Item
         label={t("Programming Language Status")}
         name="programingstatus"
+        valuePropName="checked"
         rules={[
           {
             required: true,
@@ -87,7 +90,7 @@ const AddLanguage = () => {
           },
         ]}
       >
-        <Input />
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
       <Form.Item
         label={t("Programming Language Description")}

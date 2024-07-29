@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n'; // Đảm bảo đường dẫn này đúng
+import { useTranslation } from "react-i18next";
+import i18n from "../../i18n"; // Đảm bảo đường dẫn này đúng
 import "../../styles/layouts/Sidebar.scss";
 import {
   AppstoreOutlined,
@@ -13,8 +13,6 @@ import {
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -44,8 +42,8 @@ const buttonStyle = {
 
 const Sidebar = () => {
   const { t } = useTranslation();
-  const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [openKeys, setOpenKeys] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,83 +58,53 @@ const Sidebar = () => {
     navigate("/");
   };
 
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-  };
-
   const changeLanguage = (language) => {
     i18n.changeLanguage(language);
+  };
+
+  const onOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
   };
 
   const items = [
     userRole === "Admin" && {
       key: "sub1",
       icon: <UserOutlined />,
-      label: t('Manage Accounts'),
+      label: t("Manage Accounts"),
       children: [
         {
           key: "1",
-          label: <Link to="/admin">{t('Account Info')}</Link>,
+          label: <Link to="/admin">{t("Account Info")}</Link>,
         },
         {
           key: "2",
-          label: <Link to="/change-password">{t('Reset Password')}</Link>,
+          label: <Link to="/change-password">{t("Reset Password")}</Link>,
         },
       ],
     },
     {
       key: "sub2",
       icon: <FundProjectionScreenOutlined />,
-      label: t('Manage Projects'),
+      label: t("Manage Projects"),
       children: [
         {
           key: "3",
-          label: <Link to="/../Employee/EmployeeList">{t('Project Info')}</Link>,
+          label: (
+            <Link to="/../Employee/EmployeeList">{t("Project Info")}</Link>
+          ),
         },
         {
           key: "4",
-          label: <Link to="/../Employee/EmployeeList">{t('Assign Employees')}</Link>,
+          label: (
+            <Link to="/../Employee/EmployeeList">{t("Assign Employees")}</Link>
+          ),
         },
         {
           key: "5",
-          label: <Link to="/../Employee/EmployeeList">{t('Project Tracking')}</Link>,
-        },
-      ],
-    },
-    {
-      key: "sub3",
-      icon: <DeploymentUnitOutlined />,
-      label: t('Technology'),
-      children: [
-        {
-          key: "6",
-          label: <Link to="/TechList">{t('Technology Info')}</Link>,
-        },
-      ],
-    },
-    {
-      key: "sub4",
-      label: t('Employee'),
-      icon: <TeamOutlined />,
-      children: [
-        {
-          key: "7",
-          label: <Link to="create-user">{t('Employee Profile')}</Link>,
-        },
-        {
-          key: "8",
-          label: <Link to="/../Employee/EmployeeList">{t('Assign Project')}</Link>,
-        },
-      ],
-    },
-    {
-      key: "sub5",
-      label: t('Languages'),
-      icon: <GlobalOutlined />,
-      children: [
-        {
-          key: "9",
-          label: <Link to="/ViewLanguage">{t('Programming Language Info')}</Link>,
+          label: (
+            <Link to="/../Employee/EmployeeList">{t("Project Tracking")}</Link>
+          ),
         },
       ],
     },
@@ -148,7 +116,34 @@ const Sidebar = () => {
     {
       key: "11",
       icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t('CV')}</Link>,
+      label: <Link to="/../Employee/EmployeeList">{t("Position")}</Link>,
+    },
+    {
+      key: "sub3",
+      icon: <DeploymentUnitOutlined />,
+      label: <Link to="/TechList">{t("Technology")}</Link>,
+    },
+    {
+      key: "sub4",
+      label: t("Employee"),
+      icon: <TeamOutlined />,
+      children: [
+        {
+          key: "7",
+          label: <Link to="list">{t('Employee Profile')}</Link>,
+        },
+        {
+          key: "8",
+          label: (
+            <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>
+          ),
+        },
+      ],
+    },
+    {
+      key: "sub5",
+      label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
+      icon: <GlobalOutlined />,
     },
     {
       key: "12",
@@ -163,7 +158,7 @@ const Sidebar = () => {
             cursor: "pointer",
           }}
         >
-          {t('Logout')}
+          {t("Logout")}
         </button>
       ),
     },
@@ -171,30 +166,24 @@ const Sidebar = () => {
 
   return (
     <Layout style={layoutStyle}>
-      <Sider
-        width="15%"
-        style={siderStyle}
-        collapsible
-        collapsed={collapsed}
-        onCollapse={toggleCollapse}
-      >
+      <Sider width="15%" style={siderStyle}>
         <Menu
           defaultSelectedKeys={["1"]}
           defaultOpenKeys={["sub1"]}
           mode="inline"
           theme="dark"
           items={items}
+          openKeys={openKeys}
+          onOpenChange={onOpenChange}
         />
-        <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </Button>
         <div style={{ textAlign: "center", padding: "10px 0" }}>
-          <Button onClick={() => changeLanguage('vi')} style={{ marginRight: 10 }}>
-            {t('Vietnamese')}
+          <Button
+            onClick={() => changeLanguage("vi")}
+            style={{ marginRight: 10 }}
+          >
+            {t("Vietnamese")}
           </Button>
-          <Button onClick={() => changeLanguage('en')}>
-            {t('English')}
-          </Button>
+          <Button onClick={() => changeLanguage("en")}>{t("English")}</Button>
         </div>
       </Sider>
     </Layout>

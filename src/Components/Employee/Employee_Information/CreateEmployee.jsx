@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Form, Input, InputNumber, message, Upload } from "antd";
+import { Button, Form, Input, InputNumber, message, Upload, Switch } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 
@@ -19,6 +19,7 @@ const Create = () => {
   const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
   const [cvFile, setCvFile] = useState(null);
+
 
   const handleFileChange = (info) => {
     const file = info.file.originFileObj;
@@ -41,6 +42,10 @@ const Create = () => {
     return false;
 };
 
+const gotoEmployeeList = () => {
+  navigate('/list'); 
+};
+
 
   const handleSubmit = (values) => {
     const employeeData = {
@@ -49,9 +54,8 @@ const Create = () => {
       name: values.name,
       phone: values.phone,
       email: values.email,
-      password: values.password,
       role: "Employee",
-      status: values.status,
+      status: values.status ? "active" : "inactive",
       positionId: values.positionId,
       projectIds: values.projectIds ? values.projectIds.split(",").map(Number) : [],
       skills: values.skills,
@@ -114,19 +118,11 @@ const Create = () => {
       </Form.Item>
 
       <Form.Item
-        label="Password"
-        name="password"
-        rules={[{ required: true, message: "Please input the password!" }]}
-      >
-        <Input.Password />
-      </Form.Item>
-
-      <Form.Item
         label="Status"
         name="status"
-        rules={[{ required: true, message: "Please input the status!" }]}
+        valuePropName="checked"
       >
-        <Input />
+        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
 
       <Form.Item
@@ -204,6 +200,11 @@ const Create = () => {
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
           Submit
+        </Button>
+      </Form.Item>
+      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+        <Button type="primary" htmlType="submit" onClick={gotoEmployeeList}>
+          Back
         </Button>
       </Form.Item>
     </Form>

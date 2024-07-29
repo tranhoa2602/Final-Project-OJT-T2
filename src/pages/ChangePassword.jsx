@@ -3,7 +3,7 @@ import { Form, Input, Button, message, Alert } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import bcrypt from "bcryptjs";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import styles from "../styles/layouts/ChangePassword.module.scss";
 
 const ChangePassword = () => {
@@ -79,7 +79,10 @@ const ChangePassword = () => {
           <Form.Item
             name="confirmPassword"
             rules={[
-              { required: true, message: t("Please confirm your new password!") },
+              {
+                required: true,
+                message: t("Please confirm your new password!"),
+              },
             ]}
           >
             <Input.Password placeholder={t("Confirm New Password")} />

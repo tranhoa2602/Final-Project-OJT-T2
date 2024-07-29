@@ -114,14 +114,6 @@ const ResetPassword = () => {
             </Button>
           </Form.Item>
         </Form>
-        <Button
-          type="link"
-          className={styles["link-button"]}
-          onClick={() => navigate("/")}
-          block
-        >
-          Back to Login
-        </Button>
       </div>
     </div>
   );

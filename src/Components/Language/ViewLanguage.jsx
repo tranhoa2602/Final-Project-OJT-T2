@@ -44,24 +44,6 @@ const ViewLanguage = () => {
     }
   };
 
-  const handleStatusChange = async (id, checked) => {
-    try {
-      const programing = data.find((item) => item.id === id);
-      if (programing) {
-        const updatedprograming = { ...programing, programingstatus: checked ? "Active" : "Inactive" };
-        await axios.put(
-          `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
-          updatedprograming
-        );
-        setData(data.map((item) => (item.id === id ? updatedprograming : item)));
-        message.success("Programing Language status updated successfully!");
-      }
-    } catch (error) {
-      console.error("Error updating Programing Language status: ", error);
-      message.error("Failed to update Programing Language status.");
-    }
-  };
-
   const columns = [
     {
       title: "Name",

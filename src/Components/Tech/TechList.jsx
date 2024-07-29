@@ -44,24 +44,6 @@ const TechList = () => {
     }
   };
 
-  const handleStatusChange = async (id, checked) => {
-    try {
-      const tech = data.find((item) => item.id === id);
-      if (tech) {
-        const updatedTech = { ...tech, techstatus: checked ? "Active" : "Inactive" };
-        await axios.put(
-          `${firebaseConfig.databaseURL}/technologies/${id}.json`,
-          updatedTech
-        );
-        setData(data.map((item) => (item.id === id ? updatedTech : item)));
-        message.success("Technology status updated successfully!");
-      }
-    } catch (error) {
-      console.error("Error updating technology status: ", error);
-      message.error("Failed to update technology status.");
-    }
-  };
-
   const columns = [
     {
       title: "Name",

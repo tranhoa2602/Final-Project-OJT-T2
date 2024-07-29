@@ -39,10 +39,7 @@ const EmployeeDetails = () => {
         }}
       >
         <Descriptions.Item label="Employee Name">{employee.name}</Descriptions.Item>
-        <Descriptions.Item label="Age">{employee.age}</Descriptions.Item>
-        <Descriptions.Item label="Date of Birth">{employee.dob}</Descriptions.Item>
         <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>
-        <Descriptions.Item label="ID">{employee.id}</Descriptions.Item>
         <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
         <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
         <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Button, Form, Input, InputNumber, message, Select } from "antd";
+import { Button, Form, Input, InputNumber, message, Select, Switch } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 
@@ -43,6 +43,7 @@ const EditEmployee = () => {
       const updatedEmployee = {
         ...employee,
         ...values,
+        status: values.status ? "active" : "inactive",
         cv_list: [
           {
             cv_skill: values.cv_skill,
@@ -84,9 +85,13 @@ const EditEmployee = () => {
           <Input.Password />
         </Form.Item>
   
-        <Form.Item label="Status" name="status" rules={[{ required: true, message: "Please input the status!" }]}>
-          <Input />
-        </Form.Item>
+        <Form.Item
+        label="Status"
+        name="status"
+        valuePropName="checked"
+      >
+        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+      </Form.Item>
   
         <Form.Item label="Position ID" name="positionId" rules={[{ required: true, message: "Please input the position ID!" }]}>
           <InputNumber />

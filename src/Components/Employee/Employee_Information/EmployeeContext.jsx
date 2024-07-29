@@ -23,6 +23,10 @@ export const EmployeeProvider = ({ children }) => {
     setEmployees(employees.filter((employee) => employee.key !== key));
   };
 
+  const handleStatusChange = (key, status) => {
+    setEmployees(employees.map(emp => emp.key === key ? { ...emp, status } : emp));
+  };
+
   return (
     <EmployeeContext.Provider value={{ employees, handleAdd, handleEdit, handleDelete }}>
       {children}

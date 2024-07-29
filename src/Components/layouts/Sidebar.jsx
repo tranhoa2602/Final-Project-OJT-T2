@@ -109,6 +109,11 @@ const Sidebar = () => {
       ],
     },
     {
+      key: "10",
+      icon: <SolutionOutlined />,
+      label: <Link to="/../Employee/EmployeeList">{t("Position")}</Link>,
+    },
+    {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,
       label: t("Technology"),
@@ -148,11 +153,6 @@ const Sidebar = () => {
           ),
         },
       ],
-    },
-    {
-      key: "10",
-      icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t("CV")}</Link>,
     },
     {
       key: "11",

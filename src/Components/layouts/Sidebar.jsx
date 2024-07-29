@@ -110,14 +110,10 @@ const Sidebar = () => {
     },
     {
       key: "10",
-      icon: <ContainerOutlined />,
+      icon: <SolutionOutlined />,
       label: <Link to="/ListPosition">{t('Position')}</Link>,
     },
-    {
-      key: "11",
-      icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t("Position")}</Link>,
-    },
+
     {
       key: "sub3",
       icon: <DeploymentUnitOutlined />,

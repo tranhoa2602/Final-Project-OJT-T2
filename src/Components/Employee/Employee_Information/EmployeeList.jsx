@@ -5,12 +5,13 @@ import { useEmployees } from "./EmployeeContext";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
+
 const columns = (handleEdit, handleDelete, navigate) => [
   {
     title: "Name",
     dataIndex: "name",
     key: "name",
-    render: (text) => <a href="user-details">{text}</a>,
+    render: (text) => <a onClick={() => navigate('/details', { state: { employee: text } })}>{text}</a>,
   },
   {
     title: "Email",
@@ -18,9 +19,9 @@ const columns = (handleEdit, handleDelete, navigate) => [
     key: "email",
   },
   {
-    title: "Employee ID",
-    dataIndex: "employeeid",
-    key: "employeeid",
+    title: "Position ID",
+    dataIndex: "positionid",
+    key: "positionid",
   },
   {
     title: "Project ID",
@@ -56,9 +57,8 @@ const columns = (handleEdit, handleDelete, navigate) => [
     render: (_, record) => (
       <Space size="middle">
         <a onClick={() => navigate('/edit', { state: { employee: record } })}>Edit</a>
+        <a onClick={() => navigate('/details', { state: { employee: record } })}>Details</a>
         <a onClick={() => handleDelete(record.key)}>Delete</a>
-        <a>Export CV</a>
-        <a></a>
       </Space>
     ),
   },
@@ -71,6 +71,8 @@ const EmployeeList = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Employees");
+
+
 
     // Add header row
     worksheet.columns = [
@@ -95,7 +97,6 @@ const EmployeeList = () => {
       worksheet.addRow({
         id: employee.key,
         name: employee.name,
-        age: employee.age,
         email: employee.email,
         password: employee.password,
         roles: (employee.roles || []).join(", "),

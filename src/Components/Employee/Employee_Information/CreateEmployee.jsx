@@ -1,8 +1,7 @@
-import React, {useState} from "react";
-import { Button, Form, Input, Select, message, InputNumber, Upload } from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, InputNumber, message, Upload } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
-import { UploadOutlined } from "@ant-design/icons";
 
 const formItemLayout = {
   labelCol: {
@@ -21,28 +20,43 @@ const Create = () => {
   const [form] = Form.useForm();
   const [cvFile, setCvFile] = useState(null);
 
-  const handleFileChange = ({ file }) => {
-    setCvFile(file);
+  const handleFileChange = (info) => {
+    const file = info.file.originFileObj;
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        console.log("CV File Content:", reader.result); // Debugging
+        setCvFile(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const gotoEmployeeList = () => {
-    navigate('/list'); 
-  };
+  const handleCvUpload = ({ file }) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        setCvFile(e.target.result);
+    };
+    reader.readAsDataURL(file);
+    return false;
+};
+
 
   const handleSubmit = (values) => {
     const employeeData = {
       id: "",
-      isAdmin: values.role === "admin",
+      isAdmin: false,
       name: values.name,
       phone: values.phone,
       email: values.email,
       password: values.password,
-      role: "employee",
+      role: "Employee",
       status: values.status,
       positionId: values.positionId,
       projectIds: values.projectIds ? values.projectIds.split(",").map(Number) : [],
       skills: values.skills,
       contact: values.contact,
+      cv_file: cvFile,
       cv_list: [
         {
           cv_skill: values.cv_skill,
@@ -57,9 +71,15 @@ const Create = () => {
       ],
     };
 
-    handleAdd(employeeData);
-    message.success("Employee added successfully!");
-    navigate("/list");
+    console.log("Employee Data:", employeeData); // Debugging
+
+    if (cvFile) {
+      handleAdd(employeeData);
+      message.success("Employee added successfully!");
+      navigate("/list");
+    } else {
+      message.error("Please upload a CV file!");
+    }
   };
 
   return (
@@ -100,7 +120,6 @@ const Create = () => {
       >
         <Input.Password />
       </Form.Item>
-
 
       <Form.Item
         label="Status"
@@ -168,30 +187,23 @@ const Create = () => {
 
       <Form.Item
         label="Description"
-        name="description"
-       
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Upload CV"
+        label="CV File"
         name="cv_file"
         rules={[{ required: true, message: "Please upload the CV file!" }]}
       >
-        <Upload beforeUpload={() => false} onChange={handleFileChange}>
-          <Button icon={<UploadOutlined />}>Click to Upload</Button>
+        <Upload beforeUpload={() => false} onChange={handleCvUpload}>
+          <Button>Click to Upload CV</Button>
         </Upload>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
           Submit
-        </Button>
-      </Form.Item>
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit" onClick={gotoEmployeeList}>
-          Back
         </Button>
       </Form.Item>
     </Form>

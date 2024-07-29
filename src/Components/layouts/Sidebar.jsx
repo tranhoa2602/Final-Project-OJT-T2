@@ -121,7 +121,7 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="create-user">{t('Employee Profile')}</Link>,
+          label: <Link to="list">{t('Employee Profile')}</Link>,
         },
         {
           key: "8",

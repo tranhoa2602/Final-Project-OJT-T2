@@ -41,6 +41,7 @@ const Main = () => {
       }
     } else {
       if (
+        location.pathname === "/" ||
         ![
           "/register",
           "/forget-password",
@@ -52,7 +53,6 @@ const Main = () => {
       }
     }
   }, [location.pathname, navigate]);
-
   return (
     <EmployeeProvider>
       <main className="main-content">

@@ -166,15 +166,13 @@ function Admin() {
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
-      if (userData.role === "Employee" && userData.status === "active") {
-        message.error(t("Cannot delete an active employee"));
+      if (userData.role === "Admin") {
+        message.error(t("Cannot delete an admin user"));
         return;
       }
 
-      const adminUsers = users.filter((user) => user.isAdmin);
-
-      if (userData.isAdmin && adminUsers.length === 1) {
-        message.error(t("Cannot delete the only admin user"));
+      if (userData.role === "Employee" && userData.status === "active") {
+        message.error(t("Cannot delete an active employee"));
         return;
       }
 
@@ -298,7 +296,9 @@ function Admin() {
           <Button
             type="danger"
             onClick={() => {
-              if (user.status === "active" && user.role === "Employee") {
+              if (user.role === "Admin") {
+                message.error(t("Cannot delete an admin user"));
+              } else if (user.status === "active" && user.role === "Employee") {
                 message.error(t("Cannot delete an active employee"));
               } else {
                 handleDeleteUser(user.key);

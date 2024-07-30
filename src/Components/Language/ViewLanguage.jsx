@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Space, Table, Button, Tag, message, Input, Select } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
@@ -39,9 +39,7 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(
-          languages.filter((item) => item.deletestatus === false)
-        );
+        setFilteredData(languages);
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
@@ -53,7 +51,7 @@ const ViewLanguage = () => {
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data.filter((item) => item.deletestatus === false);
+      let filtered = data;
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -82,22 +80,21 @@ const ViewLanguage = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (status === "Active") {
+      message.error(t("Can't delete status active"));
+      return;
+    }
     try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
-        { deletestatus: true }
+      await axios.delete(
+        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
       );
-      message.success(t("Programming Language moved to bin successfully!"));
-      setData(
-        data.map((item) =>
-          item.id === id ? { ...item, deletestatus: true } : item
-        )
-      );
+      message.success(t("Programming Language deleted successfully!"));
+      setData(data.filter((item) => item.id !== id));
       setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
-      console.error("Error updating deletestatus: ", error);
-      message.error(t("Failed to move Programming Language to bin."));
+      console.error("Error deleting Programming Language: ", error);
+      message.error(t("Failed to delete Programming Language."));
     }
   };
 
@@ -211,9 +208,9 @@ const ViewLanguage = () => {
             type="primary"
             danger
             disabled={record.programingstatus === "Active"}
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record.id, record.programingstatus)}
           >
-            <DeleteOutlined /> {t("Move to Bin")}
+            <DeleteOutlined /> {t("Delete")}
           </Button>
         </Space>
       ),
@@ -221,23 +218,22 @@ const ViewLanguage = () => {
   ];
 
   return (
-    <div>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/AddLanguage")}
-      >
-        {t("Add Programming Language")}
-      </Button>
-      <Button
-        type="primary"
-        icon={<DeleteOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/LanguageBin")}
-      >
-        {t("View Bin")}
-      </Button>
+    <div className={styles["language-list"]}>
+      <div className={styles["actions-container"]}>
+        <Input
+          placeholder={t("Search by Name")}
+          value={searchName}
+          onChange={(e) => handleNameFilter(e.target.value)}
+          style={{ width: 200, marginRight: 8 }}
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate("/AddLanguage")}
+        >
+          {t("Add Programming Language")}
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={filteredData}

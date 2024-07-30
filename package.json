@@ -18,7 +18,7 @@
     "emailjs-com": "^3.2.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
-    "firebase": "^10.12.3",
+    "firebase": "^10.12.4",
     "html2pdf.js": "^0.10.2",
     "i18next": "^23.12.2",
     "moment": "^2.30.1",

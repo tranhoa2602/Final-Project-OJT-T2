@@ -1,74 +1,113 @@
-import React, { useEffect } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  message,
-  Select,
-  Switch,
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, Input, Select, Switch, Button, Upload, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
+import { getDatabase, ref, get } from "firebase/database";
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 6 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 14 },
-  },
-};
+const { Option } = Select;
 
 const EditEmployee = () => {
   const navigate = useNavigate();
-  const { handleEdit, employees } = useEmployees();
-  const location = useLocation();
+  const { state } = useLocation();
+  const { employee } = state; // Assuming the employee data is passed via state
+  const { handleEdit } = useEmployees();
   const [form] = Form.useForm();
-
-  const gotoEmployeeList = () => {
-    navigate("/list");
-  };
-
-  // Get the employee data passed through the location state
-  const employee = location.state?.employee;
+  const [positions, setPositions] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [cvFile, setCvFile] = useState(employee.cv_file || "");
 
   useEffect(() => {
-    if (employee) {
-      form.setFieldsValue({
-        ...employee,
-        cv_skill: employee.cv_list[0]?.cv_skill || "",
-        work_position:
-          employee.cv_list[0]?.cv_experience[0]?.work_position || "",
-        time_work: employee.cv_list[0]?.cv_experience[0]?.time_work || "",
-        description: employee.cv_list[0]?.cv_experience[0]?.description || "",
-      });
-    }
-  }, [employee, form]);
+    const fetchData = async () => {
+      const db = getDatabase();
+      const positionsRef = ref(db, "positions");
+      const projectsRef = ref(db, "projects");
 
-  const handleSubmit = (values) => {
+      const positionsSnapshot = await get(positionsRef);
+      if (positionsSnapshot.exists()) {
+        const data = positionsSnapshot.val();
+        const formattedData = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setPositions(formattedData);
+      } else {
+        setPositions([]);
+      }
+
+      const projectsSnapshot = await get(projectsRef);
+      if (projectsSnapshot.exists()) {
+        const data = projectsSnapshot.val();
+        const formattedData = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setProjects(formattedData);
+      } else {
+        setProjects([]);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (values) => {
     const updatedEmployee = {
       ...employee,
-      ...values,
-      status: values.status ? "active" : "inactive",
+      name: values.name || employee.name,
+      phone: values.phone || employee.phone,
+      email: values.email || employee.email,
+      status: values.status !== undefined ? (values.status ? "active" : "inactive") : employee.status,
+      positionId: values.positionId || employee.positionId,
+      projectIds: values.projectIds || employee.projectIds,
+      skills: values.skills || employee.skills,
+      contact: values.contact || employee.contact,
+      cv_file: cvFile || employee.cvFile,
       cv_list: [
         {
-          cv_skill: values.cv_skill,
+          cv_skill: values.cv_skill || employee.cv_list[0].cv_skill,
           cv_experience: [
             {
-              work_position: values.work_position,
-              time_work: values.time_work,
-              description: values.description,
+              work_position: values.work_position || employee.cv_list[0].cv_experience[0].work_position,
+              time_work: values.time_work || employee.cv_list[0].cv_experience[0].time_work,
+              description: values.description || employee.cv_list[0].cv_experience[0].description,
             },
           ],
         },
       ],
     };
 
-    handleEdit(updatedEmployee);
-    message.success("Employee updated successfully!");
+
+    try {
+      await handleEdit(updatedEmployee);
+      navigate("/list");
+      // Redirect or show success message
+    } catch (error) {
+      console.error("Error updating employee: ", error);
+    }
+  };
+
+  const handleFileChange = (info) => {
+    const file = info.file.originFileObj;
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCvFile(reader.result);
+        message.success("CV uploaded successfully");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCvUpload = ({ file }) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setCvFile(e.target.result);
+    };
+    reader.readAsDataURL(file);
+    return false; // Prevent automatic upload
+  };
+
+  const gotoEmployeeList = () => {
     navigate("/list");
   };
 
@@ -76,6 +115,20 @@ const EditEmployee = () => {
     <Form
       form={form}
       onFinish={handleSubmit}
+      initialValues={{
+        name: employee.name,
+        phone: employee.phone,
+        email: employee.email,
+        status: employee.status === "active",
+        positionId: employee.positionId,
+        projectIds: employee.projectIds,
+        skills: employee.skills,
+        contact: employee.contact,
+        cv_skill: employee.cv_list[0].cv_skill,
+        work_position: employee.cv_list[0].cv_experience[0].work_position,
+        time_work: employee.cv_list[0].cv_experience[0].time_work,
+        description: employee.cv_list[0].cv_experience[0].description,
+      }}
       style={{ height: "100vh", marginTop: "20px" }}
     >
       <Form.Item
@@ -107,11 +160,17 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Position ID"
+        label="Position"
         name="positionId"
-        rules={[{ required: true, message: "Please input the position ID!" }]}
+        rules={[{ required: true, message: "Please select the position!" }]}
       >
-        <InputNumber />
+        <Select>
+          {positions.map((position) => (
+            <Option key={position.id} value={position.id}>
+              {position.name}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
@@ -119,7 +178,13 @@ const EditEmployee = () => {
         name="projectIds"
         rules={[{ required: true, message: "Please input the project IDs!" }]}
       >
-        <Input />
+        <Select mode="multiple">
+          {projects.map((project) => (
+            <Option key={project.id} value={project.id}>
+              {project.name}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
@@ -163,16 +228,27 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item label="Description" name="description">
-        <Input />
+        <Input.TextArea />
+      </Form.Item>
+
+      <Form.Item label="CV File" name="cv_file">
+        <Upload
+          beforeUpload={handleCvUpload}
+          onChange={handleFileChange}
+          showUploadList={false}
+        >
+          <Button>Upload CV</Button>
+        </Upload>
+      </Form.Item>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Update Employee
+        </Button>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit" onClick={gotoEmployeeList}>
+        <Button type="primary" onClick={gotoEmployeeList}>
           Back
         </Button>
       </Form.Item>

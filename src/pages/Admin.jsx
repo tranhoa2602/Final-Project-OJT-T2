@@ -285,7 +285,7 @@ function Admin() {
       title: t("Actions"),
       key: "actions",
       render: (text, user) => (
-        <span className={styles["actions"]}>
+        <span className={styles.actions}>
           <Button
             onClick={() => handleEditUser(user)}
             key="edit"
@@ -316,27 +316,34 @@ function Admin() {
   return (
     <div className={styles["admin-page"]}>
       <h1>{t("Admin Page")}</h1>
-      <Button
-        type="primary"
-        onClick={() => setModalVisible(true)}
-        className={styles["add-user-button"]}
-      >
-        {t("Add User")}
-      </Button>
-      <Button
-        type="primary"
-        onClick={handleExportExcel}
-        className={styles["export-button"]}
-      >
-        {t("Export to Excel")}
-      </Button>
+      <div className={styles["actions-container"]}>
+        <Button
+          type="primary"
+          onClick={() => setModalVisible(true)}
+          className={styles["add-user-button"]}
+        >
+          {t("Add User")}
+        </Button>
+        <Button
+          type="primary"
+          onClick={handleExportExcel}
+          className={styles["export-button"]}
+        >
+          {t("Export to Excel")}
+        </Button>
+      </div>
       <Input
         className={styles["search-input"]}
         placeholder={t("Search by email")}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <Table columns={columns} dataSource={paginatedUsers} pagination={false} />
+      <Table
+        columns={columns}
+        dataSource={paginatedUsers}
+        pagination={false}
+        className={styles["user-table"]}
+      />
       <Pagination
         current={currentPage}
         pageSize={pageSize}

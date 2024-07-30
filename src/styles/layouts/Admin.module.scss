@@ -13,6 +13,7 @@
 
   .actions-container {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
   }
@@ -22,7 +23,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
     font-size: 16px;
     padding: 12px 24px;
     color: white;
@@ -111,17 +111,16 @@
         height: 40px;
         font-size: 16px;
         font-weight: bold;
-        background-color: #1890ff;
-        border-color: #1890ff;
 
         &:hover {
           background-color: #40a9ff;
           border-color: #40a9ff;
         }
 
-        &:focus {
+        &:active {
           background-color: #096dd9;
-          border-color: #096dd9;
+          transform: scale(0.95);
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
         }
       }
     }
@@ -153,6 +152,7 @@
       background-color: #f4f4f4;
       font-weight: bold;
       text-transform: uppercase;
+      text-align: center;
     }
 
     tr:nth-child(even) {
@@ -161,7 +161,8 @@
 
     .actions {
       display: flex;
-      gap: 10px;
+      justify-content: flex-end;
+      gap: 8px;
 
       .ant-btn {
         margin: 0;

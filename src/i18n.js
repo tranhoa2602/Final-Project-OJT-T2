@@ -145,6 +145,19 @@ i18n
                     'Project added successfully!': 'Project added successfully!',
                     "Can't delete status active": "Can't delete status active",
                     'Search by Type': 'Search by Type',
+                    'Programming Language deleted successfully!': 'Programming Language deleted successfully!',
+                    "Edit Programming Language": "Edit Programming Language",
+                    "Program Language Name": "Program Language Name",
+                    "Please input Program Language Name!": "Please input Program Language Name!",
+                    "Program Language Type": "Program Language Type",
+                    "Please input Program Language Type!": "Please input Program Language Type!",
+                    "Program Language Status": "Program Language Status",
+                    "Program Language Description": "Program Language Description",
+                    "Back to Programing Language List": "Back to Programing Language List",
+                    "Failed to fetch programming languages.": "Failed to fetch programming languages.",
+                    "Programming language updated successfully!": "Programming language updated successfully!",
+                    "Failed to update programming language.": "Failed to update programming language.",
+
                 }
             },
             vi: {
@@ -287,6 +300,19 @@ i18n
                     'Project added successfully!': 'Thêm dự án thành công!',
                     "Can't delete status active": "Không thể xóa trạng thái đang hoạt động",
                     'Search by Type': 'Tìm kiếm theo Loại',
+                    'Programming Language deleted successfully!': 'Ngôn ngữ lập trình đã được xóa thành công!',
+                    "Edit Programming Language": "Chỉnh sửa Ngôn ngữ Lập trình",
+                    "Program Language Name": "Tên Ngôn ngữ Lập trình",
+                    "Please input Program Language Name!": "Vui lòng nhập Tên Ngôn ngữ Lập trình!",
+                    "Program Language Type": "Loại Ngôn ngữ Lập trình",
+                    "Please input Program Language Type!": "Vui lòng nhập Loại Ngôn ngữ Lập trình!",
+                    "Program Language Description": "Mô tả Ngôn ngữ Lập trình",
+                    "Back to Programing Language List": "Trở lại Danh sách Ngôn ngữ Lập trình",
+                    "Failed to fetch programming languages.": "Không thể lấy thông tin ngôn ngữ lập trình.",
+                    "Programming language updated successfully!": "Cập nhật ngôn ngữ lập trình thành công!",
+                    "Failed to update programming language.": "Cập nhật ngôn ngữ lập trình thất bại.",
+                    'Program Language Status': 'Trạng thái ngôn ngữ lập trình'
+
                 }
             }
         },

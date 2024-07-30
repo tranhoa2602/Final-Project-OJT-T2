@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import "../../styles/layouts/main.css";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
@@ -21,6 +20,7 @@ import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 import ChangePassword from "../../pages/ChangePassword";
 import ListPosition from "../PositionManager/ListPosition";
+import ListProject from "../ProjectManager/ProjectList"; // Import ListProject
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 
 const Main = () => {
@@ -70,7 +70,6 @@ const Main = () => {
               )
             }
           />
-          <Route path="/create" element={<Create />} />
           <Route path="/edit" element={<EditEmployee />} />
           <Route path="/list" element={<EmployeeList />} />
           <Route path="/details" element={<EmployeeDetails />} />
@@ -84,7 +83,7 @@ const Main = () => {
           <Route path="/ViewLanguage" element={<ViewLanguage />} />
           <Route path="/change-password" element={<ChangePassword />} />{" "}
           <Route path="/ListPosition" element={<ListPosition />} />
-          {/* Add Change Password route */}
+          <Route path="/projects" element={<ListProject />} /> {/* Thêm route /projects */}
         </Routes>
       </main>
     </EmployeeProvider>

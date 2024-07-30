@@ -184,7 +184,7 @@ const ListProject = () => {
 
     return (
         <div>
-            <Space style={{ margin: 16 }}>
+            <Space style={{ marginTop: 16 }}>
                 <Input
                     placeholder={t('Search by Name')}
                     value={searchText}

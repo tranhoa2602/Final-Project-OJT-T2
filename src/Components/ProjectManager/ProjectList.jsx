@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import style from "../../styles/layouts/ListProject.module.scss";
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -38,15 +37,9 @@ const ListProject = () => {
         startDate: new Date(data[key].startDate),
         endDate: new Date(data[key].endDate),
       }));
-      formattedData.sort(customSort); // Sort the data initially
       setProjects(formattedData);
       setFilteredProjects(sortProjects(formattedData));
     }
-  };
-
-  const customSort = (a, b) => {
-    const order = ["Ongoing", "Pending", "Not Started", "Completed"];
-    return order.indexOf(a.status) - order.indexOf(b.status);
   };
 
   const handleDelete = async (id) => {
@@ -111,7 +104,6 @@ const ListProject = () => {
         { text: t("Completed"), value: "Completed" },
       ],
       onFilter: (value, record) => record.status === value,
-      sorter: customSort,
     },
     {
       title: t("Actions"),

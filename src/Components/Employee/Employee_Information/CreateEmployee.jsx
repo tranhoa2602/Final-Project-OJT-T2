@@ -1,45 +1,29 @@
-import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  message,
-  Upload,
-  Switch,
-  Select,
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Input, Select, Switch, Upload, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
-
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 6 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 14 },
-  },
-};
+import { v4 as uuidv4 } from "uuid";
+import { database } from "../../../../firebaseConfig";
 
 const { Option } = Select;
 
-const Create = () => {
+const CreateEmployee = () => {
   const navigate = useNavigate();
   const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
-  const [cvFile, setCvFile] = useState(null);
   const [positions, setPositions] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
-    const fetchPositions = async () => {
-      const db = getDatabase();
-      const positionsRef = ref(db, "positions");
-      const snapshot = await get(positionsRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
+    const fetchData = async () => {
+      const positionsRef = ref(database, "positions");
+      const projectsRef = ref(database, "projects");
+
+      const positionsSnapshot = await get(positionsRef);
+      if (positionsSnapshot.exists()) {
+        const data = positionsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
           id: key,
           ...data[key],
@@ -48,38 +32,31 @@ const Create = () => {
       } else {
         setPositions([]);
       }
+
+      const projectsSnapshot = await get(projectsRef);
+      if (projectsSnapshot.exists()) {
+        const data = projectsSnapshot.val();
+        const formattedData = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setProjects(formattedData);
+      } else {
+        setProjects([]);
+      }
     };
 
-    fetchPositions();
+    fetchData();
   }, []);
 
-  const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setCvFile(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const handleSubmit = async (values) => {
+    if (!cvFile) {
+      message.error("Please upload a CV file!");
+      return;
     }
-  };
 
-  const handleCvUpload = ({ file }) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setCvFile(e.target.result);
-    };
-    reader.readAsDataURL(file);
-    return false;
-  };
-
-  const gotoEmployeeList = () => {
-    navigate("/list");
-  };
-
-  const handleSubmit = (values) => {
-    const employeeData = {
-      id: "",
+    const newEmployee = {
+      id: uuidv4(),
       isAdmin: false,
       name: values.name,
       phone: values.phone,
@@ -87,9 +64,7 @@ const Create = () => {
       role: "Employee",
       status: values.status ? "active" : "inactive",
       positionId: values.positionId,
-      projectIds: values.projectIds
-        ? values.projectIds.split(",").map(Number)
-        : [],
+      projectIds: values.projectIds || [],
       skills: values.skills,
       contact: values.contact,
       cv_file: cvFile,
@@ -107,18 +82,51 @@ const Create = () => {
       ],
     };
 
-    if (cvFile) {
-      handleAdd(employeeData);
-      message.success("Employee added successfully!");
+    try {
+      await handleAdd(newEmployee);
+      message.success("Employee added successfully");
       navigate("/list");
-    } else {
-      message.error("Please upload a CV file!");
+    } catch (error) {
+      console.error("Error adding employee: ", error);
+      message.error("Error adding employee");
     }
+  };
+
+
+  const handleFileChange = (info) => {
+    const file = info.file.originFileObj;
+    console.log("Selected file:", file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64File = reader.result.split(",")[1];
+        setCvFile(base64File); // Store only the base64 part
+        console.log("CV file in base64:", base64File);
+        message.success("CV uploaded successfully");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCvUpload = ({ file }) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64File = e.target.result.split(",")[1];
+      setCvFile(base64File); // Store only the base64 part
+      console.log("CV file in base64:", base64File);
+      message.success("CV uploaded successfully");
+    };
+    reader.readAsDataURL(file);
+    return false; // Prevent automatic upload
+  };
+
+  const gotoEmployeeList = () => {
+    navigate("/list");
   };
 
   return (
     <Form
-      {...formItemLayout}
       form={form}
       onFinish={handleSubmit}
       style={{ height: "100vh", marginTop: "20px" }}
@@ -170,7 +178,13 @@ const Create = () => {
         name="projectIds"
         rules={[{ required: true, message: "Please input the project IDs!" }]}
       >
-        <Input />
+        <Select mode="multiple">
+          {projects.map((project) => (
+            <Option key={project.id} value={project.id}>
+              {project.name}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
@@ -218,9 +232,9 @@ const Create = () => {
       </Form.Item>
 
       <Form.Item
-        label="CV File"
+        label="CV Upload"
         name="cv_file"
-        rules={[{ required: true, message: "Please upload the CV file!" }]}
+        rules={[{ required: true, message: "Please upload a CV file!" }]}
       >
         <Upload beforeUpload={() => false} onChange={handleCvUpload}>
           <Button>Click to Upload CV</Button>
@@ -241,4 +255,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default CreateEmployee;

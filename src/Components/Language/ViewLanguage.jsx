@@ -39,7 +39,9 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(languages.filter(item => item.deletestatus === false));
+        setFilteredData(
+          languages.filter((item) => item.deletestatus === false)
+        );
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
@@ -51,7 +53,7 @@ const ViewLanguage = () => {
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data.filter(item => item.deletestatus === false);
+      let filtered = data.filter((item) => item.deletestatus === false);
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -87,8 +89,12 @@ const ViewLanguage = () => {
         { deletestatus: true }
       );
       message.success(t("Programming Language moved to bin successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(
+        data.map((item) =>
+          item.id === id ? { ...item, deletestatus: true } : item
+        )
+      );
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error updating deletestatus: ", error);
       message.error(t("Failed to move Programming Language to bin."));
@@ -215,7 +221,7 @@ const ViewLanguage = () => {
   ];
 
   return (
-    <>
+    <div>
       <Button
         type="primary"
         icon={<PlusOutlined />}

@@ -157,6 +157,7 @@ i18n
                     "Failed to fetch programming languages.": "Failed to fetch programming languages.",
                     "Programming language updated successfully!": "Programming language updated successfully!",
                     "Failed to update programming language.": "Failed to update programming language.",
+                    'Pending': 'Pending',
 
                 }
             },
@@ -311,7 +312,8 @@ i18n
                     "Failed to fetch programming languages.": "Không thể lấy thông tin ngôn ngữ lập trình.",
                     "Programming language updated successfully!": "Cập nhật ngôn ngữ lập trình thành công!",
                     "Failed to update programming language.": "Cập nhật ngôn ngữ lập trình thất bại.",
-                    'Program Language Status': 'Trạng thái ngôn ngữ lập trình'
+                    'Program Language Status': 'Trạng thái ngôn ngữ lập trình',
+                    'Pending': 'Đang chờ xử lý',
 
                 }
             }

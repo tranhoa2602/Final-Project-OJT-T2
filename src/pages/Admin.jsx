@@ -10,6 +10,11 @@ import {
   Table,
   Tag,
 } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  FileExcelOutlined,
+} from "@ant-design/icons";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -290,6 +295,8 @@ function Admin() {
             onClick={() => handleEditUser(user)}
             key="edit"
             type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
           >
             {t("Edit")}
           </Button>
@@ -305,6 +312,8 @@ function Admin() {
               }
             }}
             key="delete"
+            icon={<DeleteOutlined />}
+            className={styles["delete-button"]}
           >
             {t("Delete")}
           </Button>
@@ -326,6 +335,7 @@ function Admin() {
         </Button>
         <Button
           type="primary"
+          icon={<FileExcelOutlined />}
           onClick={handleExportExcel}
           className={styles["export-button"]}
         >

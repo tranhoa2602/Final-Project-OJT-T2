@@ -34,6 +34,7 @@ const EditTech = () => {
         );
         const data = response.data;
         data.techstatus = data.techstatus === "Active";
+        data.deletestatus = data.deletestatus !== undefined ? data.deletestatus : false; // Ensure deletestatus is present
         setInitialValues(data);
         form.setFieldsValue(data);
       } catch (error) {
@@ -61,6 +62,7 @@ const EditTech = () => {
   const handleSubmit = async (values) => {
     try {
       values.techstatus = values.techstatus ? "Active" : "Inactive";
+      values.deletestatus = false; // Set deletestatus to false
 
       await axios.put(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`,

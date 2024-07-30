@@ -35,6 +35,7 @@ const EditLanguage = () => {
         );
         const data = response.data;
         data.programingstatus = data.programingstatus === "Active";
+        data.deletestatus = data.deletestatus !== undefined ? data.deletestatus : false; // Ensure deletestatus is present
         setInitialValues(data);
         form.setFieldsValue(data);
         setLoading(false);
@@ -64,6 +65,7 @@ const EditLanguage = () => {
   const handleSubmit = async (values) => {
     try {
       values.programingstatus = values.programingstatus ? "Active" : "Inactive";
+      values.deletestatus = false; // Set deletestatus to false
 
       await axios.put(
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
@@ -112,7 +114,12 @@ const EditLanguage = () => {
         name="programingtype"
         rules={[{ required: true, message: t("Please input Program Language Type!") }]}
       >
-        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          placeholder={t("Tags Mode")}
+          options={existingTypes.map(type => ({ value: type }))}
+        />
       </Form.Item>
       <Form.Item
         label={t("Program Language Status")}
@@ -122,7 +129,11 @@ const EditLanguage = () => {
       >
         <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
-      <Form.Item label={t("Program Language Description")} name="programingdescription">
+      <Form.Item
+        label={t("Program Language Description")}
+        name="programingdescription"
+        rules={[{ validator: validateDescription }]}
+      >
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

@@ -25,6 +25,8 @@ import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
 import DetailProject from "../ProjectManager/DetailProject"; // Import DetailProject
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
+import AssignEmployee from "../ProjectManager/AssignEmployee/Assign"; // Import AssignEmployee
+import UnassignEmployee from "../ProjectManager/AssignEmployee/Unassign";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -91,6 +93,11 @@ const Main = () => {
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
+          <Route path="/AssignEmployee/Assign" element={<AssignEmployee />} />
+          <Route
+            path="/AssignEmployee/Unassign"
+            element={<UnassignEmployee />}
+          />
         </Routes>
       </main>
     </EmployeeProvider>

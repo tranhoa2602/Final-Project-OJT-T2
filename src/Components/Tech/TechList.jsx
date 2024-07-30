@@ -6,6 +6,7 @@ import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
+// Define Option as a variable from Select
 const { Option } = Select;
 
 const TechList = () => {
@@ -111,7 +112,7 @@ const TechList = () => {
       dataIndex: "techname",
       key: "techname",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className="filter-dropdown">
           <Input
             placeholder={t("Search by Name")}
             value={searchName}
@@ -128,7 +129,7 @@ const TechList = () => {
       dataIndex: "techtype",
       key: "techtype",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className="filter-dropdown">
           <Input
             placeholder={t("Search by Type")}
             value={searchType}
@@ -158,7 +159,7 @@ const TechList = () => {
       dataIndex: "techstatus",
       key: "techstatus",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className="filter-dropdown">
           <Select
             placeholder={t("Select Status")}
             value={searchStatus}
@@ -185,6 +186,7 @@ const TechList = () => {
     {
       title: t("Actions"),
       key: "action",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -217,13 +219,13 @@ const TechList = () => {
         {t("Add Technology")}
       </Button>
       <Button
-  type="primary"
-  icon={<DeleteOutlined />}
-  style={{ marginBottom: 16 }}
-  onClick={() => navigate("/TechBin")}
->
-  {t("View Bin")}
-</Button>
+        type="primary"
+        icon={<DeleteOutlined />}
+        style={{ marginBottom: 16 }}
+        onClick={() => navigate("/TechBin")}
+      >
+        {t("View Bin")}
+      </Button>
       <Table
         columns={columns}
         dataSource={filteredData}

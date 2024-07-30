@@ -4,7 +4,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import styles from "../../styles/layouts/ViewLanguage.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
 
@@ -63,7 +69,8 @@ const ViewLanguage = () => {
 
       if (searchStatus) {
         filtered = filtered.filter(
-          (item) => item.programingstatus.toLowerCase() === searchStatus.toLowerCase()
+          (item) =>
+            item.programingstatus.toLowerCase() === searchStatus.toLowerCase()
         );
       }
 
@@ -111,7 +118,7 @@ const ViewLanguage = () => {
       dataIndex: "programingname",
       key: "programingname",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Name")}
             value={searchName}
@@ -128,7 +135,7 @@ const ViewLanguage = () => {
       dataIndex: "programingtype",
       key: "programingtype",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Type")}
             value={searchType}
@@ -158,7 +165,7 @@ const ViewLanguage = () => {
       dataIndex: "programingstatus",
       key: "programingstatus",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Select
             placeholder={t("Select Status")}
             value={searchStatus}
@@ -185,6 +192,7 @@ const ViewLanguage = () => {
     {
       title: t("Actions"),
       key: "action",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -231,7 +239,7 @@ const ViewLanguage = () => {
         pagination={{ current: currentPage, pageSize: pageSize }}
         onChange={handleTableChange}
       />
-    </>
+    </div>
   );
 };
 

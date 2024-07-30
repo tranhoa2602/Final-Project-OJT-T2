@@ -1,23 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Descriptions, Button } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getDatabase, ref, get } from "firebase/database";
 
 const EmployeeDetails = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { employee } = state; // Assuming the employee data is passed via state
+  const { employee } = state;
+  const [positionName, setPositionName] = useState("");
+  const [projectNames, setProjectNames] = useState([]);
 
-  const gotoEditPage = () => {
-    navigate('/edit', { state: { employee } }); 
-  };
+  useEffect(() => {
+    const fetchPositionName = async () => {
+      const db = getDatabase();
+      const positionRef = ref(db, `positions/${employee.positionId}`);
+      const snapshot = await get(positionRef);
+      if (snapshot.exists()) {
+        setPositionName(snapshot.val().name);
+      }
+    };
+
+    const fetchProjectNames = async () => {
+      const db = getDatabase();
+      const projectRefs = employee.projectIds.map(id => ref(db, `projects/${id}`));
+      const projectSnapshots = await Promise.all(projectRefs.map(ref => get(ref)));
+      const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : 'Unknown Project');
+      setProjectNames(names);
+    };
+
+    fetchPositionName();
+    fetchProjectNames();
+  }, [employee.positionId, employee.projectIds]);
 
   const returntoPrevious = () => {
     navigate('/list');
   };
 
   const handleDownloadCv = () => {
+    if (!employee.cv_file) {
+      console.error("CV file not found");
+      return;
+    }
+
     const link = document.createElement('a');
-    link.href = employee.cv_file;
+    link.href = `data:application/pdf;base64,${employee.cv_file}`;
     link.download = `${employee.name}_CV.pdf`;
     document.body.appendChild(link);
     link.click();
@@ -43,8 +69,8 @@ const EmployeeDetails = () => {
         <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
         <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
         <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
-        <Descriptions.Item label="Position ID">{employee.positionId}</Descriptions.Item>
-        <Descriptions.Item label="Project IDs">{employee.projectIds.join(', ')}</Descriptions.Item>
+        <Descriptions.Item label="Position">{positionName}</Descriptions.Item>
+        <Descriptions.Item label="Projects">{projectNames.join(", ")}</Descriptions.Item>
         <Descriptions.Item label="Skills">{employee.skills}</Descriptions.Item>
         <Descriptions.Item label="Contact">{employee.contact}</Descriptions.Item>
         <Descriptions.Item label="CV Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Select, Space } from "antd";
+import { Table, Button, Tag, message, Input, Space } from "antd";
 import { getDatabase, ref, get, remove } from "firebase/database";
 import {
+  EditOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
@@ -9,10 +12,10 @@ import {
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import * as XLSX from "xlsx";
 import CreateProject from "./CreateProject";
-
-const { Option } = Select;
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import style from "../../styles/layouts/ListProject.module.scss";
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -40,7 +43,7 @@ const ListProject = () => {
         endDate: new Date(data[key].endDate),
       }));
       setProjects(formattedData);
-      setFilteredProjects(formattedData);
+      setFilteredProjects(sortProjects(formattedData));
     }
   };
 
@@ -74,6 +77,19 @@ const ListProject = () => {
       default:
         return null;
     }
+  };
+
+  const statusOrder = {
+    Ongoing: 1,
+    Pending: 2,
+    "Not Started": 3,
+    Completed: 4,
+  };
+
+  const sortProjects = (projects) => {
+    return projects.sort(
+      (a, b) => statusOrder[a.status] - statusOrder[b.status]
+    );
   };
 
   const columns = [
@@ -158,14 +174,29 @@ const ListProject = () => {
       filtered = filtered.filter((project) => project.status === statusFilter);
     }
 
-    setFilteredProjects(filtered);
+    setFilteredProjects(sortProjects(filtered));
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredProjects);
+    const dataToExport = filteredProjects.map((project) => ({
+      Name: project.name,
+      Description: project.description,
+      Technology: project.technology.join(", "),
+      ProgrammingLanguage: project.programmingLanguage.join(", "),
+      StartDate: project.startDate.toLocaleDateString(),
+      EndDate: project.endDate.toLocaleDateString(),
+      Status: project.status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
-    XLSX.writeFile(workbook, "Projects.xlsx");
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "ProjectRoster.xlsx");
   };
 
   return (
@@ -181,11 +212,7 @@ const ListProject = () => {
         <Button type="primary" onClick={showModal}>
           {t("Create new project")}
         </Button>
-        <Button
-          type="primary"
-          icon={<FileExcelOutlined />}
-          onClick={exportToExcel}
-        >
+        <Button type="primary" onClick={exportToExcel}>
           {t("Export to Excel")}
         </Button>
       </Space>

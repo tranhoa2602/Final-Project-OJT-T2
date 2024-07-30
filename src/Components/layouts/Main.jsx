@@ -23,7 +23,9 @@ import ListPosition from "../PositionManager/ListPosition";
 import EditProject from "../ProjectManager/EditProject";
 import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
-import DetailProject from "../ProjectManager/DetailProject"; // Import DetailProject
+import DetailProject from "../ProjectManager/DetailProject";
+import TechBin from "../Tech/TechBin";
+import LanguageBin from "../Language/LanguageBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 import AssignEmployee from "../ProjectManager/AssignEmployee/Assign"; // Import AssignEmployee
 import UnassignEmployee from "../ProjectManager/AssignEmployee/Unassign";
@@ -55,6 +57,7 @@ const Main = () => {
       }
     }
   }, [location.pathname, navigate]);
+
   return (
     <EmployeeProvider>
       <main className="main-content">
@@ -93,11 +96,8 @@ const Main = () => {
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
-          <Route path="/AssignEmployee/Assign" element={<AssignEmployee />} />
-          <Route
-            path="/AssignEmployee/Unassign"
-            element={<UnassignEmployee />}
-          />
+          <Route path="/TechBin" element={<TechBin />} />
+          <Route path="/LanguageBin" element={<LanguageBin />} />
         </Routes>
       </main>
     </EmployeeProvider>

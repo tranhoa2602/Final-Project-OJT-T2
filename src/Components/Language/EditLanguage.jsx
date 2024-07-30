@@ -25,6 +25,7 @@ const EditLanguage = () => {
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [existingTypes, setExistingTypes] = useState([]);
 
   useEffect(() => {
     const fetchLanguage = async () => {
@@ -34,6 +35,7 @@ const EditLanguage = () => {
         );
         const data = response.data;
         data.programingstatus = data.programingstatus === "Active";
+        data.deletestatus = data.deletestatus !== undefined ? data.deletestatus : false; // Ensure deletestatus is present
         setInitialValues(data);
         form.setFieldsValue(data);
         setLoading(false);
@@ -44,12 +46,26 @@ const EditLanguage = () => {
       }
     };
 
+    const fetchExistingTypes = async () => {
+      try {
+        const response = await axios.get(`${firebaseConfig.databaseURL}/programmingLanguages.json`);
+        const types = response.data
+          ? Object.values(response.data).map(lang => lang.programingtype).flat()
+          : [];
+        setExistingTypes([...new Set(types)]);
+      } catch (error) {
+        console.error("Error fetching existing types: ", error);
+      }
+    };
+
     fetchLanguage();
+    fetchExistingTypes();
   }, [id, form, t]);
 
   const handleSubmit = async (values) => {
     try {
       values.programingstatus = values.programingstatus ? "Active" : "Inactive";
+      values.deletestatus = false; // Set deletestatus to false
 
       await axios.put(
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
@@ -65,6 +81,11 @@ const EditLanguage = () => {
 
   const handleFailure = (errorInfo) => {
     console.log("Failed:", errorInfo);
+  };
+
+  const validateDescription = (_, value) => {
+    const wordCount = value ? value.split(' ').filter(word => word).length : 0;
+    return wordCount <= 20 ? Promise.resolve() : Promise.reject(new Error(t("Description cannot exceed 20 words")));
   };
 
   if (loading) {
@@ -93,16 +114,26 @@ const EditLanguage = () => {
         name="programingtype"
         rules={[{ required: true, message: t("Please input Program Language Type!") }]}
       >
-        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          placeholder={t("Tags Mode")}
+          options={existingTypes.map(type => ({ value: type }))}
+        />
       </Form.Item>
       <Form.Item
         label={t("Program Language Status")}
         name="programingstatus"
         valuePropName="checked"
+        rules={[{ required: true, message: t("Please select Programming Language Status!") }]}
       >
         <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
-      <Form.Item label={t("Program Language Description")} name="programingdescription">
+      <Form.Item
+        label={t("Program Language Description")}
+        name="programingdescription"
+        rules={[{ validator: validateDescription }]}
+      >
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
@@ -114,7 +145,7 @@ const EditLanguage = () => {
           style={{ marginLeft: 8 }}
           onClick={() => navigate("/ViewLanguage")}
         >
-          {t("Back to Programing Language List")}
+          {t("Back to Programming Language List")}
         </Button>
       </Form.Item>
     </Form>

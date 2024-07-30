@@ -1,0 +1,146 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+.employee-list {
+  font-family: "Roboto", sans-serif;
+  padding: 20px;
+
+  .actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    .search-input {
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .add-button,
+    .export-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      padding: 12px 24px;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+
+      &.add-button {
+        background-color: #4caf50;
+
+        &:hover {
+          background-color: #45a049;
+          transform: scale(1.05);
+          box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        &:active {
+          background-color: #388e3c;
+          transform: scale(0.95);
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+
+      &.export-button {
+        background-color: #1890ff;
+
+        &:hover {
+          background-color: #40a9ff;
+          transform: scale(1.05);
+          box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        &:active {
+          background-color: #096dd9;
+          transform: scale(0.95);
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+
+  .employee-table {
+    width: 100%;
+    max-width: 1200px; // Set a larger maximum width for the table
+    margin: 0 auto; // Center the table within its container
+    border-collapse: collapse;
+    margin-top: 20px;
+
+    th,
+    td {
+      padding: 16px; // Increased padding for larger table cells
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      font-size: 16px; // Larger font size for table headers
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .actions-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+
+      .ant-btn {
+        margin: 0;
+        font-size: 14px;
+        padding: 8px 16px; // Increased padding for larger buttons
+
+        &-danger {
+          background-color: #ff4d4f;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #ff7875;
+          }
+
+          &:focus {
+            background-color: #d9363e;
+          }
+        }
+
+        &-primary {
+          background-color: #1890ff;
+          color: white;
+          border: none;
+
+          &:hover {
+            background-color: #40a9ff;
+          }
+
+          &:focus {
+            background-color: #096dd9;
+          }
+        }
+
+        &-default {
+          background-color: #f0f0f0;
+          color: #000;
+          border: none;
+
+          &:hover {
+            background-color: #e6e6e6;
+          }
+
+          &:focus {
+            background-color: #d9d9d9;
+          }
+        }
+      }
+    }
+  }
+}

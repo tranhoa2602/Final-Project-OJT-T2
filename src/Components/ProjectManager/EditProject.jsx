@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Form, Input, Button, DatePicker, Select, message, Space } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 const { TextArea } = Input;
@@ -29,8 +29,8 @@ const EditProject = () => {
                 form.setFieldsValue({
                     ...projectData,
                     dateRange: [
-                        moment(projectData.startDate),
-                        moment(projectData.endDate),
+                        dayjs(projectData.startDate),
+                        dayjs(projectData.endDate),
                     ],
                 });
             } else {

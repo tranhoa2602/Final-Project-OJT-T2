@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Form, Input, Button, DatePicker, Select, message, Space } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 const { TextArea } = Input;
@@ -29,8 +29,8 @@ const EditProject = () => {
                 form.setFieldsValue({
                     ...projectData,
                     dateRange: [
-                        moment(projectData.startDate),
-                        moment(projectData.endDate),
+                        dayjs(projectData.startDate),
+                        dayjs(projectData.endDate),
                     ],
                 });
             } else {
@@ -70,7 +70,6 @@ const EditProject = () => {
                 setLanguages(formattedData);
             }
         };
-
 
         fetchProject();
         fetchTechnologies();
@@ -164,23 +163,6 @@ const EditProject = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item
-                            name="status"
-                            label={t("Status")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the project status!"),
-                                },
-                            ]}
-                        >
-                            <Select placeholder={t("Please select the project status!")}>
-                                <Option value="Not Started">{t("Not Started")}</Option>
-                                <Option value="Ongoing">{t("Ongoing")}</Option>
-                                <Option value="Completed">{t("Completed")}</Option>
-                                <Option value="Pending">{t("Pending")}</Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
                             name="dateRange"
                             label={t("Date Range")}
                             rules={[
@@ -191,6 +173,20 @@ const EditProject = () => {
                                 format="YYYY-MM-DD"
                                 getPopupContainer={(trigger) => trigger.parentNode}
                             />
+                        </Form.Item>
+                        <Form.Item
+                            name="status"
+                            label={t("Status")}
+                            rules={[
+                                { required: true, message: t("Please select the project status!") },
+                            ]}
+                        >
+                            <Select placeholder={t("Please select the project status!")}>
+                                <Option value="Not Started">{t("Not Started")}</Option>
+                                <Option value="Ongoing">{t("Ongoing")}</Option>
+                                <Option value="Completed">{t("Completed")}</Option>
+                                <Option value="Pending">{t("Pending")}</Option>
+                            </Select>
                         </Form.Item>
                         <Form.Item>
                             <Space>

@@ -12,7 +12,7 @@ import {
 import { getDatabase, ref, set, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslation } from "react-i18next";
-import moment from "moment"; // Ensure moment is imported correctly
+import moment from "moment";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -36,7 +36,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                         id: key,
                         ...data[key],
                     }))
-                    .filter((tech) => tech.techstatus === "Active"); // Filter for active technologies
+                    .filter((tech) => tech.techstatus === "Active");
                 setTechnologies(formattedData);
             }
         };
@@ -52,7 +52,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                         id: key,
                         ...data[key],
                     }))
-                    .filter((lang) => lang.programingstatus === "Active"); // Filter for active languages
+                    .filter((lang) => lang.programingstatus === "Active");
                 setLanguages(formattedData);
             }
         };
@@ -60,6 +60,18 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
         fetchTechnologies();
         fetchLanguages();
     }, []);
+
+    const determineStatus = (startDate, endDate) => {
+        const today = moment();
+        if (today.isBefore(startDate)) {
+            return "Not Started";
+        } else if (today.isBetween(startDate, endDate, null, "[]")) {
+            return "Ongoing";
+        } else if (today.isAfter(endDate)) {
+            return "Completed";
+        }
+        return "Pending";
+    };
 
     const handleSave = async (values) => {
         const db = getDatabase();
@@ -70,7 +82,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
             ...values,
             startDate: startDate.format("YYYY-MM-DD"),
             endDate: endDate.format("YYYY-MM-DD"),
-            status: "Not Started", // Set default status to "Not Started"
+            status: determineStatus(startDate, endDate),
             dateRange: null,
         };
 

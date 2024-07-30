@@ -4,8 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import styles from "../../styles/layouts/TechList.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
 
@@ -115,7 +120,7 @@ const TechList = () => {
       dataIndex: "techname",
       key: "techname",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Name")}
             value={searchName}
@@ -132,7 +137,7 @@ const TechList = () => {
       dataIndex: "techtype",
       key: "techtype",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Type")}
             value={searchType}
@@ -162,7 +167,7 @@ const TechList = () => {
       dataIndex: "techstatus",
       key: "techstatus",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Select
             placeholder={t("Select Status")}
             value={searchStatus}
@@ -191,6 +196,7 @@ const TechList = () => {
     {
       title: t("Actions"),
       key: "action",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Link to={`/EditTech/${record.id}`}> {t("Edit")} </Link>{" "}
@@ -204,15 +210,22 @@ const TechList = () => {
   ];
 
   return (
-    <>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/AddTech")}
-      >
-        {t("Add Tech")}
-      </Button>
+    <div className={styles["tech-list"]}>
+      <div className={styles["actions-container"]}>
+        <Input
+          placeholder={t("Search by Name")}
+          value={searchName}
+          onChange={(e) => handleNameFilter(e.target.value)}
+          style={{ width: 200, marginRight: 8 }}
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate("/AddTech")}
+        >
+          {t("Add Tech")}
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={filteredData}
@@ -220,7 +233,7 @@ const TechList = () => {
         pagination={{ current: currentPage, pageSize: pageSize }}
         onChange={handleTableChange}
       />
-    </>
+    </div>
   );
 };
 

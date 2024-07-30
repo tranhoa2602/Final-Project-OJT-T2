@@ -41,6 +41,7 @@ const AddTech = () => {
   const handleSubmit = async (values) => {
     try {
       values.techstatus = values.techstatus ? "Active" : "Inactive";
+      values.deletestatus = false; // Set deletestatus to false by default
 
       await axios.post(
         `${firebaseConfig.databaseURL}/technologies.json`,

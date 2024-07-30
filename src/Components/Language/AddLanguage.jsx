@@ -43,6 +43,7 @@ const AddLanguage = () => {
   const handleSubmit = async (values) => {
     try {
       values.programingstatus = values.programingstatus ? "Active" : "Inactive";
+      values.deletestatus = false; // Set deletestatus to false by default
 
       await axios.post(
         `${firebaseConfig.databaseURL}/programmingLanguages.json`,
@@ -78,7 +79,7 @@ const AddLanguage = () => {
     >
       <Title level={2}>{t("Add New Programming Language")}</Title>
       <Form.Item
-        label={t("Program Language Name")}
+        label={t("Programming Language Name")}
         name="programingname"
         rules={[{ required: true, message: t("Please input Programming Language Name!") }]}
       >

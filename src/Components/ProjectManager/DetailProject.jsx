@@ -24,6 +24,7 @@ const DetailProject = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]);
   const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
   const [isUnassignModalVisible, setIsUnassignModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -54,6 +55,12 @@ const DetailProject = () => {
           ...allEmployees[empId],
         }));
         setEmployees(assignedEmployees);
+        setAllEmployees(
+          Object.keys(allEmployees).map((key) => ({
+            id: key,
+            ...allEmployees[key],
+          }))
+        ); // Lưu toàn bộ danh sách nhân viên
       }
     };
 
@@ -203,7 +210,7 @@ const DetailProject = () => {
                 ]}
               >
                 <Select placeholder={t("Select an employee")}>
-                  {employees.map((employee) => (
+                  {allEmployees.map((employee) => (
                     <Option key={employee.id} value={employee.id}>
                       {employee.name}
                     </Option>
@@ -233,7 +240,7 @@ const DetailProject = () => {
               >
                 <Select placeholder={t("Select an employee")}>
                   {employees.map((employee) => (
-                    <Option key={employee.id} value={employee.id}>
+                    <Option key={employee.id} value={employee.name}>
                       {employee.name}
                     </Option>
                   ))}

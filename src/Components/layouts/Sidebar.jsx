@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import i18n from "../../i18n"; // Đảm bảo đường dẫn này đúng
-import "../../styles/layouts/Sidebar.scss";
+import i18n from "../../i18n";
 import {
-  AppstoreOutlined,
-  ContainerOutlined,
-  DesktopOutlined,
-  LogoutOutlined,
-  TeamOutlined,
   UserOutlined,
   FundProjectionScreenOutlined,
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
+  LogoutOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,6 +18,10 @@ const { Sider } = Layout;
 const siderStyle = {
   textAlign: "left",
   color: "#fff",
+  height: "100vh", // Ensure full height
+  position: "fixed",
+  left: 0,
+  top: 0,
 };
 
 const layoutStyle = {
@@ -30,14 +30,6 @@ const layoutStyle = {
   height: "100vh",
   width: "calc(100% - 8px)",
   maxWidth: "calc(100% - 8px)",
-};
-
-const buttonStyle = {
-  position: "absolute",
-  bottom: 16,
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "90%",
 };
 
 const Sidebar = () => {
@@ -79,7 +71,7 @@ const Sidebar = () => {
         },
         {
           key: "2",
-          label: <Link to="/change-password">{t("Reset Password")}</Link>,
+          label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
@@ -90,28 +82,14 @@ const Sidebar = () => {
       children: [
         {
           key: "3",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Project Info")}</Link>
-          ),
-        },
-        {
-          key: "4",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Assign Employees")}</Link>
-          ),
-        },
-        {
-          key: "5",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Project Tracking")}</Link>
-          ),
+          label: <Link to="/projects">{t("Projects list")}</Link>,
         },
       ],
     },
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/ListPosition">{t('Position')}</Link>,
+      label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
 
     {
@@ -126,7 +104,7 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="list">{t('Employee Profile')}</Link>,
+          label: <Link to="/list">{t("Employee Profile")}</Link>,
         },
         {
           key: "8",
@@ -182,6 +160,9 @@ const Sidebar = () => {
           <Button onClick={() => changeLanguage("en")}>{t("English")}</Button>
         </div>
       </Sider>
+      <div style={{ marginLeft: "15%", width: "85%", padding: "16px" }}>
+        {/* The rest of your main content will go here */}
+      </div>
     </Layout>
   );
 };

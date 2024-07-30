@@ -178,7 +178,9 @@ const TechList = () => {
       onFilter: (value, record) =>
         record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {status === "Active" ? t("Active") : t("Inactive")}
+        </Tag>
       ),
     },
     {
@@ -191,20 +193,11 @@ const TechList = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => navigate(`/EditTech/${record.id}`)}
-          >
-            <EditOutlined /> {t("Edit")}
-          </Button>
-          <Button
-            type="primary"
-            danger
-            disabled={record.techstatus === "Active"}
-            onClick={() => handleDelete(record.id, record.techstatus)}
-          >
-            <DeleteOutlined /> {t("Delete")}
-          </Button>
+          <Link to={`/EditTech/${record.id}`}> {t("Edit")} </Link>{" "}
+          <a onClick={() => handleDelete(record.id, record.techstatus)}>
+            {" "}
+            {t("Delete")}{" "}
+          </a>{" "}
         </Space>
       ),
     },

@@ -87,7 +87,7 @@ const EditLanguage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   return (
@@ -103,35 +103,26 @@ const EditLanguage = () => {
       <Form.Item
         label={t("Program Language Name")}
         name="programingname"
-        rules={[{ required: true, message: t("Please input Programming Language Name!") }]}
+        rules={[{ required: true, message: t("Please input Program Language Name!") }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label={t("Programming Language Type")}
+        label={t("Program Language Type")}
         name="programingtype"
-        rules={[{ required: true, message: t("Please input Programming Language Type!") }]}
+        rules={[{ required: true, message: t("Please input Program Language Type!") }]}
       >
-        <Select
-          mode="tags"
-          style={{ width: "100%" }}
-          placeholder={t("Tags Mode")}
-          options={existingTypes.map(type => ({ value: type }))}
-        />
+        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
       </Form.Item>
       <Form.Item
-        label={t("Programming Language Status")}
+        label={t("Program Language Status")}
         name="programingstatus"
         valuePropName="checked"
         rules={[{ required: true, message: t("Please select Programming Language Status!") }]}
       >
         <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
-      <Form.Item
-        label={t("Programming Language Description")}
-        name="programingdescription"
-        rules={[{ validator: validateDescription }]}
-      >
+      <Form.Item label={t("Program Language Description")} name="programingdescription">
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

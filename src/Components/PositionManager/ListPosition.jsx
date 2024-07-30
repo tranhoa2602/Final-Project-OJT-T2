@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, message, Tag, Switch } from "antd";
 import { getDatabase, ref, set, update, remove, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
-import { EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { useTranslation } from 'react-i18next';
+import {
+    EditOutlined,
+    DeleteOutlined,
+    SearchOutlined,
+} from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 const { TextArea } = Input;
 
@@ -21,7 +25,10 @@ const ListPosition = () => {
             const snapshot = await get(positionsRef);
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                const formattedData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+                const formattedData = Object.keys(data).map((key) => ({
+                    id: key,
+                    ...data[key],
+                }));
                 setPositions(formattedData);
             } else {
                 setPositions([]);
@@ -33,7 +40,7 @@ const ListPosition = () => {
 
     const handleAddOrUpdatePosition = async (values) => {
         const db = getDatabase();
-        const status = values.status ? "active" : "inactive"; // Chuyển đổi giá trị Boolean thành chuỗi "active" hoặc "inactive"
+        const status = values.status ? "active" : "inactive";
         if (editingPosition) {
             const positionRef = ref(db, `positions/${editingPosition.id}`);
             await update(positionRef, { ...values, status });
@@ -51,7 +58,10 @@ const ListPosition = () => {
         const snapshot = await get(positionsRef);
         if (snapshot.exists()) {
             const data = snapshot.val();
-            const formattedData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            const formattedData = Object.keys(data).map((key) => ({
+                id: key,
+                ...data[key],
+            }));
             setPositions(formattedData);
         } else {
             setPositions([]);
@@ -68,7 +78,7 @@ const ListPosition = () => {
         const db = getDatabase();
         await remove(ref(db, `positions/${id}`));
         message.success(t("Position deleted successfully!"));
-        setPositions(positions.filter(position => position.id !== id));
+        setPositions(positions.filter((position) => position.id !== id));
     };
 
     const handleModalCancel = () => {
@@ -82,12 +92,19 @@ const ListPosition = () => {
             title: t("Name"),
             dataIndex: "name",
             key: "name",
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+            filterDropdown: ({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+            }) => (
                 <div style={{ padding: 8 }}>
                     <Input
                         placeholder={`Search ${t("Name")}`}
                         value={selectedKeys[0]}
-                        onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onChange={(e) =>
+                            setSelectedKeys(e.target.value ? [e.target.value] : [])
+                        }
                         onPressEnter={confirm}
                         style={{ marginBottom: 8, display: "block" }}
                     />
@@ -105,8 +122,11 @@ const ListPosition = () => {
                     </Button>
                 </div>
             ),
-            filterIcon: filtered => <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />,
-            onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase())
+            filterIcon: (filtered) => (
+                <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+            ),
+            onFilter: (value, record) =>
+                record.name.toLowerCase().includes(value.toLowerCase()),
         },
         {
             title: t("Description"),
@@ -137,6 +157,7 @@ const ListPosition = () => {
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
                         style={{ marginRight: 8 }}
+                        type="danger"
                     >
                         {t("Edit")}
                     </Button>
@@ -154,10 +175,14 @@ const ListPosition = () => {
 
     return (
         <div>
-            <Button type="primary" onClick={() => {
-                form.setFieldsValue({ status: true });
-                setModalVisible(true);
-            }} style={{ marginBottom: 16 }}>
+            <Button
+                type="primary"
+                onClick={() => {
+                    form.setFieldsValue({ status: true });
+                    setModalVisible(true);
+                }}
+                style={{ marginTop: 16 }}
+            >
                 {t("Add Position")}
             </Button>
             <Table
@@ -168,7 +193,7 @@ const ListPosition = () => {
             />
             <Modal
                 title={editingPosition ? t("Edit Position") : t("Add Position")}
-                visible={modalVisible}
+                open={modalVisible}
                 onCancel={handleModalCancel}
                 footer={null}
             >
@@ -188,15 +213,13 @@ const ListPosition = () => {
                     <Form.Item
                         name="description"
                         label={t("Description")}
-                        rules={[{ required: true, message: t("Please input the description!") }]}
+                        rules={[
+                            { required: true, message: t("Please input the description!") },
+                        ]}
                     >
                         <TextArea rows={4} />
                     </Form.Item>
-                    <Form.Item
-                        name="status"
-                        label={t("Status")}
-                        valuePropName="checked"
-                    >
+                    <Form.Item name="status" label={t("Status")} valuePropName="checked">
                         <Switch
                             checkedChildren={t("Active")}
                             unCheckedChildren={t("Inactive")}

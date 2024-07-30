@@ -91,7 +91,6 @@ const AddTech = () => {
           mode="tags"
           style={{ width: "100%" }}
           placeholder={t("Tags Mode")}
-          options={existingTypes.map(type => ({ value: type }))}
         />
       </Form.Item>
       <Form.Item
@@ -99,7 +98,10 @@ const AddTech = () => {
         name="techstatus"
         valuePropName="checked"
       >
-        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
+        <Switch
+          checkedChildren={t("Active")}
+          unCheckedChildren={t("Inactive")}
+        />
       </Form.Item>
       <Form.Item
         label={t("Tech Description")}

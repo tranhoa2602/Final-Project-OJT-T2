@@ -54,6 +54,9 @@ const ResetPassword = () => {
           "Password reset successfully! You can now log in with your new password."
         );
         setError("");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000); // Redirect to login page after 2 seconds
       } else {
         setError("User not found.");
         setMessage("");
@@ -111,14 +114,6 @@ const ResetPassword = () => {
             </Button>
           </Form.Item>
         </Form>
-        <Button
-          type="link"
-          className={styles["link-button"]}
-          onClick={() => navigate("/")}
-          block
-        >
-          Back to Login
-        </Button>
       </div>
     </div>
   );

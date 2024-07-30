@@ -71,7 +71,6 @@ const EditProject = () => {
             }
         };
 
-
         fetchProject();
         fetchTechnologies();
         fetchLanguages();
@@ -164,23 +163,6 @@ const EditProject = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item
-                            name="status"
-                            label={t("Status")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the project status!"),
-                                },
-                            ]}
-                        >
-                            <Select placeholder={t("Please select the project status!")}>
-                                <Option value="Not Started">{t("Not Started")}</Option>
-                                <Option value="Ongoing">{t("Ongoing")}</Option>
-                                <Option value="Completed">{t("Completed")}</Option>
-                                <Option value="Pending">{t("Pending")}</Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
                             name="dateRange"
                             label={t("Date Range")}
                             rules={[
@@ -191,6 +173,20 @@ const EditProject = () => {
                                 format="YYYY-MM-DD"
                                 getPopupContainer={(trigger) => trigger.parentNode}
                             />
+                        </Form.Item>
+                        <Form.Item
+                            name="status"
+                            label={t("Status")}
+                            rules={[
+                                { required: true, message: t("Please select the project status!") },
+                            ]}
+                        >
+                            <Select placeholder={t("Please select the project status!")}>
+                                <Option value="Not Started">{t("Not Started")}</Option>
+                                <Option value="Ongoing">{t("Ongoing")}</Option>
+                                <Option value="Completed">{t("Completed")}</Option>
+                                <Option value="Pending">{t("Pending")}</Option>
+                            </Select>
                         </Form.Item>
                         <Form.Item>
                             <Space>

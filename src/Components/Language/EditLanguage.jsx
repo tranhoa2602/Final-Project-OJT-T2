@@ -68,7 +68,7 @@ const EditLanguage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   return (
@@ -80,34 +80,34 @@ const EditLanguage = () => {
       style={{ height: "100vh" }}
       initialValues={initialValues}
     >
-      <Title level={2}>Edit Programming Language</Title>
+      <Title level={2}>{t("Edit Programming Language")}</Title>
       <Form.Item
-        label="Program Language Name"
+        label={t("Program Language Name")}
         name="programingname"
-        rules={[{ required: true, message: "Please input Program Language Name!" }]}
+        rules={[{ required: true, message: t("Please input Program Language Name!") }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        label="Program Language Type"
+        label={t("Program Language Type")}
         name="programingtype"
-        rules={[{ required: true, message: "Please input Program Language Type!" }]}
+        rules={[{ required: true, message: t("Please input Program Language Type!") }]}
       >
-        <Select mode="tags" style={{ width: "100%" }} placeholder="Tags Mode" />
+        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
       </Form.Item>
       <Form.Item
-        label="Program Language Status"
+        label={t("Program Language Status")}
         name="programingstatus"
         valuePropName="checked"
       >
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
-      <Form.Item label="Program Language Description" name="programingdescription">
+      <Form.Item label={t("Program Language Description")} name="programingdescription">
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit
+          {t("Submit")}
         </Button>
         <Button
           type="primary"

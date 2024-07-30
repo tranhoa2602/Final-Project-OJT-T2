@@ -22,7 +22,6 @@ const AddTech = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [existingTypes, setExistingTypes] = useState([]);
 
   const handleSubmit = async (values) => {
     try {

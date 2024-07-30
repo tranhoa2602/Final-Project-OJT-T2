@@ -20,9 +20,9 @@ import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
 import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 import ChangePassword from "../../pages/ChangePassword";
 import ListPosition from "../PositionManager/ListPosition";
+import EditProject from "../ProjectManager/EditProject";
 import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
-import EditProject from "../ProjectManager/EditProject"; // Import EditProject
 import DetailProject from "../ProjectManager/DetailProject"; // Import DetailProject
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 

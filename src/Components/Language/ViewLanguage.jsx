@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Space, Table, Button, Tag, message, Input, Select } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import styles from "../../styles/layouts/ViewLanguage.module.scss";
 
 const { Option } = Select;
 
@@ -15,6 +22,8 @@ const ViewLanguage = () => {
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +39,7 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(languages); // Initialize filtered data
+        setFilteredData(languages.filter(item => item.deletestatus === false));
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
@@ -42,25 +51,26 @@ const ViewLanguage = () => {
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data;
+      let filtered = data.filter(item => item.deletestatus === false);
 
       if (searchName) {
-        filtered = filtered.filter(item =>
+        filtered = filtered.filter((item) =>
           item.programingname.toLowerCase().includes(searchName.toLowerCase())
         );
       }
 
       if (searchType) {
-        filtered = filtered.filter(item =>
-          item.programingtype.some(type =>
+        filtered = filtered.filter((item) =>
+          item.programingtype.some((type) =>
             type.toLowerCase().includes(searchType.toLowerCase())
           )
         );
       }
 
       if (searchStatus) {
-        filtered = filtered.filter(item =>
-          item.programingstatus.toLowerCase() === searchStatus.toLowerCase()
+        filtered = filtered.filter(
+          (item) =>
+            item.programingstatus.toLowerCase() === searchStatus.toLowerCase()
         );
       }
 
@@ -70,34 +80,30 @@ const ViewLanguage = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id, status) => {
-    if (status === "Active") {
-      message.error(t("Can't delete status active"));
-      return;
-    }
+  const handleDelete = async (id) => {
     try {
-      await axios.delete(
-        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
+      await axios.patch(
+        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
+        { deletestatus: true }
       );
-      message.success(t("Programming Language deleted successfully!"));
-      setData(data.filter((item) => item.id !== id));
-      setFilteredData(filteredData.filter((item) => item.id !== id));
+      message.success(t("Programming Language moved to bin successfully!"));
+      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
+      setFilteredData(filteredData.filter(item => item.id !== id));
     } catch (error) {
-      console.error("Error deleting Programming Language: ", error);
-      message.error(t("Failed to delete Programming Language."));
+      console.error("Error updating deletestatus: ", error);
+      message.error(t("Failed to move Programming Language to bin."));
     }
   };
 
-  const handleNameFilter = (value) => {
-    setSearchName(value);
-  };
+  const handleNameFilter = (value) => setSearchName(value);
 
-  const handleTypeFilter = (value) => {
-    setSearchType(value);
-  };
+  const handleTypeFilter = (value) => setSearchType(value);
 
-  const handleStatusFilter = (value) => {
-    setSearchStatus(value);
+  const handleStatusFilter = (value) => setSearchStatus(value);
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
   const columns = [
@@ -106,7 +112,7 @@ const ViewLanguage = () => {
       dataIndex: "programingname",
       key: "programingname",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Name")}
             value={searchName}
@@ -123,7 +129,7 @@ const ViewLanguage = () => {
       dataIndex: "programingtype",
       key: "programingtype",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Type")}
             value={searchType}
@@ -133,16 +139,18 @@ const ViewLanguage = () => {
         </div>
       ),
       onFilter: (value, record) =>
-        record.programingtype.some(type =>
+        record.programingtype.some((type) =>
           type.toLowerCase().includes(value.toLowerCase())
         ),
       render: (tags) => (
         <>
-          {Array.isArray(tags) ? tags.map((tag) => (
-            <Tag color="blue" key={tag}>
-              {tag}
-            </Tag>
-          )) : null}
+          {Array.isArray(tags)
+            ? tags.map((tag) => (
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
+            : null}
         </>
       ),
     },
@@ -151,7 +159,7 @@ const ViewLanguage = () => {
       dataIndex: "programingstatus",
       key: "programingstatus",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Select
             placeholder={t("Select Status")}
             value={searchStatus}
@@ -167,9 +175,7 @@ const ViewLanguage = () => {
       onFilter: (value, record) =>
         record.programingstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>
-          {status}
-        </Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
       ),
     },
     {
@@ -180,10 +186,23 @@ const ViewLanguage = () => {
     {
       title: t("Actions"),
       key: "action",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditLanguage/${record.id}`}> {t("Edit")} </Link>
-          <a onClick={() => handleDelete(record.id, record.programingstatus)}> {t("Delete")} </a>
+          <Button
+            type="primary"
+            onClick={() => navigate(`/EditLanguage/${record.id}`)}
+          >
+            <EditOutlined /> {t("Edit")}
+          </Button>
+          <Button
+            type="primary"
+            danger
+            disabled={record.programingstatus === "Active"}
+            onClick={() => handleDelete(record.id)}
+          >
+            <DeleteOutlined /> {t("Move to Bin")}
+          </Button>
         </Space>
       ),
     },
@@ -193,12 +212,27 @@ const ViewLanguage = () => {
     <>
       <Button
         type="primary"
+        icon={<PlusOutlined />}
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddLanguage")}
       >
         {t("Add Programming Language")}
       </Button>
-      <Table columns={columns} dataSource={filteredData} rowKey="id" />
+      <Button
+        type="primary"
+        icon={<DeleteOutlined />}
+        style={{ marginBottom: 16 }}
+        onClick={() => navigate("/LanguageBin")}
+      >
+        {t("View Bin")}
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        rowKey="id"
+        pagination={{ current: currentPage, pageSize: pageSize }}
+        onChange={handleTableChange}
+      />
     </>
   );
 };

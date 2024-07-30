@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, message, Tag, Switch } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+  Tag,
+  Switch,
+  Space,
+} from "antd";
 import { getDatabase, ref, set, update, remove, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -8,6 +18,7 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
+import styles from "../../styles/layouts/ListPosition.module.scss"; // Import the SCSS module
 
 const { TextArea } = Input;
 
@@ -40,7 +51,7 @@ const ListPosition = () => {
 
   const handleAddOrUpdatePosition = async (values) => {
     const db = getDatabase();
-    const status = values.status ? "active" : "inactive"; // Chuyển đổi giá trị Boolean thành chuỗi "active" hoặc "inactive"
+    const status = values.status ? "active" : "inactive";
     if (editingPosition) {
       const positionRef = ref(db, `positions/${editingPosition.id}`);
       await update(positionRef, { ...values, status });
@@ -151,50 +162,55 @@ const ListPosition = () => {
     {
       title: t("Actions"),
       key: "actions",
+      align: "center",
       render: (text, record) => (
-        <>
+        <div className={styles["actions-container"]}>
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
-            style={{ marginRight: 8 }}
+            className={styles["edit-button"]}
           >
             {t("Edit")}
           </Button>
           <Button
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
-            type="danger"
+            className={styles["delete-button"]}
           >
             {t("Delete")}
           </Button>
-        </>
+        </div>
       ),
     },
   ];
 
   return (
-    <div>
-      <Button
-        type="primary"
-        onClick={() => {
-          form.setFieldsValue({ status: true });
-          setModalVisible(true);
-        }}
-        style={{ marginBottom: 16 }}
-      >
-        {t("Add Position")}
-      </Button>
+    <div className={styles["list-position"]}>
+      <Space className={styles["actions-container"]}>
+        <Button
+          type="primary"
+          onClick={() => {
+            form.setFieldsValue({ status: true });
+            setModalVisible(true);
+          }}
+          className={styles["add-position-button"]}
+        >
+          {t("Add Position")}
+        </Button>
+      </Space>
       <Table
         columns={columns}
         dataSource={positions}
         rowKey="id"
         pagination={{ pageSize: 6 }}
+        className={styles["position-table"]}
       />
       <Modal
         title={editingPosition ? t("Edit Position") : t("Add Position")}
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={handleModalCancel}
         footer={null}
+        className={styles["modal"]}
       >
         <Form
           form={form}

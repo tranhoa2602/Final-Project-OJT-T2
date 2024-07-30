@@ -10,7 +10,7 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import styles from "../../styles/layouts/ViewLanguage.module.scss"; // Import the SCSS module
+import styles from "../../styles/layouts/ViewLanguage.module.scss";
 
 const { Option } = Select;
 
@@ -95,17 +95,11 @@ const ViewLanguage = () => {
     }
   };
 
-  const handleNameFilter = (value) => {
-    setSearchName(value);
-  };
+  const handleNameFilter = (value) => setSearchName(value);
 
-  const handleTypeFilter = (value) => {
-    setSearchType(value);
-  };
+  const handleTypeFilter = (value) => setSearchType(value);
 
-  const handleStatusFilter = (value) => {
-    setSearchStatus(value);
-  };
+  const handleStatusFilter = (value) => setSearchStatus(value);
 
   const handleTableChange = (pagination) => {
     setCurrentPage(pagination.current);
@@ -239,7 +233,7 @@ const ViewLanguage = () => {
         pagination={{ current: currentPage, pageSize: pageSize }}
         onChange={handleTableChange}
       />
-    </div>
+    </>
   );
 };
 

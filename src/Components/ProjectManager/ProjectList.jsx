@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Space } from "antd";
+import { Table, Button, Tag, message, Input, Select, Space } from "antd";
 import { getDatabase, ref, get, remove } from "firebase/database";
-import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+  FileExcelOutlined,
+} from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import * as XLSX from "xlsx";
 import CreateProject from "./CreateProject";
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import styles from "../../styles/layouts/ListProject.module.scss"; // Import the SCSS module
+
+const { Option } = Select;
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -34,7 +41,7 @@ const ListProject = () => {
         endDate: new Date(data[key].endDate),
       }));
       setProjects(formattedData);
-      setFilteredProjects(sortProjects(formattedData));
+      setFilteredProjects(formattedData);
     }
   };
 
@@ -70,17 +77,6 @@ const ListProject = () => {
     }
   };
 
-  const statusOrder = {
-    "Ongoing": 1,
-    "Pending": 2,
-    "Not Started": 3,
-    "Completed": 4,
-  };
-
-  const sortProjects = (projects) => {
-    return projects.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
-  };
-
   const columns = [
     {
       title: t("Name"),
@@ -102,24 +98,25 @@ const ListProject = () => {
     {
       title: t("Actions"),
       key: "actions",
+      align: "center",
       render: (text, record) => (
-        <>
+        <div className={styles["actions-container"]}>
           <Link to={`/projects/details/${record.id}`}>
             <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
           </Link>
           <Link to={`/projects/edit/${record.id}`}>
-            <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
+            <Button icon={<EditOutlined />} className={styles["edit-button"]}>
               {t("Edit")}
             </Button>
           </Link>
           <Button
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.id)}
-            style={{ marginLeft: 8 }}
+            className={styles["delete-button"]}
           >
             {t("Delete")}
           </Button>
-        </>
+        </div>
       ),
     },
   ];
@@ -163,42 +160,38 @@ const ListProject = () => {
       filtered = filtered.filter((project) => project.status === statusFilter);
     }
 
-    setFilteredProjects(sortProjects(filtered));
+    setFilteredProjects(filtered);
   };
 
   const exportToExcel = () => {
-    const dataToExport = filteredProjects.map((project) => ({
-      Name: project.name,
-      Description: project.description,
-      Technology: project.technology.join(", "),
-      ProgrammingLanguage: project.programmingLanguage.join(", "),
-      StartDate: project.startDate.toLocaleDateString(),
-      EndDate: project.endDate.toLocaleDateString(),
-      Status: project.status,
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const worksheet = XLSX.utils.json_to_sheet(filteredProjects);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "ProjectRoster.xlsx");
+    XLSX.writeFile(workbook, "Projects.xlsx");
   };
 
   return (
-    <div>
-      <Space style={{ marginTop: 16 }}>
+    <div className={styles["list-project"]}>
+      <Space className={styles["actions-container"]}>
         <Input
           placeholder={t("Search by Name")}
           value={searchText}
           onChange={handleSearch}
-          style={{ width: 200 }}
+          className={styles["search-input"]}
         />
-
-        <Button type="primary" onClick={showModal}>
+        <Button
+          type="primary"
+          onClick={showModal}
+          className={styles["create-button"]}
+        >
           {t("Create new project")}
         </Button>
-        <Button type="primary" onClick={exportToExcel}>
+        <Button
+          type="primary"
+          icon={<FileExcelOutlined />}
+          onClick={exportToExcel}
+          className={styles["export-button"]}
+        >
           {t("Export to Excel")}
         </Button>
       </Space>
@@ -207,6 +200,7 @@ const ListProject = () => {
         dataSource={filteredProjects}
         rowKey="id"
         pagination={{ pageSize: 6 }}
+        className={styles["project-table"]}
       />
       <CreateProject
         visible={isModalVisible}

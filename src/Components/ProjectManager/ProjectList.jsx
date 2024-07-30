@@ -5,12 +5,12 @@ import {
     EditOutlined,
     DeleteOutlined,
     InfoCircleOutlined,
+    FileExcelOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import * as XLSX from "xlsx";
 import CreateProject from "./CreateProject";
-import EditProject from "./EditProject";
-import DetailProject from "./DetailProject";
 
 const { Option } = Select;
 
@@ -161,6 +161,13 @@ const ListProject = () => {
         setFilteredProjects(filtered);
     };
 
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(filteredProjects);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
+        XLSX.writeFile(workbook, "Projects.xlsx");
+    };
+
     return (
         <div>
             <Space style={{ marginTop: 16 }}>
@@ -173,6 +180,9 @@ const ListProject = () => {
 
                 <Button type="primary" onClick={showModal}>
                     {t("Create new project")}
+                </Button>
+                <Button type="primary" icon={<FileExcelOutlined />} onClick={exportToExcel}>
+                    {t("Export to Excel")}
                 </Button>
             </Space>
             <Table

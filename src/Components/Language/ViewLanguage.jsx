@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -15,6 +16,8 @@ const ViewLanguage = () => {
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +33,7 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(languages); // Initialize filtered data
+        setFilteredData(languages);
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
@@ -45,22 +48,22 @@ const ViewLanguage = () => {
       let filtered = data;
 
       if (searchName) {
-        filtered = filtered.filter(item =>
+        filtered = filtered.filter((item) =>
           item.programingname.toLowerCase().includes(searchName.toLowerCase())
         );
       }
 
       if (searchType) {
-        filtered = filtered.filter(item =>
-          item.programingtype.some(type =>
+        filtered = filtered.filter((item) =>
+          item.programingtype.some((type) =>
             type.toLowerCase().includes(searchType.toLowerCase())
           )
         );
       }
 
       if (searchStatus) {
-        filtered = filtered.filter(item =>
-          item.programingstatus.toLowerCase() === searchStatus.toLowerCase()
+        filtered = filtered.filter(
+          (item) => item.programingstatus.toLowerCase() === searchStatus.toLowerCase()
         );
       }
 
@@ -100,6 +103,11 @@ const ViewLanguage = () => {
     setSearchStatus(value);
   };
 
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   const columns = [
     {
       title: t("Name"),
@@ -133,16 +141,18 @@ const ViewLanguage = () => {
         </div>
       ),
       onFilter: (value, record) =>
-        record.programingtype.some(type =>
+        record.programingtype.some((type) =>
           type.toLowerCase().includes(value.toLowerCase())
         ),
       render: (tags) => (
         <>
-          {Array.isArray(tags) ? tags.map((tag) => (
-            <Tag color="blue" key={tag}>
-              {tag}
-            </Tag>
-          )) : null}
+          {Array.isArray(tags)
+            ? tags.map((tag) => (
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
+            : null}
         </>
       ),
     },
@@ -167,9 +177,7 @@ const ViewLanguage = () => {
       onFilter: (value, record) =>
         record.programingstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>
-          {status}
-        </Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
       ),
     },
     {
@@ -182,8 +190,20 @@ const ViewLanguage = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/EditLanguage/${record.id}`}> {t("Edit")} </Link>
-          <a onClick={() => handleDelete(record.id, record.programingstatus)}> {t("Delete")} </a>
+          <Button
+            type="primary"
+            onClick={() => navigate(`/EditLanguage/${record.id}`)}
+          >
+            <EditOutlined /> {t("Edit")}
+          </Button>
+          <Button
+            type="primary"
+            danger
+            disabled={record.programingstatus === "Active"}
+            onClick={() => handleDelete(record.id, record.programingstatus)}
+          >
+            <DeleteOutlined /> {t("Delete")}
+          </Button>
         </Space>
       ),
     },
@@ -193,12 +213,19 @@ const ViewLanguage = () => {
     <>
       <Button
         type="primary"
+        icon={<PlusOutlined />}
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddLanguage")}
       >
         {t("Add Programming Language")}
       </Button>
-      <Table columns={columns} dataSource={filteredData} rowKey="id" />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        rowKey="id"
+        pagination={{ current: currentPage, pageSize: pageSize }}
+        onChange={handleTableChange}
+      />
     </>
   );
 };

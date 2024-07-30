@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+
 
 const { Option } = Select;
 
@@ -15,6 +17,8 @@ const TechList = () => {
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +34,7 @@ const TechList = () => {
         }
 
         setData(techList);
-        setFilteredData(techList); // Initialize filtered data
+        setFilteredData(techList);
       } catch (error) {
         console.error("Error fetching technologies: ", error);
         message.error(t("Failed to fetch technologies."));
@@ -98,6 +102,11 @@ const TechList = () => {
 
   const handleStatusFilter = (value) => {
     setSearchStatus(value);
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
   const columns = [
@@ -198,12 +207,19 @@ const TechList = () => {
     <>
       <Button
         type="primary"
+        icon={<PlusOutlined />}
         style={{ marginBottom: 16 }}
         onClick={() => navigate("/AddTech")}
       >
         {t("Add Tech")}
       </Button>
-      <Table columns={columns} dataSource={filteredData} rowKey="id" />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        rowKey="id"
+        pagination={{ current: currentPage, pageSize: pageSize }}
+        onChange={handleTableChange}
+      />
     </>
   );
 };

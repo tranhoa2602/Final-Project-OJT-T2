@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import style from "../../styles/layouts/ListProject.module.scss";
 
 const ListProject = () => {
   const { t } = useTranslation();

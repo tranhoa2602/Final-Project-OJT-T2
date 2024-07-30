@@ -25,6 +25,7 @@ const EditLanguage = () => {
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [existingTypes, setExistingTypes] = useState([]);
 
   useEffect(() => {
     const fetchLanguage = async () => {
@@ -44,7 +45,20 @@ const EditLanguage = () => {
       }
     };
 
+    const fetchExistingTypes = async () => {
+      try {
+        const response = await axios.get(`${firebaseConfig.databaseURL}/programmingLanguages.json`);
+        const types = response.data
+          ? Object.values(response.data).map(lang => lang.programingtype).flat()
+          : [];
+        setExistingTypes([...new Set(types)]);
+      } catch (error) {
+        console.error("Error fetching existing types: ", error);
+      }
+    };
+
     fetchLanguage();
+    fetchExistingTypes();
   }, [id, form, t]);
 
   const handleSubmit = async (values) => {
@@ -65,6 +79,11 @@ const EditLanguage = () => {
 
   const handleFailure = (errorInfo) => {
     console.log("Failed:", errorInfo);
+  };
+
+  const validateDescription = (_, value) => {
+    const wordCount = value ? value.split(' ').filter(word => word).length : 0;
+    return wordCount <= 20 ? Promise.resolve() : Promise.reject(new Error(t("Description cannot exceed 20 words")));
   };
 
   if (loading) {
@@ -99,6 +118,7 @@ const EditLanguage = () => {
         label={t("Program Language Status")}
         name="programingstatus"
         valuePropName="checked"
+        rules={[{ required: true, message: t("Please select Programming Language Status!") }]}
       >
         <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
@@ -114,7 +134,7 @@ const EditLanguage = () => {
           style={{ marginLeft: 8 }}
           onClick={() => navigate("/ViewLanguage")}
         >
-          {t("Back to Programing Language List")}
+          {t("Back to Programming Language List")}
         </Button>
       </Form.Item>
     </Form>

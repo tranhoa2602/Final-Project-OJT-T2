@@ -4,6 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import styles from "../../styles/layouts/TechList.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
 
@@ -15,6 +22,8 @@ const TechList = () => {
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +39,7 @@ const TechList = () => {
         }
 
         setData(techList);
-        setFilteredData(techList); // Initialize filtered data
+        setFilteredData(techList);
       } catch (error) {
         console.error("Error fetching technologies: ", error);
         message.error(t("Failed to fetch technologies."));
@@ -100,13 +109,18 @@ const TechList = () => {
     setSearchStatus(value);
   };
 
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
   const columns = [
     {
       title: t("Tech Name"),
       dataIndex: "techname",
       key: "techname",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Name")}
             value={searchName}
@@ -123,7 +137,7 @@ const TechList = () => {
       dataIndex: "techtype",
       key: "techtype",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Input
             placeholder={t("Search by Type")}
             value={searchType}
@@ -153,7 +167,7 @@ const TechList = () => {
       dataIndex: "techstatus",
       key: "techstatus",
       filterDropdown: () => (
-        <div style={{ padding: 8 }}>
+        <div className={styles["filter-dropdown"]}>
           <Select
             placeholder={t("Select Status")}
             value={searchStatus}
@@ -182,6 +196,7 @@ const TechList = () => {
     {
       title: t("Actions"),
       key: "action",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Link to={`/EditTech/${record.id}`}> {t("Edit")} </Link>{" "}
@@ -195,16 +210,30 @@ const TechList = () => {
   ];
 
   return (
-    <>
-      <Button
-        type="primary"
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/AddTech")}
-      >
-        {t("Add Tech")}
-      </Button>
-      <Table columns={columns} dataSource={filteredData} rowKey="id" />
-    </>
+    <div className={styles["tech-list"]}>
+      <div className={styles["actions-container"]}>
+        <Input
+          placeholder={t("Search by Name")}
+          value={searchName}
+          onChange={(e) => handleNameFilter(e.target.value)}
+          style={{ width: 200, marginRight: 8 }}
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => navigate("/AddTech")}
+        >
+          {t("Add Tech")}
+        </Button>
+      </div>
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        rowKey="id"
+        pagination={{ current: currentPage, pageSize: pageSize }}
+        onChange={handleTableChange}
+      />
+    </div>
   );
 };
 

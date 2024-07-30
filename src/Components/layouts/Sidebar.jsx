@@ -8,7 +8,7 @@ import {
   SolutionOutlined,
   DeploymentUnitOutlined,
   LogoutOutlined,
-  TeamOutlined
+  TeamOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,6 +18,10 @@ const { Sider } = Layout;
 const siderStyle = {
   textAlign: "left",
   color: "#fff",
+  height: "100vh", // Ensure full height
+  position: "fixed",
+  left: 0,
+  top: 0,
 };
 
 const layoutStyle = {
@@ -78,9 +82,8 @@ const Sidebar = () => {
       children: [
         {
           key: "3",
-          label: <Link to="/projects">{t('Projects list')}</Link>,
+          label: <Link to="/projects">{t("Projects list")}</Link>,
         },
-
       ],
     },
     {
@@ -157,6 +160,9 @@ const Sidebar = () => {
           <Button onClick={() => changeLanguage("en")}>{t("English")}</Button>
         </div>
       </Sider>
+      <div style={{ marginLeft: "15%", width: "85%", padding: "16px" }}>
+        {/* The rest of your main content will go here */}
+      </div>
     </Layout>
   );
 };

@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Select, Space } from "antd"; // Thêm import Space ở đây
+import { Table, Button, Tag, message, Input, Select, Space } from "antd";
 import { getDatabase, ref, get, remove } from "firebase/database";
-import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+    EditOutlined,
+    DeleteOutlined,
+    InfoCircleOutlined,
+} from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from 'react-i18next';
-import CreateProject from './CreateProject';
+import { useTranslation } from "react-i18next";
+import CreateProject from "./CreateProject";
+import EditProject from "./EditProject";
+import DetailProject from "./DetailProject";
 
 const { Option } = Select;
 
@@ -18,97 +24,95 @@ const ListProject = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchProjects = async () => {
-            const db = getDatabase();
-            const projectsRef = ref(db, "projects");
-            const snapshot = await get(projectsRef);
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const formattedData = Object.keys(data).map(key => ({
-                    id: key,
-                    ...data[key],
-                    startDate: new Date(data[key].startDate),
-                    endDate: new Date(data[key].endDate)
-                }));
-                setProjects(formattedData);
-                setFilteredProjects(formattedData);
-            }
-        };
-
         fetchProjects();
     }, []);
 
+    const fetchProjects = async () => {
+        const db = getDatabase();
+        const projectsRef = ref(db, "projects");
+        const snapshot = await get(projectsRef);
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            const formattedData = Object.keys(data).map((key) => ({
+                id: key,
+                ...data[key],
+                startDate: new Date(data[key].startDate),
+                endDate: new Date(data[key].endDate),
+            }));
+            setProjects(formattedData);
+            setFilteredProjects(formattedData);
+        }
+    };
+
     const handleDelete = async (id) => {
-        const project = projects.find(project => project.id === id);
-        if (project && project.startDate <= new Date() && project.endDate >= new Date()) {
-            message.error(t('Cannot delete an ongoing project!'));
+        const project = projects.find((project) => project.id === id);
+        if (
+            project &&
+            project.startDate <= new Date() &&
+            project.endDate >= new Date()
+        ) {
+            message.error(t("Cannot delete an ongoing project!"));
             return;
         }
 
         const db = getDatabase();
         await remove(ref(db, `projects/${id}`));
-        message.success(t('Project deleted successfully!'));
-        setProjects(projects.filter(project => project.id !== id));
-        setFilteredProjects(filteredProjects.filter(project => project.id !== id));
+        message.success(t("Project deleted successfully!"));
+        fetchProjects();
     };
 
-    const getStatusTag = (startDate, endDate) => {
-        const currentDate = new Date();
-        if (startDate > currentDate) {
-            return <Tag color="blue">{t('Not Started')}</Tag>;
-        } else if (startDate <= currentDate && endDate >= currentDate) {
-            return <Tag color="green">{t('Ongoing')}</Tag>;
-        } else if (endDate < currentDate) {
-            return <Tag color="red">{t('Completed')}</Tag>;
+    const getStatusTag = (status) => {
+        switch (status) {
+            case "Pending":
+                return <Tag color="orange">{t("Pending")}</Tag>;
+            case "Not Started":
+                return <Tag color="blue">{t("Not Started")}</Tag>;
+            case "Ongoing":
+                return <Tag color="green">{t("Ongoing")}</Tag>;
+            case "Completed":
+                return <Tag color="red">{t("Completed")}</Tag>;
+            default:
+                return null;
         }
     };
 
     const columns = [
         {
-            title: t('Name'),
+            title: t("Name"),
             dataIndex: "name",
             key: "name",
         },
         {
-            title: t('Status'),
+            title: t("Status"),
             key: "status",
-            render: (text, record) => getStatusTag(record.startDate, record.endDate),
+            render: (text, record) => getStatusTag(record.status),
             filters: [
-                { text: t('Not Started'), value: "Not Started" },
-                { text: t('Ongoing'), value: "Ongoing" },
-                { text: t('Completed'), value: "Completed" },
+                { text: t("Pending"), value: "Pending" },
+                { text: t("Not Started"), value: "Not Started" },
+                { text: t("Ongoing"), value: "Ongoing" },
+                { text: t("Completed"), value: "Completed" },
             ],
-            onFilter: (value, record) => {
-                const currentDate = new Date();
-                if (value === "Not Started") {
-                    return record.startDate > currentDate;
-                } else if (value === "Ongoing") {
-                    return record.startDate <= currentDate && record.endDate >= currentDate;
-                } else if (value === "Completed") {
-                    return record.endDate < currentDate;
-                }
-                return false;
-            },
+            onFilter: (value, record) => record.status === value,
         },
         {
-            title: t('Actions'),
+            title: t("Actions"),
             key: "actions",
             render: (text, record) => (
                 <>
                     <Link to={`/projects/details/${record.id}`}>
-                        <Button icon={<InfoCircleOutlined />}>
-                            {t('Detail')}
-                        </Button></Link>
+                        <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
+                    </Link>
                     <Link to={`/projects/edit/${record.id}`}>
                         <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
-                            {t('Edit')}
-                        </Button></Link>
+                            {t("Edit")}
+                        </Button>
+                    </Link>
                     <Button
                         icon={<DeleteOutlined />}
                         onClick={() => handleDelete(record.id)}
                         style={{ marginLeft: 8 }}
                     >
-                        {t('Delete')}
+                        {t("Delete")}
                     </Button>
                 </>
             ),
@@ -121,29 +125,12 @@ const ListProject = () => {
 
     const handleCancel = () => {
         setIsModalVisible(false);
-        navigate('/projects');
+        navigate("/projects");
     };
 
     const handleSave = () => {
         setIsModalVisible(false);
-        navigate('/projects');
-        const fetchProjects = async () => {
-            const db = getDatabase();
-            const projectsRef = ref(db, "projects");
-            const snapshot = await get(projectsRef);
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const formattedData = Object.keys(data).map(key => ({
-                    id: key,
-                    ...data[key],
-                    startDate: new Date(data[key].startDate),
-                    endDate: new Date(data[key].endDate)
-                }));
-                setProjects(formattedData);
-                setFilteredProjects(formattedData);
-            }
-        };
-
+        navigate("/projects");
         fetchProjects();
     };
 
@@ -162,21 +149,13 @@ const ListProject = () => {
         let filtered = projects;
 
         if (searchText) {
-            filtered = filtered.filter(project => project.name.toLowerCase().includes(searchText));
+            filtered = filtered.filter((project) =>
+                project.name.toLowerCase().includes(searchText)
+            );
         }
 
         if (statusFilter) {
-            filtered = filtered.filter(project => {
-                const currentDate = new Date();
-                if (statusFilter === "Not Started" && project.startDate > currentDate) {
-                    return true;
-                } else if (statusFilter === "Ongoing" && project.startDate <= currentDate && project.endDate >= currentDate) {
-                    return true;
-                } else if (statusFilter === "Completed" && project.endDate < currentDate) {
-                    return true;
-                }
-                return false;
-            });
+            filtered = filtered.filter((project) => project.status === statusFilter);
         }
 
         setFilteredProjects(filtered);
@@ -186,17 +165,22 @@ const ListProject = () => {
         <div>
             <Space style={{ marginTop: 16 }}>
                 <Input
-                    placeholder={t('Search by Name')}
+                    placeholder={t("Search by Name")}
                     value={searchText}
                     onChange={handleSearch}
                     style={{ width: 200 }}
                 />
 
                 <Button type="primary" onClick={showModal}>
-                    {t('Create new project')}
+                    {t("Create new project")}
                 </Button>
             </Space>
-            <Table columns={columns} dataSource={filteredProjects} rowKey="id" pagination={{ pageSize: 6 }} />
+            <Table
+                columns={columns}
+                dataSource={filteredProjects}
+                rowKey="id"
+                pagination={{ pageSize: 6 }}
+            />
             <CreateProject
                 visible={isModalVisible}
                 onCancel={handleCancel}

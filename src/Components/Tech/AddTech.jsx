@@ -23,7 +23,6 @@ const AddTech = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-
   const handleSubmit = async (values) => {
     try {
       values.techstatus = values.techstatus ? "Active" : "Inactive";
@@ -68,14 +67,21 @@ const AddTech = () => {
         name="techtype"
         rules={[{ required: true, message: t("Please input Tech Type!") }]}
       >
-        <Select mode="tags" style={{ width: "100%" }} placeholder={t("Tags Mode")} />
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          placeholder={t("Tags Mode")}
+        />
       </Form.Item>
       <Form.Item
         label={t("Tech Status")}
         name="techstatus"
         valuePropName="checked"
       >
-        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
+        <Switch
+          checkedChildren={t("Active")}
+          unCheckedChildren={t("Inactive")}
+        />
       </Form.Item>
       <Form.Item label={t("Tech Description")} name="techdescription">
         <Input />

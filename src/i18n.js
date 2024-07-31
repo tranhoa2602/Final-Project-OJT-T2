@@ -220,6 +220,13 @@ i18n
                     'Confirm Upload': 'Confirm Upload',
                     'Profile': 'Profile',
                     'Assign Project': 'Assign Project',
+                    'Project Manager': 'Project Manager',
+                    'Please input the project names!': 'Please input the project names!',
+                    "Cannot delete an active employee.": "Cannot delete an active employee.",
+                    "Employee deleted!": "Employee deleted!",
+                    "Employee not found.": "Employee not found.",
+                    "Error deleting employee: ": "Error deleting employee: ",
+                    'Employee Name': 'Employee Name',
 
                 }
             },
@@ -438,6 +445,13 @@ i18n
                     'Confirm Upload': 'Xác nhận tải lên',
                     'Profile': 'Hồ sơ',
                     'Assign Project': 'Phân công Dự án',
+                    'Project Manager': 'Quản lý dự án',
+                    'Please input the project names!': 'Vui lòng nhập tên dự án!',
+                    "Cannot delete an active employee.": "Không thể xóa nhân viên đang hoạt động.",
+                    "Employee deleted!": "Nhân viên đã được xóa!",
+                    "Employee not found.": "Không tìm thấy nhân viên.",
+                    "Error deleting employee: ": "Lỗi khi xóa nhân viên: ",
+                    'Employee Name': 'Tên Nhân viên',
                 }
             }
         },

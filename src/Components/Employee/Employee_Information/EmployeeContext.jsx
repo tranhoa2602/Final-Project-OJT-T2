@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getDatabase, ref, push, get, set, update, remove } from "firebase/database";
-import { database } from "../../../../firebaseConfig"; // Adjust the path if necessary
+import { database } from "../../../../firebaseConfig"; // Điều chỉnh đường dẫn nếu cần thiết
+import { message } from "antd";
+import { useTranslation } from "react-i18next";
 
 const EmployeeContext = createContext();
 
 export const useEmployees = () => useContext(EmployeeContext);
 
 export const EmployeeProvider = ({ children }) => {
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
 
   const fetchEmployees = async () => {
@@ -15,7 +18,7 @@ export const EmployeeProvider = ({ children }) => {
     if (snapshot.exists()) {
       const data = snapshot.val();
       const formattedData = Object.keys(data).map((key) => ({
-        key, // Use the database key as the unique key
+        key, // Sử dụng khóa từ database làm khóa duy nhất
         ...data[key],
       }));
       setEmployees(formattedData);
@@ -29,24 +32,22 @@ export const EmployeeProvider = ({ children }) => {
   }, []);
 
   const handleAdd = async (employee) => {
-
     const employeesRef = ref(database, "employees");
-    const newEmployeeRef = push(employeesRef); // Generate a new unique ID
+    const newEmployeeRef = push(employeesRef); // Tạo một ID duy nhất mới
 
-    // Add the employee data under the new unique ID
+    // Thêm dữ liệu nhân viên dưới ID duy nhất mới
     const newEmployee = {
       ...employee,
-      key: newEmployeeRef.key, // Use the generated key
+      key: newEmployeeRef.key, // Sử dụng khóa được tạo
     };
 
     await set(newEmployeeRef, newEmployee);
 
-    // Update local state
+    // Cập nhật trạng thái local
     setEmployees((prevEmployees) => [...prevEmployees, newEmployee]);
   };
 
   const handleEdit = async (updatedEmployee) => {
-
     const employeeRef = ref(database, `employees/${updatedEmployee.key}`);
     await update(employeeRef, updatedEmployee);
     setEmployees((prevEmployees) =>
@@ -58,10 +59,33 @@ export const EmployeeProvider = ({ children }) => {
 
   const handleDelete = async (key) => {
     const employeeRef = ref(database, `employees/${key}`);
-    await remove(employeeRef);
-    setEmployees((prevEmployees) =>
-      prevEmployees.filter((employee) => employee.key !== key)
-    );
+
+    try {
+      // Lấy dữ liệu nhân viên để kiểm tra trạng thái
+      const snapshot = await get(employeeRef);
+      if (snapshot.exists()) {
+        const employee = snapshot.val();
+        const status = employee.status;
+
+        if (status === "active") {
+          message.error(t("Cannot delete an active employee."));
+          return;
+        }
+
+        // Tiến hành xóa nếu trạng thái không phải là đang hoạt động
+        await remove(employeeRef);
+        message.success(t("Employee deleted!"));
+
+        // Cập nhật trạng thái local
+        setEmployees((prevEmployees) =>
+          prevEmployees.filter((employee) => employee.key !== key)
+        );
+      } else {
+        message.error(t("Employee not found."));
+      }
+    } catch (error) {
+      message.error(t("Error deleting employee: ") + error.message);
+    }
   };
 
   const handleStatusChange = (key, status) => {

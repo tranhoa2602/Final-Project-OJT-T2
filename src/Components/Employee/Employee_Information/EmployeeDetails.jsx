@@ -15,7 +15,7 @@ const EmployeeDetails = () => {
   useEffect(() => {
     const fetchPositionName = async () => {
       const db = getDatabase();
-      const positionRef = ref(db, `positions/${employee.positionId}`);
+      const positionRef = ref(db, `positions/${employee.positionName}`);
       const snapshot = await get(positionRef);
       if (snapshot.exists()) {
         setPositionName(snapshot.val().name);
@@ -24,7 +24,7 @@ const EmployeeDetails = () => {
 
     const fetchProjectNames = async () => {
       const db = getDatabase();
-      const projectRefs = employee.projectIds.map(id => ref(db, `projects/${id}`));
+      const projectRefs = employee.projectNames.map(name => ref(db, `projects/${name}`));
       const projectSnapshots = await Promise.all(projectRefs.map(ref => get(ref)));
       const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : t('Unknown Project'));
       setProjectNames(names);
@@ -40,12 +40,12 @@ const EmployeeDetails = () => {
 
   const handleDownloadCv = () => {
     if (!employee.cv_file) {
-      console.error("CV file not found");
+      console.error(t("CV file not found"));
       return;
     }
 
     const link = document.createElement('a');
-    link.href = `data:application/pdf;base64,${employee.cv_file}`;
+    link.href = employee.cv_file;
     link.download = `${employee.name}_CV.pdf`;
     document.body.appendChild(link);
     link.click();
@@ -57,22 +57,15 @@ const EmployeeDetails = () => {
       <Descriptions
         title={t("Employee Details")}
         bordered
-        column={{
-          xs: 1,
-          sm: 2,
-          md: 3,
-          lg: 3,
-          xl: 4,
-          xxl: 4,
-        }}
+        column={1}
       >
         <Descriptions.Item label={t("Employee Name")}>{employee.name}</Descriptions.Item>
         <Descriptions.Item label={t("Email")}>{employee.email}</Descriptions.Item>
         <Descriptions.Item label={t("Phone")}>{employee.phone}</Descriptions.Item>
         <Descriptions.Item label={t("Role")}>{employee.role}</Descriptions.Item>
         <Descriptions.Item label={t("Status")}>{employee.status}</Descriptions.Item>
-        <Descriptions.Item label={t("Position")}>{positionName}</Descriptions.Item>
-        <Descriptions.Item label={t("Projects")}>{projectNames.join(", ")}</Descriptions.Item>
+        <Descriptions.Item label={t("Position")}>{employee.positionName}</Descriptions.Item>
+        <Descriptions.Item label={t("Projects")}>{employee.projectNames.join(", ")}</Descriptions.Item>
         <Descriptions.Item label={t("Skills")}>{employee.skills}</Descriptions.Item>
         <Descriptions.Item label={t("Contact")}>{employee.contact}</Descriptions.Item>
         <Descriptions.Item label={t("CV Skill")}>{employee.cv_list[0].cv_skill}</Descriptions.Item>

@@ -59,16 +59,14 @@ const EmployeeDetails = () => {
         bordered
         column={1}
       >
-        <Descriptions.Item label={t("Employee Name")}>{employee.name}</Descriptions.Item>
-        <Descriptions.Item label={t("Email")}>{employee.email}</Descriptions.Item>
-        <Descriptions.Item label={t("Phone")}>{employee.phone}</Descriptions.Item>
-        <Descriptions.Item label={t("Role")}>{employee.role}</Descriptions.Item>
-        <Descriptions.Item label={t("Status")}>{employee.status}</Descriptions.Item>
-        <Descriptions.Item label={t("Position")}>{employee.positionName}</Descriptions.Item>
-        <Descriptions.Item label={t("Projects")}>{employee.projectNames.join(", ")}</Descriptions.Item>
-        <Descriptions.Item label={t("Skills")}>{employee.skills}</Descriptions.Item>
-        <Descriptions.Item label={t("Contact")}>{employee.contact}</Descriptions.Item>
-        <Descriptions.Item label={t("CV Skill")}>{employee.cv_list[0].cv_skill}</Descriptions.Item>
+        <Descriptions.Item label="Employee Name">{employee.name}</Descriptions.Item>
+        <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>
+        <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
+        <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
+        <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
+        <Descriptions.Item label="Position">{employee.positionName}</Descriptions.Item>
+        <Descriptions.Item label="Projects">{employee.projectNames.join(", ")}</Descriptions.Item>
+        <Descriptions.Item label="Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>
       </Descriptions>
 
       <Button type="primary" onClick={handleDownloadCv} style={{ background: 'blue', marginTop: '20px' }}>

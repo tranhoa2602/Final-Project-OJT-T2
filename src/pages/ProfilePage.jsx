@@ -89,7 +89,7 @@ const ProfilePage = () => {
   const handleProfilePictureChange = ({ file }) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG files!");
+      message.error(t("You can only upload JPG/PNG files!"));
       return;
     }
 

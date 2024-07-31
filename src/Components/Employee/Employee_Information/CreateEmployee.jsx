@@ -3,6 +3,7 @@ import { Button, Form, Input, Select, Switch, Upload, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 import { database } from "../../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
@@ -66,57 +67,54 @@ const CreateEmployee = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    console.log("CV File State:", cvFile);
-      if (!cvFile) {
+    if (!cvFile) {
       message.error("Please upload a CV file!");
       return;
     }
-    const newEmployee = {
-      id: uuidv4(),
-      isAdmin: false,
-      name: values.name,
-      phone: values.phone,
-      email: values.email,
-      role: "Employee",
-      status: values.status ? "active" : "inactive",
-      positionName: values.positionName, // Storing position name directly
-      projectNames: values.projectNames || [], // Storing project names directly
-      skills: values.skills,
-      contact: values.contact,
-      cv_file: cvFile,
-      cv_list: [
-        {
-          cv_skill: values.cv_skill,
-          cv_experience: [
-            {
-              time_work: values.time_work,
-              description: values.description,
-            },
-          ],
-        },
-      ],
-    };
 
-    console.log("New Employee:", newEmployee);
+    const newEmployeeId = uuidv4();
+    const storage = getStorage();
+    const cvRef = storageRef(storage, `cvs/${newEmployeeId}.pdf`);
 
     try {
+      const snapshot = await uploadBytes(cvRef, cvFile);
+      const cvUrl = await getDownloadURL(snapshot.ref);
+
+      const newEmployee = {
+        id: newEmployeeId,
+        isAdmin: false,
+        name: values.name,
+        phone: values.phone,
+        email: values.email,
+        role: "Employee",
+        status: values.status ? "active" : "inactive",
+        positionName: values.positionName,
+        projectNames: values.projectNames || [],
+        cv_file: cvUrl,
+        cv_list: [
+          {
+            cv_skill: values.cv_skill,
+            cv_experience: [
+              {
+                time_work: values.time_work,
+                description: values.description,
+              },
+            ],
+          },
+        ],
+      };
+
       await handleAdd(newEmployee);
-      console.log("CV File (Base64):", cvFile);
       navigate("/list");
       message.success("Successfully added employee");
     } catch (error) {
       console.error("Error adding employee:", error);
-    }                                                                                                                                                                      
+      message.error("Failed to add employee");
+    }
   };
 
-  
   const handleCvUpload = ({ file }) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      console.log("CV Upload:", e.target.result.split(",")[1]);
-      setCvFile(e.target.result.split(",")[1]);
-    };
-    reader.readAsDataURL(file);
+    setCvFile(file);
     return false; // Prevents the default behavior of uploading the file
   };
 
@@ -172,7 +170,7 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item label="Status" name="status" valuePropName="checked">
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive"/>
+        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
       </Form.Item>
 
       <Form.Item
@@ -204,25 +202,9 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label={t("Skills")}
-        name="skills"
-        rules={[{ required: true, message: t("Please input the skills!") }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label={t("Contact")}
-        name="contact"
-        rules={[{ required: true, message: t("Please input the contact!") }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label={t("CV Skill")}
+        label={t("Skill")}
         name="cv_skill"
-        rules={[{ required: true, message: t("Please input the CV skill!") }]}
+        rules={[{ required: true, message: t("Please input the skill!") }]}
       >
         <Input />
       </Form.Item>
@@ -246,9 +228,7 @@ const CreateEmployee = () => {
         getValueFromEvent={handleCvUpload}
         rules={[{ required: true, message: "Please upload a CV file!" }]}
       >
-        <Upload
-          beforeUpload={() => false} maxCount={1}
-        >
+        <Upload beforeUpload={() => false} maxCount={1}>
           <Button>Upload CV</Button>
         </Upload>
       </Form.Item>

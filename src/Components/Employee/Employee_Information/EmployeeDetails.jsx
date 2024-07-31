@@ -68,9 +68,7 @@ const EmployeeDetails = () => {
         <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
         <Descriptions.Item label="Position">{employee.positionName}</Descriptions.Item>
         <Descriptions.Item label="Projects">{employee.projectNames.join(", ")}</Descriptions.Item>
-        <Descriptions.Item label="Skills">{employee.skills}</Descriptions.Item>
-        <Descriptions.Item label="Contact">{employee.contact}</Descriptions.Item>
-        <Descriptions.Item label="CV Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>
+        <Descriptions.Item label="Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>
       </Descriptions>
 
       <Button type="primary" onClick={handleDownloadCv} style={{ background: 'blue', marginTop: '20px' }}>

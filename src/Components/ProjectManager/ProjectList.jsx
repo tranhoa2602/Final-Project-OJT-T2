@@ -94,6 +94,11 @@ const ListProject = () => {
       key: "name",
     },
     {
+      title: t("Project Manager"),
+      dataIndex: "projectManager",
+      key: "projectManager",
+    },
+    {
       title: t("Status"),
       key: "status",
       render: (text, record) => getStatusTag(record.status),
@@ -181,6 +186,7 @@ const ListProject = () => {
       StartDate: project.startDate.toLocaleDateString(),
       EndDate: project.endDate.toLocaleDateString(),
       Status: project.status,
+      ProjectManager: project.projectManager,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);

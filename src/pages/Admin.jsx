@@ -229,8 +229,6 @@ function Admin() {
         Email: user.email,
         Role: t(user.role),
         CreatedAt: user.createdAt,
-        Contact: user.contact,
-        Skills: user.skill,
         Status: t(user.status),
       }))
     );
@@ -289,8 +287,9 @@ function Admin() {
     {
       title: t("Actions"),
       key: "actions",
+      align: "center",
       render: (text, user) => (
-        <span className={styles.actions}>
+        <div className={styles["actions-container"]}>
           <Button
             onClick={() => handleEditUser(user)}
             key="edit"
@@ -303,13 +302,10 @@ function Admin() {
           <Button
             type="danger"
             onClick={() => {
-              if (user.role === "Admin") {
-                message.error(t("Cannot delete an admin user"));
-              } else if (user.status === "active" && user.role === "Employee") {
-                message.error(t("Cannot delete an active employee"));
-              } else {
-                handleDeleteUser(user.key);
-              }
+              Modal.confirm({
+                title: t("Are you sure you want to delete this user?"),
+                onOk: () => handleDeleteUser(user.key),
+              });
             }}
             key="delete"
             icon={<DeleteOutlined />}
@@ -317,7 +313,7 @@ function Admin() {
           >
             {t("Delete")}
           </Button>
-        </span>
+        </div>
       ),
     },
   ];
@@ -325,6 +321,13 @@ function Admin() {
   return (
     <div className={styles["admin-page"]}>
       <h1>{t("Admin Page")}</h1>
+      <div className={styles["search-bar"]}>
+        <Input.Search
+          placeholder={t("Search by Email")}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className={styles["search-input"]}
+        />
+      </div>
       <div className={styles["actions-container"]}>
         <Button
           type="primary"
@@ -342,17 +345,12 @@ function Admin() {
           {t("Export to Excel")}
         </Button>
       </div>
-      <Input
-        className={styles["search-input"]}
-        placeholder={t("Search by email")}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
       <Table
         columns={columns}
         dataSource={paginatedUsers}
         pagination={false}
         className={styles["user-table"]}
+        rowKey="key"
       />
       <Pagination
         current={currentPage}
@@ -363,43 +361,40 @@ function Admin() {
       />
       <Modal
         title={editMode ? t("Edit User") : t("Add User")}
-        open={modalVisible}
+        visible={modalVisible}
         onCancel={handleModalCancel}
         footer={null}
-        className={styles["modal"]}
+        destroyOnClose={true}
       >
-        <Form
-          form={form}
-          onFinish={handleAddOrUpdateUser}
-          initialValues={{
-            email: "",
-            role: "Employee",
-            status: "active",
-          }}
-          layout="vertical"
-        >
+        <Form form={form} onFinish={handleAddOrUpdateUser} layout="vertical">
           <Form.Item
-            label={t("Email")}
             name="email"
-            rules={[{ required: true, message: t("Please input your email!") }]}
+            label={t("Email")}
+            rules={[
+              { required: true, message: t("Please input your email!") },
+              {
+                validator: (_, value) =>
+                  value && validateEmail(value)
+                    ? Promise.resolve()
+                    : Promise.reject(t("Please enter a valid email address")),
+              },
+            ]}
           >
             <Input />
           </Form.Item>
-
           <Form.Item
-            label={t("Role")}
             name="role"
+            label={t("Role")}
             rules={[{ required: true, message: t("Please select a role!") }]}
           >
             <Select>
-              <Option value="employee">{t("Employee")}</Option>
-              <Option value="admin">{t("Admin")}</Option>
+              <Option value="Employee">{t("Employee")}</Option>
+              <Option value="Admin">{t("Admin")}</Option>
             </Select>
           </Form.Item>
-
           <Form.Item
-            label={t("Status")}
             name="status"
+            label={t("Status")}
             rules={[{ required: true, message: t("Please select a status!") }]}
           >
             <Select>
@@ -407,12 +402,8 @@ function Admin() {
               <Option value="inactive">{t("Inactive")}</Option>
             </Select>
           </Form.Item>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
               {editMode ? t("Update User") : t("Add User")}
             </Button>
           </Form.Item>

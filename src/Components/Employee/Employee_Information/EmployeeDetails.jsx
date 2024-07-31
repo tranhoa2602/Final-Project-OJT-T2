@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Descriptions, Button } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getDatabase, ref, get } from "firebase/database";
+import { useTranslation } from 'react-i18next';
 
 const EmployeeDetails = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation();
   const { employee } = state;
@@ -24,13 +26,13 @@ const EmployeeDetails = () => {
       const db = getDatabase();
       const projectRefs = employee.projectNames.map(name => ref(db, `projects/${name}`));
       const projectSnapshots = await Promise.all(projectRefs.map(ref => get(ref)));
-      const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : 'Unknown Project');
+      const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : t('Unknown Project'));
       setProjectNames(names);
     };
 
     fetchPositionName();
     fetchProjectNames();
-  }, [employee.positionId, employee.projectIds]);
+  }, [employee.positionId, employee.projectIds, t]);
 
   const returntoPrevious = () => {
     navigate('/list');
@@ -53,7 +55,7 @@ const EmployeeDetails = () => {
   return (
     <>
       <Descriptions
-        title="Employee Details"
+        title={t("Employee Details")}
         bordered
         column={
          1
@@ -72,10 +74,10 @@ const EmployeeDetails = () => {
       </Descriptions>
 
       <Button type="primary" onClick={handleDownloadCv} style={{ background: 'blue', marginTop: '20px' }}>
-        Export CV
+        {t("Export CV")}
       </Button>
       <Button type="primary" onClick={returntoPrevious} style={{ background: 'gray', marginTop: '20px' }}>
-        Return
+        {t("Return")}
       </Button>
     </>
   );

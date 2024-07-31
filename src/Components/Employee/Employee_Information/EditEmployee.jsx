@@ -3,10 +3,12 @@ import { Form, Input, Select, Switch, Button, Upload, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
 const EditEmployee = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation();
   const { employee } = state; // Assuming the employee data is passed via state
@@ -77,7 +79,7 @@ const EditEmployee = () => {
       projectNames: values.projectNames || employee.projectNames,
       skills: values.skills || employee.skills,
       contact: values.contact || employee.contact,
-      cv_file: cvFile || employee.cvFile,
+      cv_file: cvFile || employee.cv_file,
       cv_list: [
         {
           cv_skill: values.cv_skill || employee.cv_list[0].cv_skill,
@@ -91,11 +93,10 @@ const EditEmployee = () => {
       ],
     };
 
-
     try {
       await handleEdit(updatedEmployee);
       navigate("/list");
-      // Redirect or show success message
+      message.success(t("Employee updated successfully"));
     } catch (error) {
       console.error("Error updating employee: ", error);
       console.log(employee.cvFile)
@@ -108,7 +109,7 @@ const EditEmployee = () => {
       const reader = new FileReader();
       reader.onload = () => {
         setCvFile(reader.result);
-        message.success("CV uploaded successfully");
+        message.success(t("CV uploaded successfully"));
       };
       reader.readAsDataURL(file);
     }
@@ -155,15 +156,15 @@ const EditEmployee = () => {
       style={{ height: "100vh", marginTop: "20px" }}
     >
       <Form.Item
-        label="Name"
+        label={t("Name")}
         name="name"
-        rules={[{ required: true, message: "Please input the name!" }]}
+        rules={[{ required: true, message: t("Please input the name!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Email"
+        label={t("Email")}
         name="email"
         rules={[{ required: true, message: "Please input the email!" },
           { validator: emailValidator },]}
@@ -178,15 +179,15 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Phone"
+        label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: "Please input the phone number!" }]}
+        rules={[{ required: true, message: t("Please input the phone number!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Status" name="status" valuePropName="checked">
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+      <Form.Item label={t("Status")} name="status" valuePropName="checked">
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
 
       <Form.Item
@@ -218,38 +219,38 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Skills"
+        label={t("Skills")}
         name="skills"
-        rules={[{ required: true, message: "Please input the skills!" }]}
+        rules={[{ required: true, message: t("Please input the skills!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Contact"
+        label={t("Contact")}
         name="contact"
-        rules={[{ required: true, message: "Please input the contact!" }]}
+        rules={[{ required: true, message: t("Please input the contact!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="CV Skill"
+        label={t("CV Skill")}
         name="cv_skill"
-        rules={[{ required: true, message: "Please input the CV skill!" }]}
+        rules={[{ required: true, message: t("Please input the CV skill!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Time Work"
+        label={t("Time Work")}
         name="time_work"
-        rules={[{ required: true, message: "Please input the time work!" }]}
+        rules={[{ required: true, message: t("Please input the time work!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Description" name="description">
+      <Form.Item label={t("Description")} name="description">
         <Input.TextArea />
       </Form.Item>
 
@@ -259,19 +260,19 @@ const EditEmployee = () => {
           beforeUpload={() => false} maxCount={1}
           
         >
-          <Button>Upload CV</Button>
+          <Button>{t("Upload CV")}</Button>
         </Upload>
       </Form.Item>
 
       <Form.Item>
         <Button type="primary" htmlType="submit">
-          Update Employee
+          {t("Update Employee")}
         </Button>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" onClick={gotoEmployeeList}>
-          Back
+          {t("Back")}
         </Button>
       </Form.Item>
     </Form>

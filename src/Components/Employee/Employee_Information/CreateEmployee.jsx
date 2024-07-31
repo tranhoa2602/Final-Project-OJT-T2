@@ -5,10 +5,12 @@ import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
 import { database } from "../../../../firebaseConfig";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
 const CreateEmployee = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
@@ -137,15 +139,15 @@ const CreateEmployee = () => {
       initialValues={{ status: true }}
     >
       <Form.Item
-        label="Name"
+        label={t("Name")}
         name="name"
-        rules={[{ required: true, message: "Please input the name!" }]}
+        rules={[{ required: true, message: t("Please input the name!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Email"
+        label={t("Email")}
         name="email"
         rules={[
           { required: true, message: "Please input the email!" },
@@ -162,9 +164,9 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Phone"
+        label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: "Please input the phone number!" }]}
+        rules={[{ required: true, message: t("Please input the phone number!") }]}
       >
         <Input />
       </Form.Item>
@@ -202,43 +204,43 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Skills"
+        label={t("Skills")}
         name="skills"
-        rules={[{ required: true, message: "Please input the skills!" }]}
+        rules={[{ required: true, message: t("Please input the skills!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Contact"
+        label={t("Contact")}
         name="contact"
-        rules={[{ required: true, message: "Please input the contact!" }]}
+        rules={[{ required: true, message: t("Please input the contact!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="CV Skill"
+        label={t("CV Skill")}
         name="cv_skill"
-        rules={[{ required: true, message: "Please input the CV skill!" }]}
+        rules={[{ required: true, message: t("Please input the CV skill!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Time Work"
+        label={t("Time Work")}
         name="time_work"
-        rules={[{ required: true, message: "Please input the time work!" }]}
+        rules={[{ required: true, message: t("Please input the time work!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Description" name="description">
+      <Form.Item label={t("Description")} name="description">
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="CV Upload"
+        label={t("CV Upload")}
         name="cv_file"
         valuePropName="file"
         getValueFromEvent={handleCvUpload}
@@ -253,12 +255,12 @@ const CreateEmployee = () => {
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit
+          {t("Submit")}
         </Button>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" onClick={gotoEmployeeList}>
-          Back
+          {t("Back")}
         </Button>
       </Form.Item>
     </Form>

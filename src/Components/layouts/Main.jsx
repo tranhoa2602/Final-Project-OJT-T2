@@ -23,10 +23,12 @@ import ListPosition from "../PositionManager/ListPosition";
 import EditProject from "../ProjectManager/EditProject";
 import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
-import DetailProject from "../ProjectManager/DetailProject"; 
-import TechBin from "../Tech/TechBin"; 
+import DetailProject from "../ProjectManager/DetailProject";
+import TechBin from "../Tech/TechBin";
 import LanguageBin from "../Language/LanguageBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
+import ProfileDetail from "../User/ProfileDetail";
+import ProfileEdit from "../User/ProfileEdit";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -37,7 +39,8 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
+      const userRolePath =
+        storedUser.role === "Admin" ? "/admin" : "/profile-detail";
       if (location.pathname === "/") {
         navigate(userRolePath);
       }
@@ -80,7 +83,8 @@ const Main = () => {
           <Route path="/edit" element={<EditEmployee />} />
           <Route path="/list" element={<EmployeeList />} />
           <Route path="/details" element={<EmployeeDetails />} />
-          <Route path="/employee" element={<div>Employee Dashboard</div>} />
+          <Route path="/profile" element={<ProfileDetail />} />
+          <Route path="/edit-profile" element={<ProfileEdit />} />
           <Route path="/exportcv" element={<CVExport />} />
           <Route path="/AddTech" element={<AddTech />} />
           <Route path="/EditTech/:id" element={<EditTech />} />
@@ -94,7 +98,7 @@ const Main = () => {
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
-          <Route path="/TechBin" element={<TechBin />} /> 
+          <Route path="/TechBin" element={<TechBin />} />
           <Route path="/LanguageBin" element={<LanguageBin />} />
         </Routes>
       </main>

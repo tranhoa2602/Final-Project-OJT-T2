@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input } from "antd"; // Import Input from Ant Design
+import { Space, Table, Tag, Button, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
@@ -11,11 +11,19 @@ import {
   InfoCircleOutlined,
   FileExcelOutlined,
 } from "@ant-design/icons";
-import styles from "../../../styles/layouts/EmployeeList.module.scss"; // Import the SCSS module
+import { useTranslation } from "react-i18next";
+import styles from "../../../styles/layouts/EmployeeList.module.scss";
 
-const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
+const columns = (
+  handleEdit,
+  handleDelete,
+  navigate,
+  positions,
+  projects,
+  t
+) => [
   {
-    title: "Name",
+    title: t("Name"),
     dataIndex: "name",
     key: "name",
     render: (text, record) => (
@@ -25,7 +33,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
     ),
   },
   {
-    title: "Email",
+    title: t("Email"),
     dataIndex: "email",
     key: "email",
   },
@@ -41,7 +49,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
     render: (projects) => (projects || []).join(' '),  // Join project names with a space
   },
   {
-    title: "Status",
+    title: t("Status"),
     key: "status",
     dataIndex: "status",
     render: (_, { status }) => {
@@ -55,7 +63,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
             }
             return (
               <Tag color={color} key={stat}>
-                {stat.toUpperCase()}
+                {status === "active" ? t("Active") : t("Inactive")}
               </Tag>
             );
           })}
@@ -63,8 +71,9 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
       );
     },
   },
+
   {
-    title: "Actions",
+    title: t("Actions"),
     key: "actions",
     align: "center",
     render: (_, record) => (
@@ -75,7 +84,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
           icon={<EditOutlined />}
           className={styles["edit-button"]}
         >
-          Edit
+          {t("Edit")}
         </Button>
         <Button
           type="default"
@@ -83,7 +92,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
           icon={<InfoCircleOutlined />}
           className={styles["detail-button"]}
         >
-          Details
+          {t("Detail")}
         </Button>
         <Button
           type="danger"
@@ -91,7 +100,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
           icon={<DeleteOutlined />}
           className={styles["delete-button"]}
         >
-          Delete
+          {t("Delete")}
         </Button>
       </div>
     ),
@@ -120,6 +129,7 @@ const fetchData = async () => {
 };
 
 const EmployeeList = () => {
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
   const [positions, setPositions] = useState({});
   const [projects, setProjects] = useState({});
@@ -191,11 +201,15 @@ const EmployeeList = () => {
     saveAs(blob, "employee-list.xlsx");
   };
 
+  const filteredEmployees = employees.filter((employee) =>
+    employee.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div className={styles["employee-list"]}>
       <Space className={styles["actions-container"]}>
         <Input
-          placeholder="Search by Name"
+          placeholder={t("Search by Name")}
           onChange={(e) => setSearchText(e.target.value)}
           className={styles["search-input"]}
         />
@@ -204,7 +218,7 @@ const EmployeeList = () => {
           onClick={() => navigate("/create")}
           className={styles["add-button"]}
         >
-          Add Employee
+          {t("Add Employee")}
         </Button>
         <Button
           type="primary"
@@ -212,7 +226,7 @@ const EmployeeList = () => {
           onClick={exportToExcel}
           className={styles["export-button"]}
         >
-          Export to Excel
+          {t("Export to Excel")}
         </Button>
       </Space>
       <Table
@@ -221,9 +235,10 @@ const EmployeeList = () => {
           handleDeleteAndRefresh,
           navigate,
           positions,
-          projects
+          projects,
+          t
         )}
-        dataSource={employees}
+        dataSource={filteredEmployees}
         rowKey="key"
         pagination={{ pageSize: 6 }}
         className={styles["employee-table"]}

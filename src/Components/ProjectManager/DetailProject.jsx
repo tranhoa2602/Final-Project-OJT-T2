@@ -72,6 +72,9 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Programming Language")}>
               {renderTags(project.programmingLanguage)}
             </Descriptions.Item>
+            <Descriptions.Item label={t("Project Manager")}>
+              {project.projectManager}
+            </Descriptions.Item>
             <Descriptions.Item label={t("Start Date")}>
               {moment(project.startDate).format("YYYY-MM-DD")}
             </Descriptions.Item>

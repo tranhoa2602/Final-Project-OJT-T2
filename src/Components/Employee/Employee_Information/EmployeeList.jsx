@@ -22,90 +22,90 @@ const columns = (
   projects,
   t
 ) => [
-  {
-    title: t("Name"),
-    dataIndex: "name",
-    key: "name",
-    render: (text, record) => (
-      <a onClick={() => navigate("/details", { state: { employee: record } })}>
-        {text}
-      </a>
-    ),
-  },
-  {
-    title: t("Email"),
-    dataIndex: "email",
-    key: "email",
-  },
-  {
-    title: "Position",
-    dataIndex: "positionName",
-    key: "positionName",
-  },
-  {
-    title: "Projects",
-    dataIndex: "projectNames",
-    key: "projectNames",
-    render: (projects) => (projects || []).join(' '),  // Join project names with a space
-  },
-  {
-    title: t("Status"),
-    key: "status",
-    dataIndex: "status",
-    render: (_, { status }) => {
-      const statusArray = Array.isArray(status) ? status : [status];
-      return (
-        <>
-          {statusArray.map((stat) => {
-            let color = stat.length > 5 ? "geekblue" : "green";
-            if (stat === "inactive") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={stat}>
-                {status === "active" ? t("Active") : t("Inactive")}
-              </Tag>
-            );
-          })}
-        </>
-      );
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <a onClick={() => navigate("/details", { state: { employee: record } })}>
+          {text}
+        </a>
+      ),
     },
-  },
+    {
+      title: t("Email"),
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: t("Position"),
+      dataIndex: "positionName",
+      key: "positionName",
+    },
+    {
+      title: t("Projects"),
+      dataIndex: "projectNames",
+      key: "projectNames",
+      render: (projects) => (projects || []).join(' '),  // Join project names with a space
+    },
+    {
+      title: t("Status"),
+      key: "status",
+      dataIndex: "status",
+      render: (_, { status }) => {
+        const statusArray = Array.isArray(status) ? status : [status];
+        return (
+          <>
+            {statusArray.map((stat) => {
+              let color = stat.length > 5 ? "geekblue" : "green";
+              if (stat === "inactive") {
+                color = "volcano";
+              }
+              return (
+                <Tag color={color} key={stat}>
+                  {status === "active" ? t("Active") : t("Inactive")}
+                </Tag>
+              );
+            })}
+          </>
+        );
+      },
+    },
 
-  {
-    title: t("Actions"),
-    key: "actions",
-    align: "center",
-    render: (_, record) => (
-      <div className={styles["actions-container"]}>
-        <Button
-          onClick={() => navigate("/edit", { state: { employee: record } })}
-          type="primary"
-          icon={<EditOutlined />}
-          className={styles["edit-button"]}
-        >
-          {t("Edit")}
-        </Button>
-        <Button
-          type="default"
-          onClick={() => navigate("/details", { state: { employee: record } })}
-          icon={<InfoCircleOutlined />}
-          className={styles["detail-button"]}
-        >
-          {t("Detail")}
-        </Button>
-        <Button
-          type="danger"
-          onClick={() => handleDelete(record.key)}
-          icon={<DeleteOutlined />}
-          className={styles["delete-button"]}
-        >
-          {t("Delete")}
-        </Button>
-      </div>
-    ),
-  },
-];
+    {
+      title: t("Actions"),
+      key: "actions",
+      align: "center",
+      render: (_, record) => (
+        <div className={styles["actions-container"]}>
+          <Button
+            onClick={() => navigate("/edit", { state: { employee: record } })}
+            type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
+          >
+            {t("Edit")}
+          </Button>
+          <Button
+            type="default"
+            onClick={() => navigate("/details", { state: { employee: record } })}
+            icon={<InfoCircleOutlined />}
+            className={styles["detail-button"]}
+          >
+            {t("Detail")}
+          </Button>
+          <Button
+            type="danger"
+            onClick={() => handleDelete(record.key)}
+            icon={<DeleteOutlined />}
+            className={styles["delete-button"]}
+          >
+            {t("Delete")}
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
 const fetchData = async () => {
   const db = getDatabase();

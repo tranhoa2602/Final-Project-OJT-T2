@@ -83,7 +83,7 @@ const EditProject = () => {
                         id: key,
                         ...data[key],
                     }))
-                    .filter((emp) => emp.position === "Project Manager" && emp.status === "Active");
+                    .filter((emp) => emp.positionName === "Project Manager" && emp.status === "active");
                 setProjectManagers(formattedData);
             }
         };

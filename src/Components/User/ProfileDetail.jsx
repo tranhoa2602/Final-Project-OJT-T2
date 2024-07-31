@@ -3,6 +3,8 @@ import { Button, Card, Avatar, Row, Col, message } from "antd";
 import { getDatabase, ref, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import styles from "../../styles/layouts/ProfileDetail.module.scss";
 
 const ProfileDetail = () => {
@@ -37,12 +39,24 @@ const ProfileDetail = () => {
     fetchUserData();
   }, [navigate, t]);
 
+  const exportToPDF = async () => {
+    const input = document.getElementById("profile-detail");
+    const canvas = await html2canvas(input);
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgProperties = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("profile-detail.pdf");
+  };
+
   if (!userData) {
     return <div>{t("Loading...")}</div>;
   }
 
   return (
-    <div className={styles.profilePage}>
+    <div className={styles.profilePage} id="profile-detail">
       <Card title={t("Profile Detail")} className={styles.profileCard}>
         <div className={styles.profileHeader}>
           <Avatar size={100} src={userData.profilePicture} />
@@ -51,6 +65,9 @@ const ProfileDetail = () => {
             <p>{userData.email}</p>
             <Button type="primary" onClick={() => navigate("/edit-profile")}>
               {t("Edit Profile")}
+            </Button>
+            <Button onClick={exportToPDF} className={styles.exportButton}>
+              {t("Export to PDF")}
             </Button>
           </div>
         </div>

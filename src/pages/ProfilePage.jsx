@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -12,7 +12,7 @@ import {
   Upload,
 } from "antd";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { storage } from "../../firebaseConfig"; // Import storage from your Firebase config
+import { storage } from "../../firebaseConfig"; // Import storage từ cấu hình Firebase của bạn
 import {
   ref as storageRef,
   uploadBytes,
@@ -82,23 +82,31 @@ const ProfilePage = () => {
     }
   };
 
-  const handleProfilePictureChange = async (info) => {
-    try {
-      const file = info.file.originFileObj;
-      if (file) {
-        console.log("Uploading file:", file); // Added logging
+  const handleProfilePictureChange = async ({ file }) => {
+    if (!file) {
+      message.error("No file selected");
+      return;
+    }
 
-        const storageReference = storageRef(
-          storage,
-          `profilePictures/${file.name}`
-        );
-        const snapshot = await uploadBytes(storageReference, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        console.log("File uploaded, download URL:", downloadURL); // Added logging
-        setProfilePicture(downloadURL);
+    try {
+      const storageReference = storageRef(storage, `profilePictures/${file.name}`);
+      await uploadBytes(storageReference, file);
+      const downloadURL = await getDownloadURL(storageReference);
+      console.log("File uploaded, download URL:", downloadURL);
+      setProfilePicture(downloadURL);
+
+      // Update profile picture URL in Firebase Realtime Database
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser && storedUser.key) {
+        const db = getDatabase();
+        const userRef = ref(db, `users/${storedUser.key}`);
+        await update(userRef, { profilePicture: downloadURL });
+        message.success("Profile picture updated successfully");
+      } else {
+        message.error("User not authenticated");
       }
     } catch (error) {
-      console.error("Error uploading profile picture: ", error); // Added logging
+      console.error("Error uploading profile picture: ", error);
       message.error("Error uploading profile picture");
     }
   };

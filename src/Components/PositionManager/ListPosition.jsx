@@ -86,6 +86,11 @@ const ListPosition = () => {
   };
 
   const handleDelete = async (id) => {
+    const position = positions.find((pos) => pos.id === id);
+    if (position.status === "active") {
+      message.error(t("Cannot delete an active position."));
+      return;
+    }
     const db = getDatabase();
     await remove(ref(db, `positions/${id}`));
     message.success(t("Position deleted successfully!"));

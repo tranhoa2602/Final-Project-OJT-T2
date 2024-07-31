@@ -227,6 +227,7 @@ i18n
                     "Employee not found.": "Employee not found.",
                     "Error deleting employee: ": "Error deleting employee: ",
                     'Employee Name': 'Employee Name',
+                    'Cannot delete an active position.': 'Cannot delete an active position.',
 
                 }
             },
@@ -452,6 +453,7 @@ i18n
                     "Employee not found.": "Không tìm thấy nhân viên.",
                     "Error deleting employee: ": "Lỗi khi xóa nhân viên: ",
                     'Employee Name': 'Tên Nhân viên',
+                    'Cannot delete an active position.': 'Không thể xóa vị trí đang hoạt động.'
                 }
             }
         },

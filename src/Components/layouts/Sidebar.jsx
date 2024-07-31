@@ -75,8 +75,13 @@ const Sidebar = () => {
         },
       ],
     },
-    {
+    userRole === "Employee" && {
       key: "sub2",
+      icon: <UserOutlined />,
+      label: <Link to="/profile">{t("Profile")}</Link>,
+    },
+    {
+      key: "sub3",
       icon: <FundProjectionScreenOutlined />,
       label: t("Manage Projects"),
       children: [
@@ -91,14 +96,13 @@ const Sidebar = () => {
       icon: <SolutionOutlined />,
       label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
-
     {
-      key: "sub3",
+      key: "sub4",
       icon: <DeploymentUnitOutlined />,
       label: <Link to="/TechList">{t("Technology")}</Link>,
     },
     {
-      key: "sub4",
+      key: "sub5",
       label: t("Employee"),
       icon: <TeamOutlined />,
       children: [
@@ -115,7 +119,7 @@ const Sidebar = () => {
       ],
     },
     {
-      key: "sub5",
+      key: "sub6",
       label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
     },

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input } from "antd"; // Import Input from Ant Design
+import { Space, Table, Tag, Button, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
@@ -11,11 +11,19 @@ import {
   InfoCircleOutlined,
   FileExcelOutlined,
 } from "@ant-design/icons";
-import styles from "../../../styles/layouts/EmployeeList.module.scss"; // Import the SCSS module
+import { useTranslation } from "react-i18next";
+import styles from "../../../styles/layouts/EmployeeList.module.scss";
 
-const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
+const columns = (
+  handleEdit,
+  handleDelete,
+  navigate,
+  positions,
+  projects,
+  t
+) => [
   {
-    title: "Name",
+    title: t("Name"),
     dataIndex: "name",
     key: "name",
     render: (text, record) => (
@@ -25,25 +33,27 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
     ),
   },
   {
-    title: "Email",
+    title: t("Email"),
     dataIndex: "email",
     key: "email",
   },
   {
-    title: "Position",
+    title: t("Position"),
     dataIndex: "positionId",
     key: "positionId",
     render: (positionId) => positions[positionId]?.name || "N/A",
   },
   {
-    title: "Projects",
+    title: t("Projects"),
     dataIndex: "projectIds",
     key: "projectIds",
     render: (projectIds) =>
-      projectIds.map((id) => projects[id]?.name || "N/A").join(", "),
+      projectIds
+        ? projectIds.map((id) => projects[id]?.name || "N/A").join(", ")
+        : "N/A",
   },
   {
-    title: "Status",
+    title: t("Status"),
     key: "status",
     dataIndex: "status",
     render: (_, { status }) => {
@@ -57,7 +67,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
             }
             return (
               <Tag color={color} key={stat}>
-                {stat.toUpperCase()}
+                {status === "active" ? t("Active") : t("Inactive")}
               </Tag>
             );
           })}
@@ -66,7 +76,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
     },
   },
   {
-    title: "Actions",
+    title: t("Actions"),
     key: "actions",
     align: "center",
     render: (_, record) => (
@@ -77,7 +87,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
           icon={<EditOutlined />}
           className={styles["edit-button"]}
         >
-          Edit
+          {t("Edit")}
         </Button>
         <Button
           type="default"
@@ -85,7 +95,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
           icon={<InfoCircleOutlined />}
           className={styles["detail-button"]}
         >
-          Details
+          {t("Detail")}
         </Button>
         <Button
           type="danger"
@@ -93,7 +103,7 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
           icon={<DeleteOutlined />}
           className={styles["delete-button"]}
         >
-          Delete
+          {t("Delete")}
         </Button>
       </div>
     ),
@@ -122,6 +132,7 @@ const fetchData = async () => {
 };
 
 const EmployeeList = () => {
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
   const [positions, setPositions] = useState({});
   const [projects, setProjects] = useState({});
@@ -151,20 +162,20 @@ const EmployeeList = () => {
     const worksheet = workbook.addWorksheet("Employees");
 
     worksheet.columns = [
-      { header: "ID", key: "id", width: 10 },
-      { header: "Name", key: "name", width: 30 },
-      { header: "Email", key: "email", width: 30 },
-      { header: "Phone", key: "phone", width: 15 },
-      { header: "Status", key: "status", width: 15 },
-      { header: "Position", key: "positionId", width: 15 },
-      { header: "Projects", key: "projectIds", width: 20 },
-      { header: "Skills", key: "skills", width: 30 },
-      { header: "Contact", key: "contact", width: 30 },
-      { header: "CV Skill", key: "cv_skill", width: 30 },
-      { header: "Work Position", key: "work_position", width: 30 },
-      { header: "Time Work", key: "time_work", width: 30 },
-      { header: "Description", key: "description", width: 50 },
-      { header: "CV File", key: "cv_file", width: 50 },
+      { header: t("ID"), key: "id", width: 10 },
+      { header: t("Name"), key: "name", width: 30 },
+      { header: t("Email"), key: "email", width: 30 },
+      { header: t("Phone"), key: "phone", width: 15 },
+      { header: t("Status"), key: "status", width: 15 },
+      { header: t("Position"), key: "positionId", width: 15 },
+      { header: t("Projects"), key: "projectIds", width: 20 },
+      { header: t("Skills"), key: "skills", width: 30 },
+      { header: t("Contact"), key: "contact", width: 30 },
+      { header: t("CV Skill"), key: "cv_skill", width: 30 },
+      { header: t("Work Position"), key: "work_position", width: 30 },
+      { header: t("Time Work"), key: "time_work", width: 30 },
+      { header: t("Description"), key: "description", width: 50 },
+      { header: t("CV File"), key: "cv_file", width: 50 },
     ];
 
     employees.forEach((employee) => {
@@ -196,11 +207,15 @@ const EmployeeList = () => {
     saveAs(blob, "employee-list.xlsx");
   };
 
+  const filteredEmployees = employees.filter((employee) =>
+    employee.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div className={styles["employee-list"]}>
       <Space className={styles["actions-container"]}>
         <Input
-          placeholder="Search by Name"
+          placeholder={t("Search by Name")}
           onChange={(e) => setSearchText(e.target.value)}
           className={styles["search-input"]}
         />
@@ -209,7 +224,7 @@ const EmployeeList = () => {
           onClick={() => navigate("/create")}
           className={styles["add-button"]}
         >
-          Add Employee
+          {t("Add Employee")}
         </Button>
         <Button
           type="primary"
@@ -217,7 +232,7 @@ const EmployeeList = () => {
           onClick={exportToExcel}
           className={styles["export-button"]}
         >
-          Export to Excel
+          {t("Export to Excel")}
         </Button>
       </Space>
       <Table
@@ -226,9 +241,10 @@ const EmployeeList = () => {
           handleDeleteAndRefresh,
           navigate,
           positions,
-          projects
+          projects,
+          t
         )}
-        dataSource={employees}
+        dataSource={filteredEmployees}
         rowKey="key"
         pagination={{ pageSize: 6 }}
         className={styles["employee-table"]}

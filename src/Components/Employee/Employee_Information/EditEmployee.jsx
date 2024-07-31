@@ -14,6 +14,7 @@ const EditEmployee = () => {
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [emails, setEmails] = useState([]);
   const [cvFile, setCvFile] = useState(employee.cv_file || "");
 
   useEffect(() => {
@@ -21,12 +22,14 @@ const EditEmployee = () => {
       const db = getDatabase();
       const positionsRef = ref(db, "positions");
       const projectsRef = ref(db, "projects");
+      const usersRef = ref(db, "users");
+
 
       const positionsSnapshot = await get(positionsRef);
       if (positionsSnapshot.exists()) {
         const data = positionsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
-          id: key,
+          name: data[key].name,
           ...data[key],
         }));
         setPositions(formattedData);
@@ -38,17 +41,30 @@ const EditEmployee = () => {
       if (projectsSnapshot.exists()) {
         const data = projectsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
-          id: key,
+          name: data[key].name,
           ...data[key],
         }));
         setProjects(formattedData);
       } else {
         setProjects([]);
       }
+
+      const usersSnapshot = await get(usersRef);
+      if (usersSnapshot.exists()) {
+        const data = usersSnapshot.val();
+        const emailList = Object.keys(data).map((key) => ({
+          id: key,
+          email: data[key].email,
+        }));
+        setEmails(emailList);
+      } else {
+        setEmails([]);
+      }
     };
 
     fetchData();
   }, []);
+
 
   const handleSubmit = async (values) => {
     const updatedEmployee = {
@@ -57,8 +73,8 @@ const EditEmployee = () => {
       phone: values.phone || employee.phone,
       email: values.email || employee.email,
       status: values.status !== undefined ? (values.status ? "active" : "inactive") : employee.status,
-      positionId: values.positionId || employee.positionId,
-      projectIds: values.projectIds || employee.projectIds,
+      positionName: values.positionName || employee.positionName,
+      projectNames: values.projectNames || employee.projectNames,
       skills: values.skills || employee.skills,
       contact: values.contact || employee.contact,
       cv_file: cvFile || employee.cvFile,
@@ -67,7 +83,6 @@ const EditEmployee = () => {
           cv_skill: values.cv_skill || employee.cv_list[0].cv_skill,
           cv_experience: [
             {
-              work_position: values.work_position || employee.cv_list[0].cv_experience[0].work_position,
               time_work: values.time_work || employee.cv_list[0].cv_experience[0].time_work,
               description: values.description || employee.cv_list[0].cv_experience[0].description,
             },
@@ -83,6 +98,7 @@ const EditEmployee = () => {
       // Redirect or show success message
     } catch (error) {
       console.error("Error updating employee: ", error);
+      console.log(employee.cvFile)
     }
   };
 
@@ -111,6 +127,14 @@ const EditEmployee = () => {
     navigate("/list");
   };
 
+  const emailValidator = (_, value) => {
+    if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
+  };
+
+
   return (
     <Form
       form={form}
@@ -120,12 +144,11 @@ const EditEmployee = () => {
         phone: employee.phone,
         email: employee.email,
         status: employee.status === "active",
-        positionId: employee.positionId,
-        projectIds: employee.projectIds,
+        positionName: employee.positionName,
+        projectNames: employee.projectNames,
         skills: employee.skills,
         contact: employee.contact,
         cv_skill: employee.cv_list[0].cv_skill,
-        work_position: employee.cv_list[0].cv_experience[0].work_position,
         time_work: employee.cv_list[0].cv_experience[0].time_work,
         description: employee.cv_list[0].cv_experience[0].description,
       }}
@@ -142,9 +165,16 @@ const EditEmployee = () => {
       <Form.Item
         label="Email"
         name="email"
-        rules={[{ required: true, message: "Please input the email!" }]}
+        rules={[{ required: true, message: "Please input the email!" },
+          { validator: emailValidator },]}
       >
-        <Input />
+            <Select mode="multiple">
+          {emails.map((user) => (
+            <Option key={user.id} value={user.email}>
+              {user.email}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
@@ -161,7 +191,7 @@ const EditEmployee = () => {
 
       <Form.Item
         label="Position"
-        name="positionId"
+        name="positionName"
         rules={[{ required: true, message: "Please select the position!" }]}
       >
         <Select>
@@ -174,9 +204,9 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Project IDs"
-        name="projectIds"
-        rules={[{ required: true, message: "Please input the project IDs!" }]}
+        label="Projects"
+        name="projectNames"
+        rules={[{ required: true, message: "Please input the projects!" }]}
       >
         <Select mode="multiple">
           {projects.map((project) => (
@@ -212,14 +242,6 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Work Position"
-        name="work_position"
-        rules={[{ required: true, message: "Please input the work position!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
         label="Time Work"
         name="time_work"
         rules={[{ required: true, message: "Please input the time work!" }]}
@@ -231,11 +253,11 @@ const EditEmployee = () => {
         <Input.TextArea />
       </Form.Item>
 
-      <Form.Item label="CV File" name="cv_file">
+      <Form.Item label="CV File" name="cv_file" valuePropName="file"
+                getValueFromEvent={handleCvUpload}>
         <Upload
-          beforeUpload={handleCvUpload}
-          onChange={handleFileChange}
-          showUploadList={false}
+          beforeUpload={() => false} maxCount={1}
+          
         >
           <Button>Upload CV</Button>
         </Upload>

@@ -14,18 +14,20 @@ const CreateEmployee = () => {
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [emails, setEmails] = useState([]);
   const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const positionsRef = ref(database, "positions");
       const projectsRef = ref(database, "projects");
+      const usersRef = ref(database, "users");
 
       const positionsSnapshot = await get(positionsRef);
       if (positionsSnapshot.exists()) {
         const data = positionsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
-          id: key,
+          name: data[key].name,
           ...data[key],
         }));
         setPositions(formattedData);
@@ -37,12 +39,24 @@ const CreateEmployee = () => {
       if (projectsSnapshot.exists()) {
         const data = projectsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
-          id: key,
+          name: data[key].name,
           ...data[key],
         }));
         setProjects(formattedData);
       } else {
         setProjects([]);
+      }
+
+      const usersSnapshot = await get(usersRef);
+      if (usersSnapshot.exists()) {
+        const data = usersSnapshot.val();
+        const emailList = Object.keys(data).map((key) => ({
+          id: key,
+          email: data[key].email,
+        }));
+        setEmails(emailList);
+      } else {
+        setEmails([]);
       }
     };
 
@@ -50,11 +64,11 @@ const CreateEmployee = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    if (!cvFile) {
+    console.log("CV File State:", cvFile);
+      if (!cvFile) {
       message.error("Please upload a CV file!");
       return;
     }
-
     const newEmployee = {
       id: uuidv4(),
       isAdmin: false,
@@ -63,8 +77,8 @@ const CreateEmployee = () => {
       email: values.email,
       role: "Employee",
       status: values.status ? "active" : "inactive",
-      positionId: values.positionId,
-      projectIds: values.projectIds || [],
+      positionName: values.positionName, // Storing position name directly
+      projectNames: values.projectNames || [], // Storing project names directly
       skills: values.skills,
       contact: values.contact,
       cv_file: cvFile,
@@ -73,7 +87,6 @@ const CreateEmployee = () => {
           cv_skill: values.cv_skill,
           cv_experience: [
             {
-              work_position: values.work_position,
               time_work: values.time_work,
               description: values.description,
             },
@@ -82,47 +95,38 @@ const CreateEmployee = () => {
       ],
     };
 
+    console.log("New Employee:", newEmployee);
+
     try {
       await handleAdd(newEmployee);
-      message.success("Employee added successfully");
+      console.log("CV File (Base64):", cvFile);
       navigate("/list");
+      message.success("Successfully added employee");
     } catch (error) {
-      console.error("Error adding employee: ", error);
-      message.error("Error adding employee");
-    }
+      console.error("Error adding employee:", error);
+    }                                                                                                                                                                      
   };
 
-
-  const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
-    console.log("Selected file:", file);
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64File = reader.result.split(",")[1];
-        setCvFile(base64File); // Store only the base64 part
-        console.log("CV file in base64:", base64File);
-        message.success("CV uploaded successfully");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
+  
   const handleCvUpload = ({ file }) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64File = e.target.result.split(",")[1];
-      setCvFile(base64File); // Store only the base64 part
-      console.log("CV file in base64:", base64File);
-      message.success("CV uploaded successfully");
+      console.log("CV Upload:", e.target.result.split(",")[1]);
+      setCvFile(e.target.result.split(",")[1]);
     };
     reader.readAsDataURL(file);
-    return false; // Prevent automatic upload
+    return false; // Prevents the default behavior of uploading the file
   };
 
   const gotoEmployeeList = () => {
     navigate("/list");
+  };
+
+  const emailValidator = (_, value) => {
+    if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
   };
 
   return (
@@ -130,6 +134,7 @@ const CreateEmployee = () => {
       form={form}
       onFinish={handleSubmit}
       style={{ height: "100vh", marginTop: "20px" }}
+      initialValues={{ status: true }}
     >
       <Form.Item
         label="Name"
@@ -142,9 +147,18 @@ const CreateEmployee = () => {
       <Form.Item
         label="Email"
         name="email"
-        rules={[{ required: true, message: "Please input the email!" }]}
+        rules={[
+          { required: true, message: "Please input the email!" },
+          { validator: emailValidator },
+        ]}
       >
-        <Input />
+        <Select>
+          {emails.map((user) => (
+            <Option key={user.id} value={user.email}>
+              {user.email}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
@@ -156,17 +170,17 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item label="Status" name="status" valuePropName="checked">
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+        <Switch checkedChildren="Active" unCheckedChildren="Inactive"/>
       </Form.Item>
 
       <Form.Item
         label="Position"
-        name="positionId"
+        name="positionName"
         rules={[{ required: true, message: "Please select the position!" }]}
       >
         <Select>
           {positions.map((position) => (
-            <Option key={position.id} value={position.id}>
+            <Option key={position.name} value={position.name}>
               {position.name}
             </Option>
           ))}
@@ -174,13 +188,13 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Project IDs"
-        name="projectIds"
-        rules={[{ required: true, message: "Please input the project IDs!" }]}
+        label="Projects"
+        name="projectNames"
+        rules={[{ required: true, message: "Please input the project names!" }]}
       >
         <Select mode="multiple">
           {projects.map((project) => (
-            <Option key={project.id} value={project.id}>
+            <Option key={project.name} value={project.name}>
               {project.name}
             </Option>
           ))}
@@ -212,14 +226,6 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Work Position"
-        name="work_position"
-        rules={[{ required: true, message: "Please input the work position!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
         label="Time Work"
         name="time_work"
         rules={[{ required: true, message: "Please input the time work!" }]}
@@ -234,10 +240,14 @@ const CreateEmployee = () => {
       <Form.Item
         label="CV Upload"
         name="cv_file"
+        valuePropName="file"
+        getValueFromEvent={handleCvUpload}
         rules={[{ required: true, message: "Please upload a CV file!" }]}
       >
-        <Upload beforeUpload={() => false} onChange={handleCvUpload}>
-          <Button>Click to Upload CV</Button>
+        <Upload
+          beforeUpload={() => false} maxCount={1}
+        >
+          <Button>Upload CV</Button>
         </Upload>
       </Form.Item>
 

@@ -31,16 +31,14 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
   },
   {
     title: "Position",
-    dataIndex: "positionId",
-    key: "positionId",
-    render: (positionId) => positions[positionId]?.name || "N/A",
+    dataIndex: "positionName",
+    key: "positionName",
   },
   {
     title: "Projects",
-    dataIndex: "projectIds",
-    key: "projectIds",
-    render: (projectIds) =>
-      projectIds.map((id) => projects[id]?.name || "N/A").join(", "),
+    dataIndex: "projectNames",
+    key: "projectNames",
+    render: (projects) => (projects || []).join(' '),  // Join project names with a space
   },
   {
     title: "Status",
@@ -156,33 +154,30 @@ const EmployeeList = () => {
       { header: "Email", key: "email", width: 30 },
       { header: "Phone", key: "phone", width: 15 },
       { header: "Status", key: "status", width: 15 },
-      { header: "Position", key: "positionId", width: 15 },
-      { header: "Projects", key: "projectIds", width: 20 },
+      { header: "Position", key: "positionName", width: 15 },
+      { header: "Projects", key: "projectNames", width: 20 },
       { header: "Skills", key: "skills", width: 30 },
       { header: "Contact", key: "contact", width: 30 },
       { header: "CV Skill", key: "cv_skill", width: 30 },
-      { header: "Work Position", key: "work_position", width: 30 },
       { header: "Time Work", key: "time_work", width: 30 },
       { header: "Description", key: "description", width: 50 },
       { header: "CV File", key: "cv_file", width: 50 },
     ];
 
     employees.forEach((employee) => {
+
+
       worksheet.addRow({
         id: employee.key,
         name: employee.name,
         email: employee.email,
         phone: employee.phone,
         status: employee.status,
-        positionId: positions[employee.positionId]?.name || employee.positionId,
-        projectIds: (employee.projectIds || [])
-          .map((id) => projects[id]?.name || id)
-          .join(", "),
+        positionName: employee.positionName,
+        projectNames: employee.projectNames || [].join(' '),
         skills: employee.skills,
         contact: employee.contact,
         cv_skill: employee.cv_list[0]?.cv_skill || "",
-        work_position:
-          employee.cv_list[0]?.cv_experience[0]?.work_position || "",
         time_work: employee.cv_list[0]?.cv_experience[0]?.time_work || "",
         description: employee.cv_list[0]?.cv_experience[0]?.description || "",
         cv_file: employee.cv_file,

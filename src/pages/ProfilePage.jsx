@@ -12,7 +12,7 @@ import {
   Upload,
 } from "antd";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { storage } from "../../firebaseConfig"; // Import storage from your Firebase config
+import { storage } from "../../firebaseConfig"; // Import storage từ cấu hình Firebase của bạn
 import {
   ref as storageRef,
   uploadBytes,
@@ -31,6 +31,7 @@ const ProfilePage = () => {
   const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [tempProfilePicture, setTempProfilePicture] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,23 +83,46 @@ const ProfilePage = () => {
     }
   };
 
-  const handleProfilePictureChange = async (info) => {
-    try {
-      const file = info.file.originFileObj;
-      if (file) {
-        console.log("Uploading file:", file); // Added logging
+  const handleProfilePictureChange = ({ file }) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setTempProfilePicture(file);
+        setProfilePicture(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-        const storageReference = storageRef(
-          storage,
-          `profilePictures/${file.name}`
-        );
-        const snapshot = await uploadBytes(storageReference, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        console.log("File uploaded, download URL:", downloadURL); // Added logging
-        setProfilePicture(downloadURL);
+  const handleProfilePictureUpload = async () => {
+    try {
+      if (!tempProfilePicture) {
+        message.warning("No picture to upload");
+        return;
+      }
+
+      const storageReference = storageRef(
+        storage,
+        `profilePictures/${tempProfilePicture.name}`
+      );
+      const snapshot = await uploadBytes(storageReference, tempProfilePicture);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("File uploaded, download URL:", downloadURL); // Added logging
+      setProfilePicture(downloadURL);
+      setTempProfilePicture(null);
+
+      // Update profile picture URL in Firebase Realtime Database
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser && storedUser.key) {
+        const db = getDatabase();
+        const userRef = ref(db, `users/${storedUser.key}`);
+        await update(userRef, { profilePicture: downloadURL });
+        message.success("Profile picture updated successfully");
+      } else {
+        message.error("User not authenticated");
       }
     } catch (error) {
-      console.error("Error uploading profile picture: ", error); // Added logging
+      console.error("Error uploading profile picture: ", error);
       message.error("Error uploading profile picture");
     }
   };
@@ -125,6 +149,15 @@ const ProfilePage = () => {
               {t("Change Picture")}
             </Button>
           </Upload>
+          {tempProfilePicture && (
+            <Button
+              type="primary"
+              onClick={handleProfilePictureUpload}
+              style={{ marginLeft: "10px" }}
+            >
+              {t("Confirm Upload")}
+            </Button>
+          )}
         </div>
         <Form form={form} onFinish={handleUpdate} layout="vertical">
           <Row gutter={16}>

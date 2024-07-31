@@ -10,9 +10,10 @@ import {
   Col,
   Avatar,
   Upload,
+  Spin,
 } from "antd";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { storage } from "../../firebaseConfig"; // Import storage từ cấu hình Firebase của bạn
+import { storage } from "../../firebaseConfig"; // Import storage from your Firebase config
 import {
   ref as storageRef,
   uploadBytes,
@@ -32,6 +33,7 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [tempProfilePicture, setTempProfilePicture] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,21 +50,21 @@ const ProfilePage = () => {
             setProfilePicture(data.profilePicture);
             form.setFieldsValue(data);
           } else {
-            message.error(t("User data not found"));
+            message.error("User data not found");
             navigate("/");
           }
         } else {
-          message.error(t("User not authenticated"));
+          message.error("User not authenticated");
           navigate("/");
         }
       } catch (error) {
-        console.error(t("Error fetching user data: "), error);
-        message.error(t("Error fetching user data"));
+        console.error("Error fetching user data: ", error);
+        message.error("Error fetching user data");
       }
     };
 
     fetchUserData();
-  }, [form, navigate, t]);
+  }, [form, navigate]);
 
   const handleUpdate = async (values) => {
     try {
@@ -72,14 +74,14 @@ const ProfilePage = () => {
         const userRef = ref(db, `users/${storedUser.key}`);
         const updatedData = { ...values, profilePicture: profilePicture || "" };
         await update(userRef, updatedData);
-        message.success(t("Profile updated successfully"));
+        message.success("Profile updated successfully");
         setUserData(updatedData);
       } else {
-        message.error(t("User not authenticated"));
+        message.error("User not authenticated");
       }
     } catch (error) {
-      console.error(t("Error updating profile: "), error); // Added logging
-      message.error(t("Error updating profile"));
+      console.error("Error updating profile: ", error); // Added logging
+      message.error("Error updating profile");
     }
   };
 
@@ -100,6 +102,8 @@ const ProfilePage = () => {
         message.warning("No picture to upload");
         return;
       }
+
+      setLoading(true);
 
       const storageReference = storageRef(
         storage,
@@ -129,14 +133,16 @@ const ProfilePage = () => {
   };
 
   if (!userData) {
-    return <div>{t("Loading...")}</div>;
+    return <div>Loading...</div>;
   }
 
   return (
     <div className={styles.profilePage}>
       <Card title={t("Profile Page")} className={styles.profileCard}>
         <div className={styles.profileHeader}>
-          <Avatar size={100} src={profilePicture} />
+          <Spin spinning={loading}>
+            <Avatar size={100} src={profilePicture} />
+          </Spin>
           <Upload
             showUploadList={false}
             beforeUpload={() => false}

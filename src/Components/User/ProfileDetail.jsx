@@ -3,6 +3,8 @@ import { Button, Card, Avatar, Row, Col, message } from "antd";
 import { getDatabase, ref, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
 import styles from "../../styles/layouts/ProfileDetail.module.scss";
 
 const ProfileDetail = () => {
@@ -37,6 +39,95 @@ const ProfileDetail = () => {
     fetchUserData();
   }, [navigate, t]);
 
+  const exportToWord = () => {
+    if (!userData) return;
+
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Profile Detail")}`,
+                  bold: true,
+                  size: 28,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Name")}: ${userData.name}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Email")}: ${userData.email}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Phone")}: ${userData.phone}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Role")}: ${t(userData.role)}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Status")}: ${t(userData.status)}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Skills")}: ${userData.skill}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Address")}: ${userData.address}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Work Experience")}: ${userData.experience}`,
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `${t("Education")}: ${userData.education}`,
+                }),
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, "Profile_Detail.docx");
+    });
+  };
+
   if (!userData) {
     return <div>{t("Loading...")}</div>;
   }
@@ -51,6 +142,13 @@ const ProfileDetail = () => {
             <p>{userData.email}</p>
             <Button type="primary" onClick={() => navigate("/edit-profile")}>
               {t("Edit Profile")}
+            </Button>
+            <Button
+              type="default"
+              onClick={exportToWord}
+              style={{ marginLeft: "10px" }}
+            >
+              {t("Export to Word")}
             </Button>
           </div>
         </div>

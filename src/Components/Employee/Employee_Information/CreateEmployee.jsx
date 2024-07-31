@@ -5,10 +5,12 @@ import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
 import { database } from "../../../../firebaseConfig";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
 const CreateEmployee = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
@@ -51,7 +53,7 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (values) => {
     if (!cvFile) {
-      message.error("Please upload a CV file!");
+      message.error(t("Please upload a CV file!"));
       return;
     }
 
@@ -84,28 +86,11 @@ const CreateEmployee = () => {
 
     try {
       await handleAdd(newEmployee);
-      message.success("Employee added successfully");
+      message.success(t("Employee added successfully"));
       navigate("/list");
     } catch (error) {
       console.error("Error adding employee: ", error);
-      message.error("Error adding employee");
-    }
-  };
-
-
-  const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
-    console.log("Selected file:", file);
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64File = reader.result.split(",")[1];
-        setCvFile(base64File); // Store only the base64 part
-        console.log("CV file in base64:", base64File);
-        message.success("CV uploaded successfully");
-      };
-      reader.readAsDataURL(file);
+      message.error(t("Error adding employee"));
     }
   };
 
@@ -115,7 +100,7 @@ const CreateEmployee = () => {
       const base64File = e.target.result.split(",")[1];
       setCvFile(base64File); // Store only the base64 part
       console.log("CV file in base64:", base64File);
-      message.success("CV uploaded successfully");
+      message.success(t("CV uploaded successfully"));
     };
     reader.readAsDataURL(file);
     return false; // Prevent automatic upload
@@ -132,37 +117,37 @@ const CreateEmployee = () => {
       style={{ height: "100vh", marginTop: "20px" }}
     >
       <Form.Item
-        label="Name"
+        label={t("Name")}
         name="name"
-        rules={[{ required: true, message: "Please input the name!" }]}
+        rules={[{ required: true, message: t("Please input the name!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Email"
+        label={t("Email")}
         name="email"
-        rules={[{ required: true, message: "Please input the email!" }]}
+        rules={[{ required: true, message: t("Please input the email!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Phone"
+        label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: "Please input the phone number!" }]}
+        rules={[{ required: true, message: t("Please input the phone number!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Status" name="status" valuePropName="checked">
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+      <Form.Item label={t("Status")} name="status" valuePropName="checked">
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
 
       <Form.Item
-        label="Position"
+        label={t("Position")}
         name="positionId"
-        rules={[{ required: true, message: "Please select the position!" }]}
+        rules={[{ required: true, message: t("Please select the position!") }]}
       >
         <Select>
           {positions.map((position) => (
@@ -174,9 +159,9 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Project IDs"
+        label={t("Project IDs")}
         name="projectIds"
-        rules={[{ required: true, message: "Please input the project IDs!" }]}
+        rules={[{ required: true, message: t("Please input the project IDs!") }]}
       >
         <Select mode="multiple">
           {projects.map((project) => (
@@ -188,67 +173,67 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Skills"
+        label={t("Skills")}
         name="skills"
-        rules={[{ required: true, message: "Please input the skills!" }]}
+        rules={[{ required: true, message: t("Please input the skills!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Contact"
+        label={t("Contact")}
         name="contact"
-        rules={[{ required: true, message: "Please input the contact!" }]}
+        rules={[{ required: true, message: t("Please input the contact!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="CV Skill"
+        label={t("CV Skill")}
         name="cv_skill"
-        rules={[{ required: true, message: "Please input the CV skill!" }]}
+        rules={[{ required: true, message: t("Please input the CV skill!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Work Position"
+        label={t("Work Position")}
         name="work_position"
-        rules={[{ required: true, message: "Please input the work position!" }]}
+        rules={[{ required: true, message: t("Please input the work position!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Time Work"
+        label={t("Time Work")}
         name="time_work"
-        rules={[{ required: true, message: "Please input the time work!" }]}
+        rules={[{ required: true, message: t("Please input the time work!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Description" name="description">
+      <Form.Item label={t("Description")} name="description">
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="CV Upload"
+        label={t("CV Upload")}
         name="cv_file"
-        rules={[{ required: true, message: "Please upload a CV file!" }]}
+        rules={[{ required: true, message: t("Please upload a CV file!") }]}
       >
         <Upload beforeUpload={() => false} onChange={handleCvUpload}>
-          <Button>Click to Upload CV</Button>
+          <Button>{t("Click to Upload CV")}</Button>
         </Upload>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Submit
+          {t("Submit")}
         </Button>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" onClick={gotoEmployeeList}>
-          Back
+          {t("Back")}
         </Button>
       </Form.Item>
     </Form>

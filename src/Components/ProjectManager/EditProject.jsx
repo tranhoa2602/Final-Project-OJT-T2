@@ -17,6 +17,7 @@ const EditProject = () => {
     const [project, setProject] = useState(null);
     const [technologies, setTechnologies] = useState([]);
     const [languages, setLanguages] = useState([]);
+    const [projectManagers, setProjectManagers] = useState([]);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -50,7 +51,7 @@ const EditProject = () => {
                         id: key,
                         ...data[key],
                     }))
-                    .filter((tech) => tech.techstatus === "Active"); // Filter for active technologies
+                    .filter((tech) => tech.techstatus === "Active");
                 setTechnologies(formattedData);
             }
         };
@@ -66,14 +67,31 @@ const EditProject = () => {
                         id: key,
                         ...data[key],
                     }))
-                    .filter((lang) => lang.programingstatus === "Active"); // Filter for active languages
+                    .filter((lang) => lang.programingstatus === "Active");
                 setLanguages(formattedData);
+            }
+        };
+
+        const fetchProjectManagers = async () => {
+            const db = getDatabase();
+            const empRef = ref(db, "employees");
+            const snapshot = await get(empRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const formattedData = Object.keys(data)
+                    .map((key) => ({
+                        id: key,
+                        ...data[key],
+                    }))
+                    .filter((emp) => emp.position === "Project Manager" && emp.status === "Active");
+                setProjectManagers(formattedData);
             }
         };
 
         fetchProject();
         fetchTechnologies();
         fetchLanguages();
+        fetchProjectManagers();
     }, [id, form, navigate, t]);
 
     const onFinish = async (values) => {
@@ -158,6 +176,24 @@ const EditProject = () => {
                                 {languages.map((lang) => (
                                     <Option key={lang.id} value={lang.programingname}>
                                         {lang.programingname}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item
+                            name="projectManager"
+                            label={t("Project Manager")}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: t("Please select the project manager!"),
+                                },
+                            ]}
+                        >
+                            <Select placeholder={t("Please select the project manager!")}>
+                                {projectManagers.map((manager) => (
+                                    <Option key={manager.id} value={manager.name}>
+                                        {manager.name}
                                     </Option>
                                 ))}
                             </Select>

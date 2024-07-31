@@ -75,6 +75,7 @@ const columns = (
       );
     },
   },
+
   {
     title: t("Actions"),
     key: "actions",

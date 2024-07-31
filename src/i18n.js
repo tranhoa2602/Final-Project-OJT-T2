@@ -209,7 +209,8 @@ i18n
                     "Education": "Education",
                     "Please input your education!": "Please input your education!",
                     "Update Profile": "Update Profile",
-                    'Please input your skills!': 'Please input your skills!'
+                    'Please input your skills!': 'Please input your skills!',
+
                 }
             },
             vi: {

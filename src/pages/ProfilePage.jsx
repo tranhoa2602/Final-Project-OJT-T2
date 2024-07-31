@@ -117,14 +117,15 @@ const ProfilePage = () => {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
         await update(userRef, { profilePicture: downloadURL });
-        message.success("Profile picture updated successfully");
+        message.success(t("Profile picture updated successfully"));
       } else {
-        message.error("User not authenticated");
+        message.error(t("User not authenticated"));
       }
     } catch (error) {
-      console.error("Error uploading profile picture: ", error);
-      message.error("Error uploading profile picture");
+      console.error(t("Error uploading profile picture"), error);
+      message.error(t("Error uploading profile picture"));
     }
+
   };
 
   if (!userData) {

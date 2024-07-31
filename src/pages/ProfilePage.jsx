@@ -31,6 +31,7 @@ const ProfilePage = () => {
   const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [tempProfilePicture, setTempProfilePicture] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -82,18 +83,33 @@ const ProfilePage = () => {
     }
   };
 
-  const handleProfilePictureChange = async ({ file }) => {
-    if (!file) {
-      message.error(t("No file selected"));
-      return;
+  const handleProfilePictureChange = ({ file }) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setTempProfilePicture(file);
+        setProfilePicture(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
+  };
 
+  const handleProfilePictureUpload = async () => {
     try {
-      const storageReference = storageRef(storage, `profilePictures/${file.name}`);
-      await uploadBytes(storageReference, file);
-      const downloadURL = await getDownloadURL(storageReference);
-      console.log("File uploaded, download URL:", downloadURL);
+      if (!tempProfilePicture) {
+        message.warning("No picture to upload");
+        return;
+      }
+
+      const storageReference = storageRef(
+        storage,
+        `profilePictures/${tempProfilePicture.name}`
+      );
+      const snapshot = await uploadBytes(storageReference, tempProfilePicture);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("File uploaded, download URL:", downloadURL); // Added logging
       setProfilePicture(downloadURL);
+      setTempProfilePicture(null);
 
       // Update profile picture URL in Firebase Realtime Database
       const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -101,13 +117,13 @@ const ProfilePage = () => {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
         await update(userRef, { profilePicture: downloadURL });
-        message.success(t("Profile picture updated successfully"));
+        message.success("Profile picture updated successfully");
       } else {
-        message.error(t("User not authenticated"));
+        message.error("User not authenticated");
       }
     } catch (error) {
-      console.error(t("Error uploading profile picture: "), error);
-      message.error(t("Error uploading profile picture"));
+      console.error("Error uploading profile picture: ", error);
+      message.error("Error uploading profile picture");
     }
   };
 
@@ -133,6 +149,15 @@ const ProfilePage = () => {
               {t("Change Picture")}
             </Button>
           </Upload>
+          {tempProfilePicture && (
+            <Button
+              type="primary"
+              onClick={handleProfilePictureUpload}
+              style={{ marginLeft: "10px" }}
+            >
+              {t("Confirm Upload")}
+            </Button>
+          )}
         </div>
         <Form form={form} onFinish={handleUpdate} layout="vertical">
           <Row gutter={16}>

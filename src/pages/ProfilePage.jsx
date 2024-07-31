@@ -87,14 +87,18 @@ const ProfilePage = () => {
   };
 
   const handleProfilePictureChange = ({ file }) => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setTempProfilePicture(file);
-        setProfilePicture(reader.result);
-      };
-      reader.readAsDataURL(file);
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("You can only upload JPG/PNG files!");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setTempProfilePicture(file);
+      setProfilePicture(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleProfilePictureUpload = async () => {

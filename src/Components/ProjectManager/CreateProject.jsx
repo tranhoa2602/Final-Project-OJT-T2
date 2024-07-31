@@ -71,7 +71,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                     }))
                     .filter(
                         (emp) =>
-                            emp.position === "Project Manager" &&
+                            emp.positionName === "Project Manager" &&
                             emp.status === "active"
                     );
                 setProjectManagers(formattedData);

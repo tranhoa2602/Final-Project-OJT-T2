@@ -74,21 +74,22 @@ const ProfilePage = () => {
         const userRef = ref(db, `users/${storedUser.key}`);
         const updatedData = { ...values, profilePicture: profilePicture || "" };
         await update(userRef, updatedData);
-        message.success("Profile updated successfully");
+        message.success(t("Profile updated successfully"));
         setUserData(updatedData);
       } else {
-        message.error("User not authenticated");
+        message.error(t("User not authenticated"));
       }
     } catch (error) {
-      console.error("Error updating profile: ", error); // Added logging
-      message.error("Error updating profile");
+      console.error(t("Error updating profile: "), error); // Thêm ghi nhật ký
+      message.error(t("Error updating profile"));
     }
+
   };
 
   const handleProfilePictureChange = ({ file }) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG files!");
+      message.error(t("You can only upload JPG/PNG files!"));
       return;
     }
 
@@ -103,7 +104,7 @@ const ProfilePage = () => {
   const handleProfilePictureUpload = async () => {
     try {
       if (!tempProfilePicture) {
-        message.warning("No picture to upload");
+        message.warning(t("No picture to upload"));
         return;
       }
 
@@ -125,16 +126,17 @@ const ProfilePage = () => {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
         await update(userRef, { profilePicture: downloadURL });
-        message.success("Profile picture updated successfully");
+        message.success(t("Profile picture updated successfully"));
       } else {
-        message.error("User not authenticated");
+        message.error(t("User not authenticated"));
       }
     } catch (error) {
-      console.error("Error uploading profile picture: ", error);
-      message.error("Error uploading profile picture");
+      console.error(t("Error uploading profile picture: "), error);
+      message.error(t("Error uploading profile picture"));
     } finally {
       setLoading(false);
     }
+
   };
 
   if (!userData) {

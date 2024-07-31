@@ -3,6 +3,7 @@ import { Form, Input, Select, Switch, Button, Upload, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
@@ -11,13 +12,13 @@ const EditEmployee = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { employee } = state; // Assuming the employee data is passed via state
+  const { employee } = state;
   const { handleEdit } = useEmployees();
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [projects, setProjects] = useState([]);
   const [emails, setEmails] = useState([]);
-  const [cvFile, setCvFile] = useState(employee.cv_file || "");
+  const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +26,6 @@ const EditEmployee = () => {
       const positionsRef = ref(db, "positions");
       const projectsRef = ref(db, "projects");
       const usersRef = ref(db, "users");
-
 
       const positionsSnapshot = await get(positionsRef);
       if (positionsSnapshot.exists()) {
@@ -67,8 +67,16 @@ const EditEmployee = () => {
     fetchData();
   }, []);
 
-
   const handleSubmit = async (values) => {
+    const storage = getStorage();
+    const cvRef = storageRef(getStorage(), `cvs/${employee.id}.pdf`);
+
+    let cvUrl = employee.cv_file;
+    if (cvFile) {
+      const snapshot = await uploadBytes(cvRef, cvFile);
+      cvUrl = await getDownloadURL(snapshot.ref);
+    }
+
     const updatedEmployee = {
       ...employee,
       name: values.name || employee.name,
@@ -77,9 +85,7 @@ const EditEmployee = () => {
       status: values.status !== undefined ? (values.status ? "active" : "inactive") : employee.status,
       positionName: values.positionName || employee.positionName,
       projectNames: values.projectNames || employee.projectNames,
-      skills: values.skills || employee.skills,
-      contact: values.contact || employee.contact,
-      cv_file: cvFile || employee.cv_file,
+      cv_file: cvUrl,
       cv_list: [
         {
           cv_skill: values.cv_skill || employee.cv_list[0].cv_skill,
@@ -99,18 +105,12 @@ const EditEmployee = () => {
       message.success(t("Employee updated successfully"));
     } catch (error) {
       console.error("Error updating employee: ", error);
-      console.log(employee.cvFile)
     }
   };
 
-
   const handleCvUpload = ({ file }) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setCvFile(e.target.result);
-    };
-    reader.readAsDataURL(file);
-    return false; // Prevent automatic upload
+    setCvFile(file);
+    return false; // Prevents the default behavior of uploading the file
   };
 
   const gotoEmployeeList = () => {
@@ -124,7 +124,6 @@ const EditEmployee = () => {
     return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
   };
 
-
   return (
     <Form
       form={form}
@@ -136,8 +135,6 @@ const EditEmployee = () => {
         status: employee.status === "active",
         positionName: employee.positionName,
         projectNames: employee.projectNames,
-        skills: employee.skills,
-        contact: employee.contact,
         cv_skill: employee.cv_list[0].cv_skill,
         time_work: employee.cv_list[0].cv_experience[0].time_work,
         description: employee.cv_list[0].cv_experience[0].description,
@@ -158,7 +155,7 @@ const EditEmployee = () => {
         rules={[{ required: true, message: "Please input the email!" },
           { validator: emailValidator },]}
       >
-            <Select mode="multiple">
+        <Select mode="multiple">
           {emails.map((user) => (
             <Option key={user.id} value={user.email}>
               {user.email}
@@ -208,25 +205,9 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label={t("Skills")}
-        name="skills"
-        rules={[{ required: true, message: t("Please input the skills!") }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label={t("Contact")}
-        name="contact"
-        rules={[{ required: true, message: t("Please input the contact!") }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label={t("CV Skill")}
+        label={t("Skill")}
         name="cv_skill"
-        rules={[{ required: true, message: t("Please input the CV skill!") }]}
+        rules={[{ required: true, message: t("Please input the skill!") }]}
       >
         <Input />
       </Form.Item>
@@ -247,7 +228,6 @@ const EditEmployee = () => {
                 getValueFromEvent={handleCvUpload}>
         <Upload
           beforeUpload={() => false} maxCount={1}
-          
         >
           <Button>{t("Upload CV")}</Button>
         </Upload>

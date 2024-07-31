@@ -148,7 +148,7 @@ const CreateEmployee = () => {
         label={t("Email")}
         name="email"
         rules={[
-          { required: true, message: "Please input the email!" },
+          { required: true, message: t("Please input the email!") },
           { validator: emailValidator },
         ]}
       >
@@ -176,7 +176,7 @@ const CreateEmployee = () => {
       <Form.Item
         label="Position"
         name="positionName"
-        rules={[{ required: true, message: "Please select the position!" }]}
+        rules={[{ required: true, message: t("Please select the position!") }]}
       >
         <Select>
           {positions.map((position) => (
@@ -190,7 +190,7 @@ const CreateEmployee = () => {
       <Form.Item
         label="Projects"
         name="projectNames"
-        rules={[{ required: true, message: "Please input the project names!" }]}
+        rules={[{ required: true, message: t("Please input the project names!") }]}
       >
         <Select mode="multiple">
           {projects.map((project) => (
@@ -226,7 +226,7 @@ const CreateEmployee = () => {
         name="cv_file"
         valuePropName="file"
         getValueFromEvent={handleCvUpload}
-        rules={[{ required: true, message: "Please upload a CV file!" }]}
+        rules={[{ required: true, message: t("Please upload a CV file!") }]}
       >
         <Upload beforeUpload={() => false} maxCount={1}>
           <Button>Upload CV</Button>

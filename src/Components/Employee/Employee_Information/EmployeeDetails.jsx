@@ -40,7 +40,7 @@ const EmployeeDetails = () => {
 
   const handleDownloadCv = () => {
     if (!employee.cv_file) {
-      console.error("CV file not found");
+      console.error(t("CV file not found"));
       return;
     }
 
@@ -57,9 +57,7 @@ const EmployeeDetails = () => {
       <Descriptions
         title={t("Employee Details")}
         bordered
-        column={
-         1
-        }
+        column={1}
       >
         <Descriptions.Item label="Employee Name">{employee.name}</Descriptions.Item>
         <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>

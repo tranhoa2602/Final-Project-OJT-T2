@@ -38,7 +38,7 @@ const ProfileDetail = () => {
   }, [navigate, t]);
 
   if (!userData) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   return (

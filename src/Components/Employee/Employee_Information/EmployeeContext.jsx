@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { getDatabase, ref, push, get, set, update, remove } from "firebase/database";
 import { database } from "../../../../firebaseConfig"; // Adjust the path if necessary
+import { message } from "antd";
 
 const EmployeeContext = createContext();
 
@@ -58,10 +59,33 @@ export const EmployeeProvider = ({ children }) => {
 
   const handleDelete = async (key) => {
     const employeeRef = ref(database, `employees/${key}`);
-    await remove(employeeRef);
-    setEmployees((prevEmployees) =>
-      prevEmployees.filter((employee) => employee.key !== key)
-    );
+  
+    try {
+      // Fetch the employee data to check the status
+      const snapshot = await get(employeeRef);
+      if (snapshot.exists()) {
+        const employee = snapshot.val();
+        const status = employee.status;
+  
+        if (status === "active") {
+          message.error("Cannot delete an active employee.");
+          return;
+        } 
+  
+        // Proceed to delete if the status is not active
+        await remove(employeeRef);
+        message.success("Employee deleted!");
+  
+        // Update local state
+        setEmployees((prevEmployees) =>
+          prevEmployees.filter((employee) => employee.key !== key)
+        );
+      } else {
+        message.error("Employee not found.");
+      }
+    } catch (error) {
+      message.error("Error deleting employee: " + error.message);
+    }
   };
 
   const handleStatusChange = (key, status) => {

@@ -13,7 +13,7 @@ import {
   Spin,
 } from "antd";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { storage } from "../../firebaseConfig"; // Import storage from your Firebase config
+import { storage } from "../../../firebaseConfig"; // Import storage from your Firebase config
 import {
   ref as storageRef,
   uploadBytes,
@@ -22,12 +22,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UploadOutlined } from "@ant-design/icons";
-import styles from "../styles/layouts/ProfilePage.module.scss";
+import styles from "../../styles/layouts/ProfileEdit.module.scss";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-const ProfilePage = () => {
+const ProfileEdit = () => {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
@@ -50,21 +50,21 @@ const ProfilePage = () => {
             setProfilePicture(data.profilePicture);
             form.setFieldsValue(data);
           } else {
-            message.error("User data not found");
+            message.error(t("User data not found"));
             navigate("/");
           }
         } else {
-          message.error("User not authenticated");
+          message.error(t("User not authenticated"));
           navigate("/");
         }
       } catch (error) {
-        console.error("Error fetching user data: ", error);
-        message.error("Error fetching user data");
+        console.error(t("Error fetching user data: "), error);
+        message.error(t("Error fetching user data"));
       }
     };
 
     fetchUserData();
-  }, [form, navigate]);
+  }, [form, navigate, t]);
 
   const handleUpdate = async (values) => {
     try {
@@ -76,14 +76,14 @@ const ProfilePage = () => {
         await update(userRef, updatedData);
         message.success(t("Profile updated successfully"));
         setUserData(updatedData);
+        navigate("/profile");
       } else {
         message.error(t("User not authenticated"));
       }
     } catch (error) {
-      console.error(t("Error updating profile: "), error); // Thêm ghi nhật ký
+      console.error(t("Error updating profile: "), error);
       message.error(t("Error updating profile"));
     }
-
   };
 
   const handleProfilePictureChange = ({ file }) => {
@@ -116,7 +116,7 @@ const ProfilePage = () => {
       );
       const snapshot = await uploadBytes(storageReference, tempProfilePicture);
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("File uploaded, download URL:", downloadURL); // Added logging
+      console.log("File uploaded, download URL:", downloadURL);
       setProfilePicture(downloadURL);
       setTempProfilePicture(null);
 
@@ -136,7 +136,6 @@ const ProfilePage = () => {
     } finally {
       setLoading(false);
     }
-
   };
 
   if (!userData) {
@@ -145,7 +144,7 @@ const ProfilePage = () => {
 
   return (
     <div className={styles.profilePage}>
-      <Card title={t("Profile Page")} className={styles.profileCard}>
+      <Card title={t("Profile Edit")} className={styles.profileCard}>
         <div className={styles.profileHeader}>
           <Spin spinning={loading}>
             <Avatar size={100} src={profilePicture} />
@@ -167,7 +166,7 @@ const ProfilePage = () => {
             <Button
               type="primary"
               onClick={handleProfilePictureUpload}
-              style={{ marginLeft: "10px" }}
+              className={styles.confirmUploadButton}
             >
               {t("Confirm Upload")}
             </Button>
@@ -269,15 +268,26 @@ const ProfilePage = () => {
           >
             <TextArea rows={4} />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+          <div className={styles.buttonsContainer}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className={styles.updateButton}
+            >
               {t("Update Profile")}
             </Button>
-          </Form.Item>
+            <Button
+              type="primary"
+              onClick={() => navigate("/profile")}
+              className={styles.backButton}
+            >
+              {t("Back to Details")}
+            </Button>
+          </div>
         </Form>
       </Card>
     </div>
   );
 };
 
-export default ProfilePage;
+export default ProfileEdit;

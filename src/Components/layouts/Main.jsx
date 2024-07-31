@@ -27,7 +27,8 @@ import DetailProject from "../ProjectManager/DetailProject";
 import TechBin from "../Tech/TechBin";
 import LanguageBin from "../Language/LanguageBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
-import ProfilePage from "../../pages/ProfilePage";
+import ProfileDetail from "../User/ProfileDetail";
+import ProfileEdit from "../User/ProfileEdit";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -38,7 +39,8 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/employee";
+      const userRolePath =
+        storedUser.role === "Admin" ? "/admin" : "/profile-detail";
       if (location.pathname === "/") {
         navigate(userRolePath);
       }
@@ -81,7 +83,8 @@ const Main = () => {
           <Route path="/edit" element={<EditEmployee />} />
           <Route path="/list" element={<EmployeeList />} />
           <Route path="/details" element={<EmployeeDetails />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile" element={<ProfileDetail />} />
+          <Route path="/edit-profile" element={<ProfileEdit />} />
           <Route path="/exportcv" element={<CVExport />} />
           <Route path="/AddTech" element={<AddTech />} />
           <Route path="/EditTech/:id" element={<EditTech />} />

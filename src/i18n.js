@@ -211,7 +211,15 @@ i18n
                     "Update Profile": "Update Profile",
                     'Please input your skills!': 'Please input your skills!',
                     "No picture to upload": "No picture to upload",
-                    "You can only upload JPG/PNG files!": "You can only upload JPG/PNG files!"
+                    "You can only upload JPG/PNG files!": "You can only upload JPG/PNG files!",
+                    'Back to Details': 'Back to Details',
+                    'Profile Edit': 'Profile Edit',
+                    'Change Picture': 'Change Picture',
+                    'Edit Profile': 'Edit Profile',
+                    'Profile Detail': 'Profile Detail',
+                    'Confirm Upload': 'Confirm Upload',
+                    'Profile': 'Profile',
+                    'Assign Project': 'Assign Project',
 
                 }
             },
@@ -421,7 +429,15 @@ i18n
                     "Update Profile": "Cập nhật Hồ sơ",
                     'Please input your skills!': 'Hãy nhập kỹ năng của bạn!',
                     "No picture to upload": "Không có hình ảnh để tải lên",
-                    "You can only upload JPG/PNG files!": "Bạn chỉ có thể tải lên tệp JPG/PNG!"
+                    "You can only upload JPG/PNG files!": "Bạn chỉ có thể tải lên tệp JPG/PNG!",
+                    'Back to Details': 'Quay lại chi tiết',
+                    'Profile Edit': 'Chỉnh sửa hồ sơ',
+                    'Change Picture': 'Thay đổi hình ảnh',
+                    'Profile Detail': 'Chi tiết hồ sơ',
+                    'Edit Profile': 'Chỉnh sửa hồ sơ',
+                    'Confirm Upload': 'Xác nhận tải lên',
+                    'Profile': 'Hồ sơ',
+                    'Assign Project': 'Phân công Dự án',
                 }
             }
         },

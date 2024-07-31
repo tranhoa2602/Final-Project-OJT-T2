@@ -47,21 +47,21 @@ const ProfilePage = () => {
             setProfilePicture(data.profilePicture);
             form.setFieldsValue(data);
           } else {
-            message.error("User data not found");
+            message.error(t("User data not found"));
             navigate("/");
           }
         } else {
-          message.error("User not authenticated");
+          message.error(t("User not authenticated"));
           navigate("/");
         }
       } catch (error) {
-        console.error("Error fetching user data: ", error);
-        message.error("Error fetching user data");
+        console.error(t("Error fetching user data: "), error);
+        message.error(t("Error fetching user data"));
       }
     };
 
     fetchUserData();
-  }, [form, navigate]);
+  }, [form, navigate, t]);
 
   const handleUpdate = async (values) => {
     try {
@@ -71,20 +71,20 @@ const ProfilePage = () => {
         const userRef = ref(db, `users/${storedUser.key}`);
         const updatedData = { ...values, profilePicture: profilePicture || "" };
         await update(userRef, updatedData);
-        message.success("Profile updated successfully");
+        message.success(t("Profile updated successfully"));
         setUserData(updatedData);
       } else {
-        message.error("User not authenticated");
+        message.error(t("User not authenticated"));
       }
     } catch (error) {
-      console.error("Error updating profile: ", error); // Added logging
-      message.error("Error updating profile");
+      console.error(t("Error updating profile: "), error); // Added logging
+      message.error(t("Error updating profile"));
     }
   };
 
   const handleProfilePictureChange = async ({ file }) => {
     if (!file) {
-      message.error("No file selected");
+      message.error(t("No file selected"));
       return;
     }
 
@@ -101,18 +101,18 @@ const ProfilePage = () => {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
         await update(userRef, { profilePicture: downloadURL });
-        message.success("Profile picture updated successfully");
+        message.success(t("Profile picture updated successfully"));
       } else {
-        message.error("User not authenticated");
+        message.error(t("User not authenticated"));
       }
     } catch (error) {
-      console.error("Error uploading profile picture: ", error);
-      message.error("Error uploading profile picture");
+      console.error(t("Error uploading profile picture: "), error);
+      message.error(t("Error uploading profile picture"));
     }
   };
 
   if (!userData) {
-    return <div>Loading...</div>;
+    return <div>{t("Loading...")}</div>;
   }
 
   return (

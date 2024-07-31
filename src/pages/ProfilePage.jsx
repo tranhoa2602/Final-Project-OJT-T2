@@ -12,7 +12,7 @@ import {
   Upload,
 } from "antd";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { storage } from "../../firebaseConfig";
+import { storage } from "../../firebaseConfig"; // Import storage from your Firebase config
 import {
   ref as storageRef,
   uploadBytes,
@@ -35,23 +35,28 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser && storedUser.key) {
-        const db = getDatabase();
-        const userRef = ref(db, `users/${storedUser.key}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setUserData(data);
-          setProfilePicture(data.profilePicture);
-          form.setFieldsValue(data);
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (storedUser && storedUser.key) {
+          const db = getDatabase();
+          const userRef = ref(db, `users/${storedUser.key}`);
+          const snapshot = await get(userRef);
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            setUserData(data);
+            setProfilePicture(data.profilePicture);
+            form.setFieldsValue(data);
+          } else {
+            message.error("User data not found");
+            navigate("/");
+          }
         } else {
-          message.error("User data not found");
+          message.error("User not authenticated");
           navigate("/");
         }
-      } else {
-        message.error("User not authenticated");
-        navigate("/");
+      } catch (error) {
+        console.error("Error fetching user data: ", error);
+        message.error("Error fetching user data");
       }
     };
 
@@ -64,27 +69,37 @@ const ProfilePage = () => {
       if (storedUser && storedUser.key) {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
-        await update(userRef, { ...values, profilePicture });
+        const updatedData = { ...values, profilePicture: profilePicture || "" };
+        await update(userRef, updatedData);
         message.success("Profile updated successfully");
-        setUserData({ ...values, profilePicture });
+        setUserData(updatedData);
       } else {
         message.error("User not authenticated");
       }
     } catch (error) {
+      console.error("Error updating profile: ", error); // Added logging
       message.error("Error updating profile");
     }
   };
 
   const handleProfilePictureChange = async (info) => {
-    const file = info.file.originFileObj;
-    if (file) {
-      const storageReference = storageRef(
-        storage,
-        `profilePictures/${file.name}`
-      );
-      await uploadBytes(storageReference, file);
-      const downloadURL = await getDownloadURL(storageReference);
-      setProfilePicture(downloadURL);
+    try {
+      const file = info.file.originFileObj;
+      if (file) {
+        console.log("Uploading file:", file); // Added logging
+
+        const storageReference = storageRef(
+          storage,
+          `profilePictures/${file.name}`
+        );
+        const snapshot = await uploadBytes(storageReference, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        console.log("File uploaded, download URL:", downloadURL); // Added logging
+        setProfilePicture(downloadURL);
+      }
+    } catch (error) {
+      console.error("Error uploading profile picture: ", error); // Added logging
+      message.error("Error uploading profile picture");
     }
   };
 

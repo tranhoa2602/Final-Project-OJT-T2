@@ -210,6 +210,7 @@ i18n
                     "Please input your education!": "Please input your education!",
                     "Update Profile": "Update Profile",
                     'Please input your skills!': 'Please input your skills!',
+                    "No picture to upload": "No picture to upload"
 
                 }
             },
@@ -417,7 +418,8 @@ i18n
                     "Education": "Học vấn",
                     "Please input your education!": "Vui lòng nhập học vấn của bạn!",
                     "Update Profile": "Cập nhật Hồ sơ",
-                    'Please input your skills!': 'Hãy nhập kỹ năng của bạn!'
+                    'Please input your skills!': 'Hãy nhập kỹ năng của bạn!',
+                    "No picture to upload": "Không có hình ảnh để tải lên"
                 }
             }
         },

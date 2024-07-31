@@ -103,17 +103,6 @@ const EditEmployee = () => {
     }
   };
 
-  const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setCvFile(reader.result);
-        message.success(t("CV uploaded successfully"));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleCvUpload = ({ file }) => {
     const reader = new FileReader();
@@ -197,7 +186,7 @@ const EditEmployee = () => {
       >
         <Select>
           {positions.map((position) => (
-            <Option key={position.id} value={position.id}>
+            <Option key={position.id} value={position.name}>
               {position.name}
             </Option>
           ))}
@@ -211,7 +200,7 @@ const EditEmployee = () => {
       >
         <Select mode="multiple">
           {projects.map((project) => (
-            <Option key={project.id} value={project.id}>
+            <Option key={project.id} value={project.name}>
               {project.name}
             </Option>
           ))}

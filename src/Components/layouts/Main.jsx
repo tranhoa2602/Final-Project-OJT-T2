@@ -23,10 +23,11 @@ import ListPosition from "../PositionManager/ListPosition";
 import EditProject from "../ProjectManager/EditProject";
 import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
-import DetailProject from "../ProjectManager/DetailProject"; 
-import TechBin from "../Tech/TechBin"; 
+import DetailProject from "../ProjectManager/DetailProject";
+import TechBin from "../Tech/TechBin";
 import LanguageBin from "../Language/LanguageBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
+import ProfilePage from "../../pages/ProfilePage";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -80,7 +81,7 @@ const Main = () => {
           <Route path="/edit" element={<EditEmployee />} />
           <Route path="/list" element={<EmployeeList />} />
           <Route path="/details" element={<EmployeeDetails />} />
-          <Route path="/employee" element={<div>Employee Dashboard</div>} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/exportcv" element={<CVExport />} />
           <Route path="/AddTech" element={<AddTech />} />
           <Route path="/EditTech/:id" element={<EditTech />} />
@@ -94,7 +95,7 @@ const Main = () => {
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
-          <Route path="/TechBin" element={<TechBin />} /> 
+          <Route path="/TechBin" element={<TechBin />} />
           <Route path="/LanguageBin" element={<LanguageBin />} />
         </Routes>
       </main>

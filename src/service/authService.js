@@ -1,5 +1,4 @@
-//authService.jsx
-
+// authService.jsx
 import {
   getDatabase,
   ref,

@@ -11,10 +11,17 @@ import {
   InfoCircleOutlined,
   FileExcelOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next"; // Import useTranslation from react-i18next
+import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 
-const columns = (handleEdit, handleDelete, navigate, positions, projects, t) => [
+const columns = (
+  handleEdit,
+  handleDelete,
+  navigate,
+  positions,
+  projects,
+  t
+) => [
   {
     title: t("Name"),
     dataIndex: "name",
@@ -41,7 +48,9 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects, t) => 
     dataIndex: "projectIds",
     key: "projectIds",
     render: (projectIds) =>
-      projectIds.map((id) => projects[id]?.name || "N/A").join(", "),
+      projectIds
+        ? projectIds.map((id) => projects[id]?.name || "N/A").join(", ")
+        : "N/A",
   },
   {
     title: t("Status"),
@@ -124,7 +133,7 @@ const fetchData = async () => {
 };
 
 const EmployeeList = () => {
-  const { t } = useTranslation(); // Use useTranslation hook
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
   const [positions, setPositions] = useState({});
   const [projects, setProjects] = useState({});
@@ -199,6 +208,10 @@ const EmployeeList = () => {
     saveAs(blob, "employee-list.xlsx");
   };
 
+  const filteredEmployees = employees.filter((employee) =>
+    employee.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div className={styles["employee-list"]}>
       <Space className={styles["actions-container"]}>
@@ -232,7 +245,7 @@ const EmployeeList = () => {
           projects,
           t
         )}
-        dataSource={employees}
+        dataSource={filteredEmployees}
         rowKey="key"
         pagination={{ pageSize: 6 }}
         className={styles["employee-table"]}

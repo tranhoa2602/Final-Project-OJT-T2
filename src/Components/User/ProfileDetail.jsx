@@ -3,8 +3,10 @@ import { Button, Card, Avatar, Row, Col, message } from "antd";
 import { getDatabase, ref, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
+import * as Docx from "docx";
+import { getDownloadURL, ref as firebaseStorageRef } from "firebase/storage";
+import { storage } from "../../../firebaseConfig"; // Import storage từ cấu hình Firebase của bạn
 import styles from "../../styles/layouts/ProfileDetail.module.scss";
 
 const ProfileDetail = () => {
@@ -39,92 +41,137 @@ const ProfileDetail = () => {
     fetchUserData();
   }, [navigate, t]);
 
-  const exportToWord = () => {
+  const getBase64ImageFromUrl = async (imageUrl) => {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const exportToWord = async () => {
     if (!userData) return;
 
-    const doc = new Document({
-      sections: [
-        {
+    let profilePictureBase64 = null;
+    if (userData.profilePicture) {
+      try {
+        const downloadUrl = await getDownloadURL(
+          firebaseStorageRef(storage, userData.profilePicture)
+        );
+        profilePictureBase64 = await getBase64ImageFromUrl(downloadUrl);
+      } catch (error) {
+        console.error("Error fetching profile picture: ", error);
+      }
+    }
+
+    const children = [
+      new Docx.Paragraph({
+        text: t("Profile Detail"),
+        heading: Docx.HeadingLevel.HEADING_1,
+      }),
+      new Docx.Paragraph({
+        text: `${userData.name}`,
+        heading: Docx.HeadingLevel.HEADING_2,
+      }),
+      new Docx.Paragraph({
+        text: `${userData.email}`,
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Phone")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(userData.phone),
+        ],
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Role")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(t(userData.role)),
+        ],
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Status")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(t(userData.status)),
+        ],
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Skills")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(userData.skill),
+        ],
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Address")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(userData.address),
+        ],
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Work Experience")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(userData.experience),
+        ],
+      }),
+      new Docx.Paragraph({
+        children: [
+          new Docx.TextRun({
+            text: `${t("Education")}: `,
+            bold: true,
+          }),
+          new Docx.TextRun(userData.education),
+        ],
+      }),
+    ];
+
+    if (profilePictureBase64) {
+      children.unshift(
+        new Docx.Paragraph({
           children: [
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Profile Detail")}`,
-                  bold: true,
-                  size: 28,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Name")}: ${userData.name}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Email")}: ${userData.email}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Phone")}: ${userData.phone}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Role")}: ${t(userData.role)}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Status")}: ${t(userData.status)}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Skills")}: ${userData.skill}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Address")}: ${userData.address}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Work Experience")}: ${userData.experience}`,
-                }),
-              ],
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: `${t("Education")}: ${userData.education}`,
-                }),
-              ],
+            new Docx.ImageRun({
+              data: profilePictureBase64.split(",")[1], // Remove the 'data:image/png;base64,' part
+              transformation: {
+                width: 100,
+                height: 100,
+              },
             }),
           ],
+          alignment: Docx.AlignmentType.CENTER,
+        })
+      );
+    }
+
+    const doc = new Docx.Document({
+      sections: [
+        {
+          properties: {},
+          children,
         },
       ],
     });
 
-    Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, "Profile_Detail.docx");
+    Docx.Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, "ProfileDetail.docx");
     });
   };
 
@@ -143,13 +190,7 @@ const ProfileDetail = () => {
             <Button type="primary" onClick={() => navigate("/edit-profile")}>
               {t("Edit Profile")}
             </Button>
-            <Button
-              type="default"
-              onClick={exportToWord}
-              style={{ marginLeft: "10px" }}
-            >
-              {t("Export to Word")}
-            </Button>
+            <Button onClick={exportToWord}>{t("Export to Word")}</Button>
           </div>
         </div>
         <Row gutter={16}>

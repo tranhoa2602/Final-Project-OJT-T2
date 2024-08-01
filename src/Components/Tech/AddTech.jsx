@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select, Upload } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { UploadOutlined } from '@ant-design/icons';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
@@ -23,6 +26,7 @@ const AddTech = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [existingTypes, setExistingTypes] = useState([]);
+  const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
     const fetchExistingTypes = async () => {
@@ -38,19 +42,68 @@ const AddTech = () => {
     fetchExistingTypes();
   }, []);
 
+  const handleUpload = async () => {
+    const storage = getStorage();
+    const uploadPromises = fileList.map(file => {
+      const storageRef = ref(storage, `techimage/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file.originFileObj); // Use originFileObj
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          snapshot => {
+            // Optional: Track progress
+          },
+          error => {
+            console.error("Upload error: ", error);
+            reject(error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
+              console.log("Download URL retrieved: ", downloadURL); // Log the URL
+              resolve(downloadURL);
+            }).catch(error => {
+              console.error("Error getting download URL: ", error);
+              reject(error);
+            });
+          }
+        );
+      });
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
   const handleSubmit = async (values) => {
     try {
       values.techstatus = values.techstatus ? "Active" : "Inactive";
       values.deletestatus = false; // Set deletestatus to false by default
 
-      await axios.post(
-        `${firebaseConfig.databaseURL}/technologies.json`,
-        values
-      );
+      // Log to check fileList before uploading
+      console.log("File List: ", fileList);
 
-      message.success(t("Technology added successfully!"));
-      form.resetFields();
-      navigate("/TechList");
+      // Upload images and get their URLs
+      const imageUrls = await handleUpload();
+
+      // Log the obtained image URLs
+      console.log("Uploaded Image URLs: ", imageUrls);
+
+      if (imageUrls.length > 0) {
+        values.imageUrls = imageUrls;
+
+        // Add the technology with image URLs to the database
+        await axios.post(
+          `${firebaseConfig.databaseURL}/technologies.json`,
+          values
+        );
+
+        message.success(t("Technology added successfully!"));
+        form.resetFields();
+        setFileList([]); // Clear the uploaded file list
+        navigate("/TechList");
+      } else {
+        console.error("No image URLs were retrieved.");
+        message.error(t("No images were uploaded."));
+      }
     } catch (error) {
       console.error("Error adding technology: ", error);
       message.error(t("Failed to add technology."));
@@ -92,6 +145,7 @@ const AddTech = () => {
           mode="tags"
           style={{ width: "100%" }}
           placeholder={t("Tags Mode")}
+          options={existingTypes.map(type => ({ label: type, value: type }))}
         />
       </Form.Item>
       <Form.Item
@@ -110,6 +164,20 @@ const AddTech = () => {
         rules={[{ validator: validateDescription }]}
       >
         <Input />
+      </Form.Item>
+      <Form.Item
+        label={t("Upload Images")}
+        name="techimages"
+      >
+        <Upload
+          fileList={fileList}
+          onChange={({ fileList }) => setFileList(fileList)}
+          beforeUpload={() => false} // Prevent automatic upload
+          listType="picture"
+          multiple
+        >
+          <Button icon={<UploadOutlined />}>{t("Select Images")}</Button>
+        </Upload>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">

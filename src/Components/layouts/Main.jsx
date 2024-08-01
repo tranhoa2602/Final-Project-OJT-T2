@@ -40,8 +40,7 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      const userRolePath =
-        storedUser.role === "Admin" ? "/admin" : "/profile-detail";
+      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/profile";
       if (location.pathname === "/") {
         navigate(userRolePath);
       }

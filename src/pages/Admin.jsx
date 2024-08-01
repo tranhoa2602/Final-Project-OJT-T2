@@ -42,7 +42,8 @@ function Admin() {
   const [successMessage, setSuccessMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
-  const [modalVisible, setModalVisible] = useState(false); // For modal visibility
+  const [addModalVisible, setAddModalVisible] = useState(false); // For Add User modal visibility
+  const [editModalVisible, setEditModalVisible] = useState(false); // For Edit User modal visibility
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,22 +93,37 @@ function Admin() {
       );
   };
 
-  const handleAddOrUpdateUser = async (values) => {
-    const { email, role } = values;
+  const handleAddUser = async (values) => {
+    const { email, role, name } = values;
 
-    if (!email || !role) {
+    if (!email || !role || !name) {
       message.error(t("Please fill in all fields"));
       return;
     }
 
     try {
       const db = getDatabase();
-      const userKey = editMode ? editUserKey : uuidv4();
+      const userRef = ref(db, "users");
+      const snapshot = await get(userRef);
+      const userData = snapshot.val();
+
+      // Check for duplicate employee name
+      const duplicateName = Object.values(userData).some(
+        (user) => user.name === name && user.role === "Employee"
+      );
+
+      if (duplicateName) {
+        message.error(t("An employee with this name already exists."));
+        return;
+      }
+
+      const userKey = uuidv4();
       const verificationToken = uuidv4(); // Generate a unique token for verification
-      const userRef = ref(db, `users/${userKey}`);
-      let userData = {
+      const newUserRef = ref(db, `users/${userKey}`);
+      const newUserData = {
         id: userKey,
         email,
+        name,
         password: "1234567", // Default password
         role,
         status: "inactive", // Set default status to inactive
@@ -116,23 +132,17 @@ function Admin() {
         verificationToken, // Add the verification token to user data
       };
 
-      if (editMode) {
-        await update(userRef, userData);
-        message.success(t("User updated successfully!"));
-      } else {
-        await set(userRef, userData);
-        message.success(t("User added successfully!"));
+      await set(newUserRef, newUserData);
+      message.success(t("User added successfully!"));
 
-        // Send verification email
-        const verifyLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
-          email
-        )}&token=${verificationToken}`;
-        sendVerificationEmail(email, verifyLink);
-      }
+      // Send verification email
+      const verifyLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
+        email
+      )}&token=${verificationToken}`;
+      sendVerificationEmail(email, verifyLink);
 
       form.resetFields();
-      setEditMode(false);
-      setEditUserKey("");
+      setAddModalVisible(false);
 
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
@@ -145,8 +155,53 @@ function Admin() {
         );
       }
     } catch (error) {
-      message.error(t("Error adding or updating user"));
-      console.error("Error adding or updating user: ", error);
+      message.error(t("Error adding user"));
+      console.error("Error adding user: ", error);
+    }
+  };
+
+  const handleUpdateUser = async (values) => {
+    const { email, role, status, name } = values;
+
+    if (!email || !role || !status || !name) {
+      message.error(t("Please fill in all fields"));
+      return;
+    }
+
+    try {
+      const db = getDatabase();
+      const userKey = editUserKey;
+      const userRef = ref(db, `users/${userKey}`);
+      const userDataToUpdate = {
+        id: userKey,
+        email,
+        role,
+        status,
+        name,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await update(userRef, userDataToUpdate);
+      message.success(t("User updated successfully!"));
+
+      form.resetFields();
+      setEditMode(false);
+      setEditUserKey("");
+      setEditModalVisible(false);
+
+      const updatedSnapshot = await get(ref(db, "users"));
+      const fetchedUserData = updatedSnapshot.val();
+      if (fetchedUserData) {
+        setUsers(
+          Object.entries(fetchedUserData).map(([key, user]) => ({
+            ...user,
+            key,
+          }))
+        );
+      }
+    } catch (error) {
+      message.error(t("Error updating user"));
+      console.error("Error updating user: ", error);
     }
   };
 
@@ -171,10 +226,10 @@ function Admin() {
       message.success(t("User deleted successfully!"));
 
       const updatedSnapshot = await get(ref(db, "users"));
-      const updatedUserData = updatedSnapshot.val();
-      if (updatedUserData) {
+      const fetchedUserData = updatedSnapshot.val();
+      if (fetchedUserData) {
         setUsers(
-          Object.entries(updatedUserData).map(([key, user]) => ({
+          Object.entries(fetchedUserData).map(([key, user]) => ({
             ...user,
             key,
           }))
@@ -192,15 +247,21 @@ function Admin() {
       email: user.email,
       role: user.role,
       status: user.status,
+      name: user.name,
     });
     setEditMode(true);
     setEditUserKey(user.key);
-    setModalVisible(true);
+    setEditModalVisible(true);
   };
 
-  const handleModalCancel = () => {
+  const handleAddModalCancel = () => {
     form.resetFields();
-    setModalVisible(false);
+    setAddModalVisible(false);
+  };
+
+  const handleEditModalCancel = () => {
+    form.resetFields();
+    setEditModalVisible(false);
     setEditMode(false);
   };
 
@@ -255,7 +316,6 @@ function Admin() {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
-      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: t("Role"),
@@ -331,7 +391,7 @@ function Admin() {
       <div className={styles["actions-container"]}>
         <Button
           type="primary"
-          onClick={() => setModalVisible(true)}
+          onClick={() => setAddModalVisible(true)}
           className={styles["add-user-button"]}
         >
           {t("Add User")}
@@ -362,14 +422,15 @@ function Admin() {
         onChange={handlePageChange}
         className={styles["pagination"]}
       />
+
       <Modal
-        title={editMode ? t("Edit User") : t("Add User")}
-        visible={modalVisible}
-        onCancel={handleModalCancel}
+        title={t("Add User")}
+        visible={addModalVisible}
+        onCancel={handleAddModalCancel}
         footer={null}
         destroyOnClose={true}
       >
-        <Form form={form} onFinish={handleAddOrUpdateUser} layout="vertical">
+        <Form form={form} onFinish={handleAddUser} layout="vertical">
           <Form.Item
             name="email"
             label={t("Email")}
@@ -385,6 +446,7 @@ function Admin() {
           >
             <Input />
           </Form.Item>
+
           <Form.Item
             name="role"
             label={t("Role")}
@@ -395,10 +457,72 @@ function Admin() {
               <Option value="Admin">{t("Admin")}</Option>
             </Select>
           </Form.Item>
-
+          <Form.Item
+            name="status"
+            label={t("Status")}
+            initialValue="inactive"
+            rules={[{ required: true, message: t("Please select a status!") }]}
+          >
+            <Select disabled>
+              <Option value="active">{t("Active")}</Option>
+              <Option value="inactive">{t("Inactive")}</Option>
+            </Select>
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
-              {editMode ? t("Update User") : t("Add User")}
+              {t("Add User")}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={t("Edit User")}
+        visible={editModalVisible}
+        onCancel={handleEditModalCancel}
+        footer={null}
+        destroyOnClose={true}
+      >
+        <Form form={form} onFinish={handleUpdateUser} layout="vertical">
+          <Form.Item
+            name="email"
+            label={t("Email")}
+            rules={[
+              { required: true, message: t("Please input your email!") },
+              {
+                validator: (_, value) =>
+                  value && validateEmail(value)
+                    ? Promise.resolve()
+                    : Promise.reject(t("Please enter a valid email address")),
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name="role"
+            label={t("Role")}
+            rules={[{ required: true, message: t("Please select a role!") }]}
+          >
+            <Select>
+              <Option value="Employee">{t("Employee")}</Option>
+              <Option value="Admin">{t("Admin")}</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="status"
+            label={t("Status")}
+            rules={[{ required: true, message: t("Please select a status!") }]}
+          >
+            <Select>
+              <Option value="active">{t("Active")}</Option>
+              <Option value="inactive">{t("Inactive")}</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
+              {t("Update User")}
             </Button>
           </Form.Item>
         </Form>

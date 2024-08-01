@@ -43,7 +43,7 @@ const AddLanguage = () => {
   const handleSubmit = async (values) => {
     try {
       values.programingstatus = values.programingstatus ? "Active" : "Inactive";
-      values.deletestatus = false; // Set deletestatus to false by default
+      values.deletestatus = false; 
 
       await axios.post(
         `${firebaseConfig.databaseURL}/programmingLanguages.json`,

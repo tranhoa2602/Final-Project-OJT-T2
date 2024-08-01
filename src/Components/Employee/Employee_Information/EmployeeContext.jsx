@@ -74,6 +74,20 @@ export const EmployeeProvider = ({ children }) => {
 
         // Tiến hành xóa nếu trạng thái không phải là đang hoạt động
         await remove(employeeRef);
+
+        const usersRef = ref(database, "users");
+        const usersSnapshot = await get(usersRef);
+        if (usersSnapshot.exists()) {
+          const usersData = usersSnapshot.val();
+          const userKey = Object.keys(usersData).find(
+            (key) => usersData[key].email === employee.email
+          );
+          if (userKey) {
+            const emailRef = ref(database, `users/${userKey}`);
+            await update(emailRef, { IsExist: false });
+          }
+        }
+
         message.success(t("Employee deleted!"));
 
         // Cập nhật trạng thái local

@@ -1,12 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Select, Switch, Upload, message } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Switch,
+  Upload,
+  message,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
-import { getDatabase, ref, get } from "firebase/database";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getDatabase, ref, get, update } from "firebase/database";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 import { database } from "../../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import TextArea from "antd/es/input/TextArea";
 
 const { Option } = Select;
 
@@ -16,14 +31,12 @@ const CreateEmployee = () => {
   const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [emails, setEmails] = useState([]);
   const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const positionsRef = ref(database, "positions");
-      const projectsRef = ref(database, "projects");
       const usersRef = ref(database, "users");
 
       const positionsSnapshot = await get(positionsRef);
@@ -38,25 +51,18 @@ const CreateEmployee = () => {
         setPositions([]);
       }
 
-      const projectsSnapshot = await get(projectsRef);
-      if (projectsSnapshot.exists()) {
-        const data = projectsSnapshot.val();
-        const formattedData = Object.keys(data).map((key) => ({
-          name: data[key].name,
-          ...data[key],
-        }));
-        setProjects(formattedData);
-      } else {
-        setProjects([]);
-      }
-
       const usersSnapshot = await get(usersRef);
       if (usersSnapshot.exists()) {
         const data = usersSnapshot.val();
-        const emailList = Object.keys(data).map((key) => ({
-          id: key,
-          email: data[key].email,
-        }));
+        const emailList = Object.keys(data)
+          .map((key) => ({
+            id: key,
+            email: data[key].email,
+            isExist: data[key].IsExist === "true",
+            isActive: data[key].status === "active",
+            isAdmin: data[key].role === "Admin",
+          }))
+          .filter((user) => !user.isExist && user.isActive && !user.isAdmin);
         setEmails(emailList);
       } else {
         setEmails([]);
@@ -69,6 +75,12 @@ const CreateEmployee = () => {
   const handleSubmit = async (values) => {
     if (!cvFile) {
       message.error("Please upload a CV file!");
+      return;
+    }
+
+    const selectedEmail = emails.find((email) => email.email === values.email);
+    if (!selectedEmail) {
+      message.error("Email not available!");
       return;
     }
 
@@ -89,14 +101,11 @@ const CreateEmployee = () => {
         role: "Employee",
         status: values.status ? "active" : "inactive",
         positionName: values.positionName,
-        projectNames: values.projectNames || [],
         cv_file: cvUrl,
         cv_list: [
           {
-            cv_skill: values.cv_skill,
             cv_experience: [
               {
-                time_work: values.time_work,
                 description: values.description,
               },
             ],
@@ -105,6 +114,12 @@ const CreateEmployee = () => {
       };
 
       await handleAdd(newEmployee);
+
+      // Update IsExist to true for the selected email
+      const db = getDatabase();
+      const emailRef = ref(db, `users/${selectedEmail.id}`);
+      await update(emailRef, { IsExist: "true" });
+
       navigate("/list");
       message.success("Successfully added employee");
     } catch (error) {
@@ -126,7 +141,11 @@ const CreateEmployee = () => {
     if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
       return Promise.resolve();
     }
-    return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
+    return Promise.reject(
+      new Error(
+        "Please enter a valid email address with a domain name (e.g., @gmail.com)"
+      )
+    );
   };
 
   return (
@@ -148,7 +167,15 @@ const CreateEmployee = () => {
         label={t("Email")}
         name="email"
         rules={[
-          { required: true, message: t("Please input the email!") },
+          { required: true, message: "Please input the email!" },
+          { type: "email", message: "Please input a valid email!" },
+          {
+            validator: (_, value) => {
+              return emails.some((user) => user.email === value)
+                ? Promise.resolve()
+                : Promise.reject("Email not available!");
+            },
+          },
           { validator: emailValidator },
         ]}
       >
@@ -164,7 +191,13 @@ const CreateEmployee = () => {
       <Form.Item
         label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: t("Please input the phone number!") }]}
+        rules={[
+          { required: true, message: t("Please input the phone number!") },
+          {
+            pattern: /^[0-9]{10}$/,
+            message: t("Phone number must be 10 numbers"),
+          },
+        ]}
       >
         <Input />
       </Form.Item>
@@ -187,38 +220,8 @@ const CreateEmployee = () => {
         </Select>
       </Form.Item>
 
-      <Form.Item
-        label="Projects"
-        name="projectNames"
-        rules={[{ required: true, message: t("Please input the project names!") }]}
-      >
-        <Select mode="multiple">
-          {projects.map((project) => (
-            <Option key={project.name} value={project.name}>
-              {project.name}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
-
-      <Form.Item
-        label={t("Skill")}
-        name="cv_skill"
-        rules={[{ required: true, message: t("Please input the skill!") }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label={t("Time Work")}
-        name="time_work"
-        rules={[{ required: true, message: t("Please input the time work!") }]}
-      >
-        <Input />
-      </Form.Item>
-
       <Form.Item label={t("Description")} name="description">
-        <Input />
+        <TextArea rows={4} />
       </Form.Item>
 
       <Form.Item

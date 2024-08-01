@@ -210,7 +210,14 @@ const DetailProject = () => {
           <Button
             type="danger"
             onClick={() => setIsUnassignModalVisible(true)}
-            style={{ marginTop: 20, marginLeft: 10 }}
+            style={{
+              marginTop: 20,
+              marginLeft: 10,
+              backgroundColor: employees.length === 0 ? "gray" : "#a83c42",
+              color: "white",
+              borderColor: employees.length === 0 ? "gray" : "#a83c42",
+              cursor: employees.length === 0 ? "not-allowed" : "pointer",
+            }}
             disabled={employees.length === 0}
           >
             {t("Unassign Employee")}

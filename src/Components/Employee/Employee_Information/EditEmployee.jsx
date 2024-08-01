@@ -3,30 +3,35 @@ import { Form, Input, Select, Switch, Button, Upload, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useTranslation } from "react-i18next";
 
 const { Option } = Select;
 
 const EditEmployee = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { employee } = state; // Assuming the employee data is passed via state
+  const { employee } = state;
   const { handleEdit } = useEmployees();
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [cvFile, setCvFile] = useState(employee.cv_file || "");
+  const [emails, setEmails] = useState([]);
+  const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const db = getDatabase();
       const positionsRef = ref(db, "positions");
       const projectsRef = ref(db, "projects");
+      const usersRef = ref(db, "users");
 
       const positionsSnapshot = await get(positionsRef);
       if (positionsSnapshot.exists()) {
         const data = positionsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
-          id: key,
+          name: data[key].name,
           ...data[key],
         }));
         setPositions(formattedData);
@@ -38,12 +43,24 @@ const EditEmployee = () => {
       if (projectsSnapshot.exists()) {
         const data = projectsSnapshot.val();
         const formattedData = Object.keys(data).map((key) => ({
-          id: key,
+          name: data[key].name,
           ...data[key],
         }));
         setProjects(formattedData);
       } else {
         setProjects([]);
+      }
+
+      const usersSnapshot = await get(usersRef);
+      if (usersSnapshot.exists()) {
+        const data = usersSnapshot.val();
+        const emailList = Object.keys(data).map((key) => ({
+          id: key,
+          email: data[key].email,
+        }));
+        setEmails(emailList);
+      } else {
+        setEmails([]);
       }
     };
 
@@ -51,23 +68,29 @@ const EditEmployee = () => {
   }, []);
 
   const handleSubmit = async (values) => {
+    const storage = getStorage();
+    const cvRef = storageRef(getStorage(), `cvs/${employee.id}.pdf`);
+
+    let cvUrl = employee.cv_file;
+    if (cvFile) {
+      const snapshot = await uploadBytes(cvRef, cvFile);
+      cvUrl = await getDownloadURL(snapshot.ref);
+    }
+
     const updatedEmployee = {
       ...employee,
       name: values.name || employee.name,
       phone: values.phone || employee.phone,
       email: values.email || employee.email,
       status: values.status !== undefined ? (values.status ? "active" : "inactive") : employee.status,
-      positionId: values.positionId || employee.positionId,
-      projectIds: values.projectIds || employee.projectIds,
-      skills: values.skills || employee.skills,
-      contact: values.contact || employee.contact,
-      cv_file: cvFile || employee.cvFile,
+      positionName: values.positionName || employee.positionName,
+      projectNames: values.projectNames || employee.projectNames,
+      cv_file: cvUrl,
       cv_list: [
         {
           cv_skill: values.cv_skill || employee.cv_list[0].cv_skill,
           cv_experience: [
             {
-              work_position: values.work_position || employee.cv_list[0].cv_experience[0].work_position,
               time_work: values.time_work || employee.cv_list[0].cv_experience[0].time_work,
               description: values.description || employee.cv_list[0].cv_experience[0].description,
             },
@@ -76,39 +99,29 @@ const EditEmployee = () => {
       ],
     };
 
-
     try {
       await handleEdit(updatedEmployee);
       navigate("/list");
-      // Redirect or show success message
+      message.success(t("Employee updated successfully"));
     } catch (error) {
       console.error("Error updating employee: ", error);
     }
   };
 
-  const handleFileChange = (info) => {
-    const file = info.file.originFileObj;
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setCvFile(reader.result);
-        message.success("CV uploaded successfully");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleCvUpload = ({ file }) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setCvFile(e.target.result);
-    };
-    reader.readAsDataURL(file);
-    return false; // Prevent automatic upload
+    setCvFile(file);
+    return false; // Prevents the default behavior of uploading the file
   };
 
   const gotoEmployeeList = () => {
     navigate("/list");
+  };
+
+  const emailValidator = (_, value) => {
+    if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
   };
 
   return (
@@ -120,53 +133,57 @@ const EditEmployee = () => {
         phone: employee.phone,
         email: employee.email,
         status: employee.status === "active",
-        positionId: employee.positionId,
-        projectIds: employee.projectIds,
-        skills: employee.skills,
-        contact: employee.contact,
+        positionName: employee.positionName,
+        projectNames: employee.projectNames,
         cv_skill: employee.cv_list[0].cv_skill,
-        work_position: employee.cv_list[0].cv_experience[0].work_position,
         time_work: employee.cv_list[0].cv_experience[0].time_work,
         description: employee.cv_list[0].cv_experience[0].description,
       }}
       style={{ height: "100vh", marginTop: "20px" }}
     >
       <Form.Item
-        label="Name"
+        label={t("Name")}
         name="name"
-        rules={[{ required: true, message: "Please input the name!" }]}
+        rules={[{ required: true, message: t("Please input the name!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Email"
+        label={t("Email")}
         name="email"
-        rules={[{ required: true, message: "Please input the email!" }]}
+        rules={[{ required: true, message: "Please input the email!" },
+          { validator: emailValidator },]}
       >
-        <Input />
+        <Select mode="multiple">
+          {emails.map((user) => (
+            <Option key={user.id} value={user.email}>
+              {user.email}
+            </Option>
+          ))}
+        </Select>
       </Form.Item>
 
       <Form.Item
-        label="Phone"
+        label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: "Please input the phone number!" }]}
+        rules={[{ required: true, message: t("Please input the phone number!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Status" name="status" valuePropName="checked">
-        <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+      <Form.Item label={t("Status")} name="status" valuePropName="checked">
+        <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
       </Form.Item>
 
       <Form.Item
         label="Position"
-        name="positionId"
+        name="positionName"
         rules={[{ required: true, message: "Please select the position!" }]}
       >
         <Select>
           {positions.map((position) => (
-            <Option key={position.id} value={position.id}>
+            <Option key={position.id} value={position.name}>
               {position.name}
             </Option>
           ))}
@@ -174,13 +191,13 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Project IDs"
-        name="projectIds"
-        rules={[{ required: true, message: "Please input the project IDs!" }]}
+        label="Projects"
+        name="projectNames"
+        rules={[{ required: true, message: "Please input the projects!" }]}
       >
         <Select mode="multiple">
           {projects.map((project) => (
-            <Option key={project.id} value={project.id}>
+            <Option key={project.id} value={project.name}>
               {project.name}
             </Option>
           ))}
@@ -188,68 +205,43 @@ const EditEmployee = () => {
       </Form.Item>
 
       <Form.Item
-        label="Skills"
-        name="skills"
-        rules={[{ required: true, message: "Please input the skills!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Contact"
-        name="contact"
-        rules={[{ required: true, message: "Please input the contact!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="CV Skill"
+        label={t("Skill")}
         name="cv_skill"
-        rules={[{ required: true, message: "Please input the CV skill!" }]}
+        rules={[{ required: true, message: t("Please input the skill!") }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Work Position"
-        name="work_position"
-        rules={[{ required: true, message: "Please input the work position!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Time Work"
+        label={t("Time Work")}
         name="time_work"
-        rules={[{ required: true, message: "Please input the time work!" }]}
+        rules={[{ required: true, message: t("Please input the time work!") }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Description" name="description">
+      <Form.Item label={t("Description")} name="description">
         <Input.TextArea />
       </Form.Item>
 
-      <Form.Item label="CV File" name="cv_file">
+      <Form.Item label="CV File" name="cv_file" valuePropName="file"
+                getValueFromEvent={handleCvUpload}>
         <Upload
-          beforeUpload={handleCvUpload}
-          onChange={handleFileChange}
-          showUploadList={false}
+          beforeUpload={() => false} maxCount={1}
         >
-          <Button>Upload CV</Button>
+          <Button>{t("Upload CV")}</Button>
         </Upload>
       </Form.Item>
 
       <Form.Item>
         <Button type="primary" htmlType="submit">
-          Update Employee
+          {t("Update Employee")}
         </Button>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" onClick={gotoEmployeeList}>
-          Back
+          {t("Back")}
         </Button>
       </Form.Item>
     </Form>

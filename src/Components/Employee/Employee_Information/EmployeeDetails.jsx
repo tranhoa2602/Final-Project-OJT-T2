@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Descriptions, Button } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getDatabase, ref, get } from "firebase/database";
+import { useTranslation } from 'react-i18next';
 
 const EmployeeDetails = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation();
   const { employee } = state;
@@ -13,7 +15,7 @@ const EmployeeDetails = () => {
   useEffect(() => {
     const fetchPositionName = async () => {
       const db = getDatabase();
-      const positionRef = ref(db, `positions/${employee.positionId}`);
+      const positionRef = ref(db, `positions/${employee.positionName}`);
       const snapshot = await get(positionRef);
       if (snapshot.exists()) {
         setPositionName(snapshot.val().name);
@@ -22,15 +24,15 @@ const EmployeeDetails = () => {
 
     const fetchProjectNames = async () => {
       const db = getDatabase();
-      const projectRefs = employee.projectIds.map(id => ref(db, `projects/${id}`));
+      const projectRefs = employee.projectNames.map(name => ref(db, `projects/${name}`));
       const projectSnapshots = await Promise.all(projectRefs.map(ref => get(ref)));
-      const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : 'Unknown Project');
+      const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : t('Unknown Project'));
       setProjectNames(names);
     };
 
     fetchPositionName();
     fetchProjectNames();
-  }, [employee.positionId, employee.projectIds]);
+  }, [employee.positionId, employee.projectIds, t]);
 
   const returntoPrevious = () => {
     navigate('/list');
@@ -38,12 +40,12 @@ const EmployeeDetails = () => {
 
   const handleDownloadCv = () => {
     if (!employee.cv_file) {
-      console.error("CV file not found");
+      console.error(t("CV file not found"));
       return;
     }
 
     const link = document.createElement('a');
-    link.href = `data:application/pdf;base64,${employee.cv_file}`;
+    link.href = employee.cv_file;
     link.download = `${employee.name}_CV.pdf`;
     document.body.appendChild(link);
     link.click();
@@ -53,34 +55,25 @@ const EmployeeDetails = () => {
   return (
     <>
       <Descriptions
-        title="Employee Details"
+        title={t("Employee Details")}
         bordered
-        column={{
-          xs: 1,
-          sm: 2,
-          md: 3,
-          lg: 3,
-          xl: 4,
-          xxl: 4,
-        }}
+        column={1}
       >
         <Descriptions.Item label="Employee Name">{employee.name}</Descriptions.Item>
         <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>
         <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
         <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
         <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
-        <Descriptions.Item label="Position">{positionName}</Descriptions.Item>
-        <Descriptions.Item label="Projects">{projectNames.join(", ")}</Descriptions.Item>
-        <Descriptions.Item label="Skills">{employee.skills}</Descriptions.Item>
-        <Descriptions.Item label="Contact">{employee.contact}</Descriptions.Item>
-        <Descriptions.Item label="CV Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>
+        <Descriptions.Item label="Position">{employee.positionName}</Descriptions.Item>
+        <Descriptions.Item label="Projects">{employee.projectNames.join(", ")}</Descriptions.Item>
+        <Descriptions.Item label="Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>
       </Descriptions>
 
       <Button type="primary" onClick={handleDownloadCv} style={{ background: 'blue', marginTop: '20px' }}>
-        Export CV
+        {t("Export CV")}
       </Button>
       <Button type="primary" onClick={returntoPrevious} style={{ background: 'gray', marginTop: '20px' }}>
-        Return
+        {t("Return")}
       </Button>
     </>
   );

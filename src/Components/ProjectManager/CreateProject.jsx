@@ -23,6 +23,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
     const [form] = Form.useForm();
     const [technologies, setTechnologies] = useState([]);
     const [languages, setLanguages] = useState([]);
+    const [projectManagers, setProjectManagers] = useState([]);
 
     useEffect(() => {
         const fetchTechnologies = async () => {
@@ -57,8 +58,29 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
             }
         };
 
+        const fetchProjectManagers = async () => {
+            const db = getDatabase();
+            const empRef = ref(db, "employees");
+            const snapshot = await get(empRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const formattedData = Object.keys(data)
+                    .map((key) => ({
+                        id: key,
+                        ...data[key],
+                    }))
+                    .filter(
+                        (emp) =>
+                            emp.positionName === "Project Manager" &&
+                            emp.status === "active"
+                    );
+                setProjectManagers(formattedData);
+            }
+        };
+
         fetchTechnologies();
         fetchLanguages();
+        fetchProjectManagers();
     }, []);
 
     const determineStatus = (startDate, endDate) => {
@@ -162,6 +184,24 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                             {languages.map((lang) => (
                                 <Option key={lang.id} value={lang.programingname}>
                                     {lang.programingname}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item
+                        name="projectManager"
+                        label={t("Project Manager")}
+                        rules={[
+                            {
+                                required: true,
+                                message: t("Please select the project manager!"),
+                            },
+                        ]}
+                    >
+                        <Select placeholder={t("Please select the project manager!")}>
+                            {projectManagers.map((manager) => (
+                                <Option key={manager.id} value={manager.name}>
+                                    {manager.name}
                                 </Option>
                             ))}
                         </Select>

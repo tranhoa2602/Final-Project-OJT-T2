@@ -50,15 +50,15 @@ const DetailProject = () => {
       const snapshot = await get(employeesRef);
       if (snapshot.exists()) {
         const allEmployees = snapshot.val();
-        const assignedEmployees = employeeIds.map((empId) => ({
+        const assignedEmployees = [...new Set(employeeIds)].map((empId) => ({
           id: empId,
-          ...allEmployees[empId],
+          name: allEmployees[empId]?.name || "Unknown",
         }));
         setEmployees(assignedEmployees);
         setAllEmployees(
           Object.keys(allEmployees).map((key) => ({
             id: key,
-            ...allEmployees[key],
+            name: allEmployees[key].name,
           }))
         ); // Lưu toàn bộ danh sách nhân viên
       }
@@ -68,31 +68,55 @@ const DetailProject = () => {
   }, [id, t]);
 
   const handleAssign = async (values) => {
+    console.log("handleAssign called with values:", values); // Thêm log để kiểm tra
     const db = getDatabase();
     const projectRef = ref(db, `projects/${id}`);
     const projectSnapshot = await get(projectRef);
     const projectData = projectSnapshot.val();
+
+    // Đảm bảo rằng projectData.employees là một mảng
+    const employeeList = projectData.employees ? projectData.employees : [];
+
+    // Check if employee is already assigned
+    if (employeeList.includes(values.employee)) {
+      message.error(t("Employee is already assigned to this project!"));
+      setIsAssignModalVisible(false);
+      form.resetFields();
+      return;
+    }
+
     const updatedProject = {
       ...projectData,
-      employees: projectData.employees
-        ? [...projectData.employees, values.employee]
-        : [values.employee],
+      employees: [...new Set([...employeeList, values.employee])],
     };
 
     await update(projectRef, updatedProject);
     message.success(t("Employee assigned successfully!"));
     setIsAssignModalVisible(false);
     form.resetFields();
+    // Update state without re-fetching
     setProject(updatedProject); // Update project state
-    fetchEmployees(updatedProject.employees); // Fetch updated employees
+    setEmployees((prevEmployees) => {
+      const newEmployee = allEmployees.find(
+        (emp) => emp.id === values.employee
+      );
+      return [...prevEmployees, newEmployee].filter(
+        (emp, index, self) => self.findIndex((e) => e.id === emp.id) === index
+      );
+    });
   };
 
   const handleUnassign = async (values) => {
+    console.log("handleUnassign called with values:", values); // Thêm log để kiểm tra
     const db = getDatabase();
     const projectRef = ref(db, `projects/${id}`);
     const projectSnapshot = await get(projectRef);
     const projectData = projectSnapshot.val();
-    const updatedEmployees = projectData.employees.filter(
+
+    // Đảm bảo rằng projectData.employees là một mảng
+    const employeeList = projectData.employees ? projectData.employees : [];
+
+    const updatedEmployees = employeeList.filter(
       (emp) => emp !== values.employee
     );
     const updatedProject = {
@@ -104,8 +128,11 @@ const DetailProject = () => {
     message.success(t("Employee unassigned successfully!"));
     setIsUnassignModalVisible(false);
     form.resetFields();
+    // Update state without re-fetching
     setProject(updatedProject); // Update project state
-    fetchEmployees(updatedProject.employees); // Fetch updated employees
+    setEmployees((prevEmployees) =>
+      prevEmployees.filter((emp) => emp.id !== values.employee)
+    );
   };
 
   if (loading) {
@@ -166,7 +193,7 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Assigned Employees")}>
               {employees.length > 0
                 ? employees.map((employee) => (
-                    <Tag key={employee.id} color="green">
+                    <Tag key={employee.id} color="purple">
                       {employee.name}
                     </Tag>
                   ))
@@ -240,7 +267,7 @@ const DetailProject = () => {
               >
                 <Select placeholder={t("Select an employee")}>
                   {employees.map((employee) => (
-                    <Option key={employee.id} value={employee.name}>
+                    <Option key={employee.id} value={employee.id}>
                       {employee.name}
                     </Option>
                   ))}

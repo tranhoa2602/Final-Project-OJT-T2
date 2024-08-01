@@ -23,13 +23,13 @@ const Login = ({ setUser }) => {
 
       if (user && (await bcrypt.compare(password, user.password))) {
         const storedUser = {
-          key: user.key,
+          key: user.id, // Ensure the user ID is stored correctly
           role: user.role,
         };
         localStorage.setItem("user", JSON.stringify(storedUser));
         setUser(storedUser);
 
-        const userRolePath = user.role === "Admin" ? "/admin" : "/employee";
+        const userRolePath = user.role === "Admin" ? "/admin" : "/profile";
         navigate(userRolePath);
         message.success("Login successful!");
       } else {
@@ -76,9 +76,6 @@ const Login = ({ setUser }) => {
         <a href="/forget-password" className={styles["link-forget"]}>
           Forgot password?
         </a>
-        {/* <a href="/register" className={styles["link-button"]}>
-          Register
-        </a> */}
       </div>
     </div>
   );

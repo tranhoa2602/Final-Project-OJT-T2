@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input } from "antd"; // Import Input from Ant Design
+import { Space, Table, Tag, Button, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
@@ -11,94 +11,101 @@ import {
   InfoCircleOutlined,
   FileExcelOutlined,
 } from "@ant-design/icons";
-import styles from "../../../styles/layouts/EmployeeList.module.scss"; // Import the SCSS module
+import { useTranslation } from "react-i18next";
+import styles from "../../../styles/layouts/EmployeeList.module.scss";
 
-const columns = (handleEdit, handleDelete, navigate, positions, projects) => [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text, record) => (
-      <a onClick={() => navigate("/details", { state: { employee: record } })}>
-        {text}
-      </a>
-    ),
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-  },
-  {
-    title: "Position",
-    dataIndex: "positionId",
-    key: "positionId",
-    render: (positionId) => positions[positionId]?.name || "N/A",
-  },
-  {
-    title: "Projects",
-    dataIndex: "projectIds",
-    key: "projectIds",
-    render: (projectIds) =>
-      projectIds.map((id) => projects[id]?.name || "N/A").join(", "),
-  },
-  {
-    title: "Status",
-    key: "status",
-    dataIndex: "status",
-    render: (_, { status }) => {
-      const statusArray = Array.isArray(status) ? status : [status];
-      return (
-        <>
-          {statusArray.map((stat) => {
-            let color = stat.length > 5 ? "geekblue" : "green";
-            if (stat === "inactive") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={stat}>
-                {stat.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      );
+const columns = (
+  handleEdit,
+  handleDelete,
+  navigate,
+  positions,
+  projects,
+  t
+) => [
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <a onClick={() => navigate("/details", { state: { employee: record } })}>
+          {text}
+        </a>
+      ),
     },
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    align: "center",
-    render: (_, record) => (
-      <div className={styles["actions-container"]}>
-        <Button
-          onClick={() => navigate("/edit", { state: { employee: record } })}
-          type="primary"
-          icon={<EditOutlined />}
-          className={styles["edit-button"]}
-        >
-          Edit
-        </Button>
-        <Button
-          type="default"
-          onClick={() => navigate("/details", { state: { employee: record } })}
-          icon={<InfoCircleOutlined />}
-          className={styles["detail-button"]}
-        >
-          Details
-        </Button>
-        <Button
-          type="danger"
-          onClick={() => handleDelete(record.key)}
-          icon={<DeleteOutlined />}
-          className={styles["delete-button"]}
-        >
-          Delete
-        </Button>
-      </div>
-    ),
-  },
-];
+    {
+      title: t("Email"),
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: t("Position"),
+      dataIndex: "positionName",
+      key: "positionName",
+    },
+    {
+      title: t("Projects"),
+      dataIndex: "projectNames",
+      key: "projectNames",
+      render: (projects) => (projects || []).join(' '),  // Join project names with a space
+    },
+    {
+      title: t("Status"),
+      key: "status",
+      dataIndex: "status",
+      render: (_, { status }) => {
+        const statusArray = Array.isArray(status) ? status : [status];
+        return (
+          <>
+            {statusArray.map((stat) => {
+              let color = stat.length > 5 ? "geekblue" : "green";
+              if (stat === "inactive") {
+                color = "volcano";
+              }
+              return (
+                <Tag color={color} key={stat}>
+                  {status === "active" ? t("Active") : t("Inactive")}
+                </Tag>
+              );
+            })}
+          </>
+        );
+      },
+    },
+
+    {
+      title: t("Actions"),
+      key: "actions",
+      align: "center",
+      render: (_, record) => (
+        <div className={styles["actions-container"]}>
+          <Button
+            onClick={() => navigate("/edit", { state: { employee: record } })}
+            type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
+          >
+            {t("Edit")}
+          </Button>
+          <Button
+            type="default"
+            onClick={() => navigate("/details", { state: { employee: record } })}
+            icon={<InfoCircleOutlined />}
+            className={styles["detail-button"]}
+          >
+            {t("Detail")}
+          </Button>
+          <Button
+            type="danger"
+            onClick={() => handleDelete(record.key)}
+            icon={<DeleteOutlined />}
+            className={styles["delete-button"]}
+          >
+            {t("Delete")}
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
 const fetchData = async () => {
   const db = getDatabase();
@@ -122,6 +129,7 @@ const fetchData = async () => {
 };
 
 const EmployeeList = () => {
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
   const [positions, setPositions] = useState({});
   const [projects, setProjects] = useState({});
@@ -156,33 +164,26 @@ const EmployeeList = () => {
       { header: "Email", key: "email", width: 30 },
       { header: "Phone", key: "phone", width: 15 },
       { header: "Status", key: "status", width: 15 },
-      { header: "Position", key: "positionId", width: 15 },
-      { header: "Projects", key: "projectIds", width: 20 },
-      { header: "Skills", key: "skills", width: 30 },
-      { header: "Contact", key: "contact", width: 30 },
-      { header: "CV Skill", key: "cv_skill", width: 30 },
-      { header: "Work Position", key: "work_position", width: 30 },
+      { header: "Position", key: "positionName", width: 15 },
+      { header: "Projects", key: "projectNames", width: 20 },
+      { header: "Skill", key: "cv_skill", width: 30 },
       { header: "Time Work", key: "time_work", width: 30 },
       { header: "Description", key: "description", width: 50 },
       { header: "CV File", key: "cv_file", width: 50 },
     ];
 
     employees.forEach((employee) => {
+
+
       worksheet.addRow({
         id: employee.key,
         name: employee.name,
         email: employee.email,
         phone: employee.phone,
         status: employee.status,
-        positionId: positions[employee.positionId]?.name || employee.positionId,
-        projectIds: (employee.projectIds || [])
-          .map((id) => projects[id]?.name || id)
-          .join(", "),
-        skills: employee.skills,
-        contact: employee.contact,
+        positionName: employee.positionName,
+        projectNames: employee.projectNames || [].join(' '),
         cv_skill: employee.cv_list[0]?.cv_skill || "",
-        work_position:
-          employee.cv_list[0]?.cv_experience[0]?.work_position || "",
         time_work: employee.cv_list[0]?.cv_experience[0]?.time_work || "",
         description: employee.cv_list[0]?.cv_experience[0]?.description || "",
         cv_file: employee.cv_file,
@@ -196,11 +197,15 @@ const EmployeeList = () => {
     saveAs(blob, "employee-list.xlsx");
   };
 
+  const filteredEmployees = employees.filter((employee) =>
+    employee.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
     <div className={styles["employee-list"]}>
       <Space className={styles["actions-container"]}>
         <Input
-          placeholder="Search by Name"
+          placeholder={t("Search by Name")}
           onChange={(e) => setSearchText(e.target.value)}
           className={styles["search-input"]}
         />
@@ -209,7 +214,7 @@ const EmployeeList = () => {
           onClick={() => navigate("/create")}
           className={styles["add-button"]}
         >
-          Add Employee
+          {t("Add Employee")}
         </Button>
         <Button
           type="primary"
@@ -217,7 +222,7 @@ const EmployeeList = () => {
           onClick={exportToExcel}
           className={styles["export-button"]}
         >
-          Export to Excel
+          {t("Export to Excel")}
         </Button>
       </Space>
       <Table
@@ -226,9 +231,10 @@ const EmployeeList = () => {
           handleDeleteAndRefresh,
           navigate,
           positions,
-          projects
+          projects,
+          t
         )}
-        dataSource={employees}
+        dataSource={filteredEmployees}
         rowKey="key"
         pagination={{ pageSize: 6 }}
         className={styles["employee-table"]}

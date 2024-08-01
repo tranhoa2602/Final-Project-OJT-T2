@@ -255,7 +255,6 @@ function Admin() {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
-      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: t("Role"),

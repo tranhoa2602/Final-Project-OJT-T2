@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, InputNumber, Select, Switch, Button, Upload, message } from "antd";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Switch,
+  Button,
+  Upload,
+  message,
+} from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { useTranslation } from "react-i18next";
 import TextArea from "antd/es/input/TextArea";
 
@@ -49,7 +63,11 @@ const EditEmployee = () => {
             isActive: data[key].status === "active",
             isAdmin: data[key].role === "Admin",
           }))
-          .filter((user) => (!user.isExist && user.isActive && !user.isAdmin) || user.email === employee.email);
+          .filter(
+            (user) =>
+              (!user.isExist && user.isActive && !user.isAdmin) ||
+              user.email === employee.email
+          );
         setEmails(emailList);
       } else {
         setEmails([]);
@@ -93,11 +111,10 @@ const EditEmployee = () => {
       await handleEdit(updatedEmployee);
 
       // Update IsExist values for old and new emails
- 
-  
-      const oldEmail = emails.find(email => email.email === employee.email);
+
+      const oldEmail = emails.find((email) => email.email === employee.email);
       const oldEmailRef = ref(db, `users/${oldEmail.id}`);
-      const newEmail = emails.find(email => email.email === values.email);
+      const newEmail = emails.find((email) => email.email === values.email);
 
       if (employee.email !== values.email) {
         if (newEmail) {
@@ -128,7 +145,11 @@ const EditEmployee = () => {
     if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
       return Promise.resolve();
     }
-    return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
+    return Promise.reject(
+      new Error(
+        "Please enter a valid email address with a domain name (e.g., @gmail.com)"
+      )
+    );
   };
 
   return (
@@ -181,7 +202,13 @@ const EditEmployee = () => {
       <Form.Item
         label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: t("Please input the phone number!") }]}
+        rules={[
+          { required: true, message: t("Please input the phone number!") },
+          {
+            pattern: /^[0-9]{10}$/,
+            message: t("Phone number must be 10 numbers"),
+          },
+        ]}
       >
         <InputNumber style={{ width: "100%" }} />
       </Form.Item>

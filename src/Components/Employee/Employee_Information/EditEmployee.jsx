@@ -202,12 +202,12 @@ const EditEmployee = () => {
         rules={[
           { required: true, message: t("Please input the phone number!") },
           {
-            pattern: /^[0-9]{10}$/,
-            message: t("Phone number must be 10 numbers"),
+            pattern: /^0[0-9]{9,15}$/,
+            message: t("Phone number must start with 0 and be between 10 and 16 digits"),
           },
         ]}
       >
-        <InputNumber style={{ width: "100%" }} />
+        <Input />
       </Form.Item>
 
       <Form.Item label="Status" name="status" valuePropName="checked">

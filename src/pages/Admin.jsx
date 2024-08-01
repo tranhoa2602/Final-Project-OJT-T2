@@ -42,8 +42,8 @@ function Admin() {
   const [successMessage, setSuccessMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
-  const [addModalVisible, setAddModalVisible] = useState(false); // For Add User modal visibility
-  const [editModalVisible, setEditModalVisible] = useState(false); // For Edit User modal visibility
+  const [addModalOpen, setAddModalOpen] = useState(false); // For Add User modal visibility
+  const [editModalOpen, setEditModalOpen] = useState(false); // For Edit User modal visibility
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
@@ -94,9 +94,9 @@ function Admin() {
   };
 
   const handleAddUser = async (values) => {
-    const { email, role, name } = values;
+    const { email, role } = values;
 
-    if (!email || !role || !name) {
+    if (!email || !role) {
       message.error(t("This email already exists"));
       return;
     }
@@ -105,15 +105,15 @@ function Admin() {
       const db = getDatabase();
       const userRef = ref(db, "users");
       const snapshot = await get(userRef);
-      const userData = snapshot.val();
+      const userData = snapshot.val() || {};
 
-      // Check for duplicate employee name
-      const duplicateName = Object.values(userData).some(
-        (user) => user.name === name && user.role === "Employee"
+      // Check for duplicate email
+      const duplicateEmail = Object.values(userData).some(
+        (user) => user.email === email
       );
 
-      if (duplicateName) {
-        message.error(t("An employee with this name already exists."));
+      if (duplicateEmail) {
+        message.error(t("This email already exists"));
         return;
       }
 
@@ -123,7 +123,6 @@ function Admin() {
       const newUserData = {
         id: userKey,
         email,
-        name,
         password: "1234567", // Default password
         role,
         status: "inactive", // Set default status to inactive
@@ -142,7 +141,7 @@ function Admin() {
       sendVerificationEmail(email, verifyLink);
 
       form.resetFields();
-      setAddModalVisible(false);
+      setAddModalOpen(false);
 
       const updatedSnapshot = await get(ref(db, "users"));
       const updatedUserData = updatedSnapshot.val();
@@ -161,10 +160,10 @@ function Admin() {
   };
 
   const handleUpdateUser = async (values) => {
-    const { email, role, status, name } = values;
+    const { email, role, status } = values;
 
-    if (!email || !role || !status || !name) {
-      message.error(t("Please fill in all fields"));
+    if (!email || !role || !status) {
+      message.error(t("This email already exists"));
       return;
     }
 
@@ -187,7 +186,7 @@ function Admin() {
       form.resetFields();
       setEditMode(false);
       setEditUserKey("");
-      setEditModalVisible(false);
+      setEditModalOpen(false);
 
       const updatedSnapshot = await get(ref(db, "users"));
       const fetchedUserData = updatedSnapshot.val();
@@ -251,17 +250,17 @@ function Admin() {
     });
     setEditMode(true);
     setEditUserKey(user.key);
-    setEditModalVisible(true);
+    setEditModalOpen(true);
   };
 
   const handleAddModalCancel = () => {
     form.resetFields();
-    setAddModalVisible(false);
+    setAddModalOpen(false);
   };
 
   const handleEditModalCancel = () => {
     form.resetFields();
-    setEditModalVisible(false);
+    setEditModalOpen(false);
     setEditMode(false);
   };
 
@@ -391,7 +390,7 @@ function Admin() {
       <div className={styles["actions-container"]}>
         <Button
           type="primary"
-          onClick={() => setAddModalVisible(true)}
+          onClick={() => setAddModalOpen(true)}
           className={styles["add-user-button"]}
         >
           {t("Add User")}
@@ -425,7 +424,7 @@ function Admin() {
 
       <Modal
         title={t("Add User")}
-        visible={addModalVisible}
+        open={addModalOpen}
         onCancel={handleAddModalCancel}
         footer={null}
         destroyOnClose={true}
@@ -478,7 +477,7 @@ function Admin() {
 
       <Modal
         title={t("Edit User")}
-        visible={editModalVisible}
+        open={editModalOpen}
         onCancel={handleEditModalCancel}
         footer={null}
         destroyOnClose={true}

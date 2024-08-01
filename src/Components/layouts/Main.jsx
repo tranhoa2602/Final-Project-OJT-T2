@@ -29,6 +29,7 @@ import LanguageBin from "../Language/LanguageBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 import ProfileDetail from "../User/ProfileDetail";
 import ProfileEdit from "../User/ProfileEdit";
+import VerifyAccount from "../User/VerifyAccount"; // Import the VerifyAccount component
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -67,6 +68,8 @@ const Main = () => {
           <Route path="/register" element={<Register setUser={setUser} />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-account" element={<VerifyAccount />} />{" "}
+          {/* Add the VerifyAccount route */}
           <Route
             path="/admin"
             element={

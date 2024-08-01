@@ -98,4 +98,8 @@
       }
     }
   }
+  .inactive-user-row {
+    background-color: rgba(191, 189, 189, 0.522);
+    color: rgb(0, 0, 0); // Ensure text is visible on black background
+  }
 }

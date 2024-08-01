@@ -64,6 +64,7 @@
   .actions-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 15px;
 
     .edit-button,
@@ -74,8 +75,6 @@
       font-weight: 500;
       color: #fff;
       border-radius: 4px;
-      font-size: 16px; // Increased font size
-      padding: 0 15px; // Adjust padding for larger buttons
     }
 
     .edit-button {
@@ -97,5 +96,9 @@
         border-color: #ff7875;
       }
     }
+  }
+  .inactive-user-row {
+    background-color: rgba(191, 189, 189, 0.522);
+    color: rgb(0, 0, 0); // Ensure text is visible on black background
   }
 }

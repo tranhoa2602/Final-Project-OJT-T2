@@ -1,17 +1,43 @@
-import emailjs from "emailjs-com";
 import React, { useState, useEffect } from "react";
-import { get, getDatabase, ref } from "firebase/database";
+import { get, getDatabase, ref, update, set } from "firebase/database";
+import { v4 as uuidv4 } from "uuid"; // Ensure uuid is imported
+import emailjs from "emailjs-com";
 import {
   EMAILJS_SERVICE_ID,
   EMAILJS_TEMPLATE_ID,
   EMAILJS_USER_ID,
-} from "../../emailConfig"; // Import cấu hình email
+} from "../../emailConfig"; // Import email configuration
+import { message } from "antd";
 
 const sendResetPasswordEmail = (email, resetLink) => {
   const templateParams = {
     to_name: email,
     from_name: "Your Company Name",
     message: `Click this link to reset your password: ${resetLink}`,
+  };
+
+  emailjs
+    .send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      templateParams,
+      EMAILJS_USER_ID
+    )
+    .then(
+      (response) => {
+        console.log("SUCCESS!", response.status, response.text);
+      },
+      (error) => {
+        console.log("FAILED...", error);
+      }
+    );
+};
+
+const sendVerificationEmail = (email, verifyLink) => {
+  const templateParams = {
+    to_name: email,
+    from_name: "Your Company Name",
+    message: `Click this link to verify your account: ${verifyLink}`,
   };
 
   emailjs
@@ -42,7 +68,7 @@ const ResetPasswordEmail = () => {
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         if (userData) {
-          const employeesData = userData.filter(
+          const employeesData = Object.values(userData).filter(
             (user) => user.role === "Employee" && user.email !== ""
           );
           setEmployees(employeesData);
@@ -75,4 +101,78 @@ const ResetPasswordEmail = () => {
   );
 };
 
-export default ResetPasswordEmail;
+const handleAddOrUpdateUser = async (
+  values,
+  setUsers,
+  setEditMode,
+  setEditUserKey,
+  form
+) => {
+  const { email, role, status = "inactive" } = values;
+
+  if (!email || !role || !status) {
+    message.error("Please fill in all fields");
+    return;
+  }
+
+  try {
+    const db = getDatabase();
+    const userKey = editMode ? editUserKey : uuidv4();
+    const verificationToken = uuidv4(); // Generate a unique token for verification
+    const userRef = ref(db, `users/${userKey}`);
+    let userData = {
+      id: userKey,
+      email,
+      password: "1234567", // Default password
+      contact: "",
+      cv_list: [
+        {
+          title: "",
+          description: "",
+          file: "",
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+      role,
+      status,
+      createdAt: new Date().toISOString(),
+      projetcIds: "",
+      skill: "",
+      verificationToken, // Add the verification token to user data
+    };
+
+    if (editMode) {
+      await update(userRef, userData);
+      message.success("User updated successfully!");
+    } else {
+      await set(userRef, userData);
+      message.success("User added successfully!");
+
+      // Send verification email
+      const verifyLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
+        email
+      )}&token=${verificationToken}`;
+      sendVerificationEmail(email, verifyLink);
+    }
+
+    form.resetFields();
+    setEditMode(false);
+    setEditUserKey("");
+
+    const updatedSnapshot = await get(ref(db, "users"));
+    const updatedUserData = updatedSnapshot.val();
+    if (updatedUserData) {
+      setUsers(
+        Object.entries(updatedUserData).map(([key, user]) => ({
+          ...user,
+          key,
+        }))
+      );
+    }
+  } catch (error) {
+    message.error("Error adding or updating user");
+    console.error("Error adding or updating user: ", error);
+  }
+};
+
+export { ResetPasswordEmail, handleAddOrUpdateUser, sendVerificationEmail };

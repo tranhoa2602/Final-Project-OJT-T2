@@ -97,7 +97,7 @@ function Admin() {
     const { email, role, name } = values;
 
     if (!email || !role || !name) {
-      message.error(t("Please fill in all fields"));
+      message.error(t("This email already exists"));
       return;
     }
 

@@ -101,7 +101,7 @@ const Sidebar = () => {
       icon: <DeploymentUnitOutlined />,
       label: <Link to="/TechList">{t("Technology")}</Link>,
     },
-    {
+    userRole === "Admin" && {
       key: "sub5",
       label: t("Employee"),
       icon: <TeamOutlined />,

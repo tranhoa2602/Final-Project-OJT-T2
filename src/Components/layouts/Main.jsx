@@ -27,6 +27,8 @@ import DetailProject from "../ProjectManager/DetailProject";
 import TechBin from "../Tech/TechBin";
 import LanguageBin from "../Language/LanguageBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
+import AssignEmployee from "../ProjectManager/AssignEmployee/Assign"; // Import AssignEmployee
+import UnassignEmployee from "../ProjectManager/AssignEmployee/Unassign";
 import ProfileDetail from "../User/ProfileDetail";
 import ProfileEdit from "../User/ProfileEdit";
 import VerifyAccount from "../User/VerifyAccount"; // Import the VerifyAccount component

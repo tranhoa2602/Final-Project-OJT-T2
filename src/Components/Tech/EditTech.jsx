@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message, Switch, Select } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select, Upload } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { UploadOutlined } from '@ant-design/icons';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
@@ -25,6 +28,7 @@ const EditTech = () => {
   const navigate = useNavigate();
   const [initialValues, setInitialValues] = useState(null);
   const [existingTypes, setExistingTypes] = useState([]);
+  const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
     const fetchTech = async () => {
@@ -34,9 +38,16 @@ const EditTech = () => {
         );
         const data = response.data;
         data.techstatus = data.techstatus === "Active";
-        data.deletestatus = data.deletestatus !== undefined ? data.deletestatus : false; // Ensure deletestatus is present
+        data.deletestatus = data.deletestatus !== undefined ? data.deletestatus : false;
         setInitialValues(data);
         form.setFieldsValue(data);
+        if (data.imageUrls) {
+          setFileList(data.imageUrls.map(url => ({
+            uid: url,
+            name: url.split('/').pop(),
+            url
+          })));
+        }
       } catch (error) {
         console.error(t("Error fetching technology:"), error);
         message.error(t("Failed to fetch technology."));
@@ -59,17 +70,47 @@ const EditTech = () => {
     fetchExistingTypes();
   }, [id, form, t]);
 
+  const handleUpload = async () => {
+    const storage = getStorage();
+    const uploadPromises = fileList.map(file => {
+      if (file.url) return Promise.resolve(file.url); // Skip URLs that are already in storage
+      const storageRef = ref(storage, `techimage/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file.originFileObj);
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          null,
+          error => reject(error),
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
+          }
+        );
+      });
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
   const handleSubmit = async (values) => {
     try {
       values.techstatus = values.techstatus ? "Active" : "Inactive";
-      values.deletestatus = false; // Set deletestatus to false
+      values.deletestatus = false;
 
-      await axios.put(
-        `${firebaseConfig.databaseURL}/technologies/${id}.json`,
-        values
-      );
-      message.success(t("Technology updated successfully!"));
-      navigate("/TechList");
+      const imageUrls = await handleUpload();
+
+      if (imageUrls.length > 0) {
+        values.imageUrls = imageUrls;
+
+        await axios.put(
+          `${firebaseConfig.databaseURL}/technologies/${id}.json`,
+          values
+        );
+
+        message.success(t("Technology updated successfully!"));
+        navigate("/TechList");
+      } else {
+        message.error(t("No images were uploaded."));
+      }
     } catch (error) {
       console.error(t("Error updating technology:"), error);
       message.error(t("Failed to update technology."));
@@ -132,6 +173,20 @@ const EditTech = () => {
         rules={[{ validator: validateDescription }]}
       >
         <Input />
+      </Form.Item>
+      <Form.Item
+        label={t("Upload Images")}
+        name="techimages"
+      >
+        <Upload
+          fileList={fileList}
+          onChange={({ fileList }) => setFileList(fileList)}
+          beforeUpload={() => false} // Prevent automatic upload
+          listType="picture"
+          multiple
+        >
+          <Button icon={<UploadOutlined />}>{t("Select Images")}</Button>
+        </Upload>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">

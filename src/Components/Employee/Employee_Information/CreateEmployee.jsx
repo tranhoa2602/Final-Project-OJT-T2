@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, InputNumber, Select, Switch, Upload, message } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Switch,
+  Upload,
+  message,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 import { database } from "../../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
@@ -64,7 +78,7 @@ const CreateEmployee = () => {
       return;
     }
 
-    const selectedEmail = emails.find(email => email.email === values.email);
+    const selectedEmail = emails.find((email) => email.email === values.email);
     if (!selectedEmail) {
       message.error("Email not available!");
       return;
@@ -127,7 +141,11 @@ const CreateEmployee = () => {
     if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
       return Promise.resolve();
     }
-    return Promise.reject(new Error("Please enter a valid email address with a domain name (e.g., @gmail.com)"));
+    return Promise.reject(
+      new Error(
+        "Please enter a valid email address with a domain name (e.g., @gmail.com)"
+      )
+    );
   };
 
   return (
@@ -176,8 +194,8 @@ const CreateEmployee = () => {
         rules={[
           { required: true, message: t("Please input the phone number!") },
           {
-            pattern: /^[0-9]{10,16}$/,
-            message: t("Phone number must be between 10 and 16 digits"),
+            pattern: /^[0-9]{10}$/,
+            message: t("Phone number must be 10 numbers"),
           },
         ]}
       >

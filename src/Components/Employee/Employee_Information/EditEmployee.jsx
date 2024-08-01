@@ -181,7 +181,13 @@ const EditEmployee = () => {
       <Form.Item
         label={t("Phone")}
         name="phone"
-        rules={[{ required: true, message: t("Please input the phone number!") }]}
+        rules={[
+          { required: true, message: t("Please input the phone number!") },
+          {
+            pattern: /^[0-9]{10,16}$/,
+            message: t("Phone number must be between 10 and 16 digits"),
+          },
+        ]}
       >
         <InputNumber style={{ width: "100%" }} />
       </Form.Item>

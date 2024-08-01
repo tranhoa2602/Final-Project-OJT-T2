@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Table, Button, Tag, Space, message } from "antd";
 import axios from "axios";
@@ -6,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { RedoOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Swiper, SwiperSlide } from "swiper/react";
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 const TechBin = () => {
   const { t } = useTranslation();
@@ -90,6 +93,32 @@ const TechBin = () => {
       key: "techstatus",
       render: (status) => (
         <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+      ),
+    },
+    {
+      title: t("Images"),
+      dataIndex: "imageUrls",
+      key: "imageUrls",
+      render: (imageUrls) => (
+        <Swiper
+          spaceBetween={10}
+          slidesPerView={1}
+          style={{ width: "100px", height: "100px" }}
+        >
+          {imageUrls && imageUrls.length > 0 ? (
+            imageUrls.map((url, index) => (
+              <SwiperSlide key={index}>
+                <img
+                  src={url}
+                  alt={`Tech Image ${index + 1}`}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </SwiperSlide>
+            ))
+          ) : (
+            <div>{t("No images available")}</div>
+          )}
+        </Swiper>
       ),
     },
     {

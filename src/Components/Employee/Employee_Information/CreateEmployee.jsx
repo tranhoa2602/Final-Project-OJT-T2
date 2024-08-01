@@ -194,7 +194,7 @@ const CreateEmployee = () => {
           { required: true, message: t("Please input the phone number!") },
           {
             pattern: /^0[0-9]{9,15}$/,
-            message: t("Phone number must start with 0 and be between 10 and 16 digits"),
+            message: t("Phone number must have 10 number"),
           },
         ]}
       >

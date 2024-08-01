@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input } from "antd";
+import { Space, Table, Tag, Button, Input} from "antd";
 import { useNavigate } from "react-router-dom";
 import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get } from "firebase/database";
@@ -41,12 +41,6 @@ const columns = (
       title: t("Position"),
       dataIndex: "positionName",
       key: "positionName",
-    },
-    {
-      title: t("Projects"),
-      dataIndex: "projectNames",
-      key: "projectNames",
-      render: (projects) => (projects || []).join(' '),  // Join project names with a space
     },
     {
       title: t("Status"),
@@ -125,6 +119,7 @@ const fetchData = async () => {
     ...value,
   }));
 
+
   return { employees: employeesArray, positions, projects };
 };
 
@@ -139,7 +134,7 @@ const EmployeeList = () => {
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { employees, positions, projects } = await fetchData();
+      const { employees, positions, projects, emailsInUse } = await fetchData();
       setEmployees(employees);
       setPositions(positions);
       setProjects(projects);
@@ -150,7 +145,7 @@ const EmployeeList = () => {
 
   const handleDeleteAndRefresh = async (key) => {
     await handleDelete(key);
-    const { employees } = await fetchData();
+    const { employees, emailsInUse } = await fetchData();
     setEmployees(employees);
   };
 
@@ -165,9 +160,6 @@ const EmployeeList = () => {
       { header: "Phone", key: "phone", width: 15 },
       { header: "Status", key: "status", width: 15 },
       { header: "Position", key: "positionName", width: 15 },
-      { header: "Projects", key: "projectNames", width: 20 },
-      { header: "Skill", key: "cv_skill", width: 30 },
-      { header: "Time Work", key: "time_work", width: 30 },
       { header: "Description", key: "description", width: 50 },
       { header: "CV File", key: "cv_file", width: 50 },
     ];
@@ -182,9 +174,6 @@ const EmployeeList = () => {
         phone: employee.phone,
         status: employee.status,
         positionName: employee.positionName,
-        projectNames: employee.projectNames || [].join(' '),
-        cv_skill: employee.cv_list[0]?.cv_skill || "",
-        time_work: employee.cv_list[0]?.cv_experience[0]?.time_work || "",
         description: employee.cv_list[0]?.cv_experience[0]?.description || "",
         cv_file: employee.cv_file,
       });

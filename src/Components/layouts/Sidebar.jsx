@@ -99,6 +99,18 @@ const Sidebar = () => {
           key: "3",
           label: <Link to="/projects">{t("Projects list")}</Link>,
         },
+        // {
+        //   key: "4",
+        //   label: (
+        //     <Link to="/AssignEmployee/Assign">{t("Assign Employee")}</Link>
+        //   ),
+        // },
+        // {
+        //   key: "5",
+        //   label: (
+        //     <Link to="/AssignEmployee/Unassign">{t("Unassign Employee")}</Link>
+        //   ),
+        // },
       ],
     },
     {

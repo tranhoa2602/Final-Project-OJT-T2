@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getDatabase, ref, push, get, set, update, remove } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  push,
+  get,
+  set,
+  update,
+  remove,
+} from "firebase/database";
 import { database } from "../../../../firebaseConfig"; // Điều chỉnh đường dẫn nếu cần thiết
 import { message } from "antd";
 import { useTranslation } from "react-i18next";
@@ -74,20 +82,6 @@ export const EmployeeProvider = ({ children }) => {
 
         // Tiến hành xóa nếu trạng thái không phải là đang hoạt động
         await remove(employeeRef);
-
-        const usersRef = ref(database, "users");
-        const usersSnapshot = await get(usersRef);
-        if (usersSnapshot.exists()) {
-          const usersData = usersSnapshot.val();
-          const userKey = Object.keys(usersData).find(
-            (key) => usersData[key].email === employee.email
-          );
-          if (userKey) {
-            const emailRef = ref(database, `users/${userKey}`);
-            await update(emailRef, { IsExist: false });
-          }
-        }
-
         message.success(t("Employee deleted!"));
 
         // Cập nhật trạng thái local
@@ -111,7 +105,9 @@ export const EmployeeProvider = ({ children }) => {
   };
 
   return (
-    <EmployeeContext.Provider value={{ employees, handleAdd, handleEdit, handleDelete }}>
+    <EmployeeContext.Provider
+      value={{ employees, handleAdd, handleEdit, handleDelete }}
+    >
       {children}
     </EmployeeContext.Provider>
   );

@@ -16,6 +16,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
+  RollbackOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/layouts/ListPosition.module.scss"; // Import the SCSS module
@@ -27,6 +28,7 @@ const ListPosition = () => {
   const [positions, setPositions] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPosition, setEditingPosition] = useState(null);
+  const [showBin, setShowBin] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -40,26 +42,33 @@ const ListPosition = () => {
           id: key,
           ...data[key],
         }));
-        setPositions(formattedData);
+        const filteredData = formattedData.filter(
+          (position) => position.deleteStatus === showBin
+        );
+        setPositions(filteredData);
       } else {
         setPositions([]);
       }
     };
 
     fetchPositions();
-  }, []);
+  }, [showBin]);
 
   const handleAddOrUpdatePosition = async (values) => {
     const db = getDatabase();
     const status = values.status ? "active" : "inactive";
     if (editingPosition) {
       const positionRef = ref(db, `positions/${editingPosition.id}`);
-      await update(positionRef, { ...values, status });
+      await update(positionRef, { ...values, status, deleteStatus: false });
       message.success(t("Position updated successfully!"));
     } else {
       const newPositionId = uuidv4();
       const positionRef = ref(db, `positions/${newPositionId}`);
-      await set(positionRef, { ...values, status });
+      await set(positionRef, {
+        ...values,
+        status,
+        deleteStatus: false,
+      });
       message.success(t("Position added successfully!"));
     }
     setModalVisible(false);
@@ -73,7 +82,10 @@ const ListPosition = () => {
         id: key,
         ...data[key],
       }));
-      setPositions(formattedData);
+      const filteredData = formattedData.filter(
+        (position) => position.deleteStatus === showBin
+      );
+      setPositions(filteredData);
     } else {
       setPositions([]);
     }
@@ -85,11 +97,48 @@ const ListPosition = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleMoveToBin = async (id) => {
     const db = getDatabase();
-    await remove(ref(db, `positions/${id}`));
-    message.success(t("Position deleted successfully!"));
+    const positionRef = ref(db, `positions/${id}`);
+    await update(positionRef, { deleteStatus: true });
+    message.success(t("Position moved to bin successfully!"));
     setPositions(positions.filter((position) => position.id !== id));
+  };
+
+  const handleRestore = async (id) => {
+    const db = getDatabase();
+    const positionRef = ref(db, `positions/${id}`);
+    await update(positionRef, { deleteStatus: false });
+    message.success(t("Position restored successfully!"));
+    setPositions(positions.filter((position) => position.id !== id));
+  };
+
+  const handlePermanentDelete = async (id) => {
+    const db = getDatabase();
+    const positionRef = ref(db, `positions/${id}`);
+    await remove(positionRef);
+    message.success(t("Position deleted permanently!"));
+    setPositions(positions.filter((position) => position.id !== id));
+  };
+
+  const handleViewBin = async () => {
+    setShowBin(!showBin);
+    const db = getDatabase();
+    const positionsRef = ref(db, "positions");
+    const snapshot = await get(positionsRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const formattedData = Object.keys(data).map((key) => ({
+        id: key,
+        ...data[key],
+      }));
+      const filteredData = formattedData.filter(
+        (position) => position.deleteStatus === !showBin
+      );
+      setPositions(filteredData);
+    } else {
+      setPositions([]);
+    }
   };
 
   const handleModalCancel = () => {
@@ -165,20 +214,42 @@ const ListPosition = () => {
       align: "center",
       render: (text, record) => (
         <div className={styles["actions-container"]}>
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            className={styles["edit-button"]}
-          >
-            {t("Edit")}
-          </Button>
-          <Button
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-            className={styles["delete-button"]}
-          >
-            {t("Delete")}
-          </Button>
+          {showBin ? (
+            <>
+              <Button
+                icon={<RollbackOutlined />}
+                onClick={() => handleRestore(record.id)}
+                className={styles["restore-button"]}
+              >
+                {t("Restore")}
+              </Button>
+              <Button
+                icon={<DeleteOutlined />}
+                onClick={() => handlePermanentDelete(record.id)}
+                className={styles["delete-button"]}
+              >
+                {t("Delete")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                icon={<EditOutlined />}
+                onClick={() => handleEdit(record)}
+                className={styles["edit-button"]}
+              >
+                {t("Edit")}
+              </Button>
+              <Button
+                icon={<DeleteOutlined />}
+                onClick={() => handleMoveToBin(record.id)}
+                className={styles["delete-button"]}
+                disabled={record.status === "active"}
+              >
+                {t("Move to Bin")}
+              </Button>
+            </>
+          )}
         </div>
       ),
     },
@@ -196,6 +267,13 @@ const ListPosition = () => {
           className={styles["add-position-button"]}
         >
           {t("Add Position")}
+        </Button>
+        <Button
+          type="default"
+          onClick={handleViewBin}
+          className={styles["view-bin-button"]}
+        >
+          {showBin ? t("Back to List") : t("View Bin")}
         </Button>
       </Space>
       <Table

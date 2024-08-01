@@ -10,8 +10,7 @@ import {
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useEmployees } from "./EmployeeContext";
-import { getDatabase, ref, get, update } from "firebase/database";
+import { getDatabase, ref, get, update, set } from "firebase/database";
 import {
   getStorage,
   ref as storageRef,
@@ -28,7 +27,6 @@ const { Option } = Select;
 const CreateEmployee = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [emails, setEmails] = useState([]);
@@ -113,10 +111,11 @@ const CreateEmployee = () => {
         ],
       };
 
-      await handleAdd(newEmployee);
+      const db = getDatabase();
+      const employeeRef = ref(db, `employees/${newEmployeeId}`);
+      await set(employeeRef, newEmployee);
 
       // Update IsExist to true for the selected email
-      const db = getDatabase();
       const emailRef = ref(db, `users/${selectedEmail.id}`);
       await update(emailRef, { IsExist: "true" });
 

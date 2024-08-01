@@ -10,7 +10,6 @@ const EmployeeDetails = () => {
   const { state } = useLocation();
   const { employee } = state;
   const [positionName, setPositionName] = useState("");
-  const [projectNames, setProjectNames] = useState([]);
 
   useEffect(() => {
     const fetchPositionName = async () => {
@@ -22,16 +21,7 @@ const EmployeeDetails = () => {
       }
     };
 
-    const fetchProjectNames = async () => {
-      const db = getDatabase();
-      const projectRefs = employee.projectNames.map(name => ref(db, `projects/${name}`));
-      const projectSnapshots = await Promise.all(projectRefs.map(ref => get(ref)));
-      const names = projectSnapshots.map(snapshot => snapshot.exists() ? snapshot.val().name : t('Unknown Project'));
-      setProjectNames(names);
-    };
-
     fetchPositionName();
-    fetchProjectNames();
   }, [employee.positionId, employee.projectIds, t]);
 
   const returntoPrevious = () => {
@@ -44,12 +34,7 @@ const EmployeeDetails = () => {
       return;
     }
 
-    const link = document.createElement('a');
-    link.href = employee.cv_file;
-    link.download = `${employee.name}_CV.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(employee.cv_file, '_blank');
   };
 
   return (
@@ -65,8 +50,6 @@ const EmployeeDetails = () => {
         <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
         <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
         <Descriptions.Item label="Position">{employee.positionName}</Descriptions.Item>
-        <Descriptions.Item label="Projects">{employee.projectNames.join(", ")}</Descriptions.Item>
-        <Descriptions.Item label="Skill">{employee.cv_list[0].cv_skill}</Descriptions.Item>
       </Descriptions>
 
       <Button type="primary" onClick={handleDownloadCv} style={{ background: 'blue', marginTop: '20px' }}>

@@ -21,17 +21,23 @@ const Login = ({ setUser }) => {
 
       const user = Object.values(userData).find((user) => user.email === email);
 
-      if (user && (await bcrypt.compare(password, user.password))) {
-        const storedUser = {
-          key: user.id, // Ensure the user ID is stored correctly
-          role: user.role,
-        };
-        localStorage.setItem("user", JSON.stringify(storedUser));
-        setUser(storedUser);
+      if (user) {
+        if (user.status === "inactive") {
+          message.error("Your account is inactive. Please contact the admin.");
+        } else if (await bcrypt.compare(password, user.password)) {
+          const storedUser = {
+            key: user.id, // Ensure the user ID is stored correctly
+            role: user.role,
+          };
+          localStorage.setItem("user", JSON.stringify(storedUser));
+          setUser(storedUser);
 
-        const userRolePath = user.role === "Admin" ? "/admin" : "/profile";
-        navigate(userRolePath);
-        message.success("Login successful!");
+          const userRolePath = user.role === "Admin" ? "/admin" : "/profile";
+          navigate(userRolePath);
+          message.success("Login successful!");
+        } else {
+          message.error("Invalid email or password.");
+        }
       } else {
         message.error("Invalid email or password.");
       }

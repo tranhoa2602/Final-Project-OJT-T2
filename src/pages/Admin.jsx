@@ -9,6 +9,7 @@ import {
   Pagination,
   Table,
   Tag,
+  Avatar,
 } from "antd";
 import {
   EditOutlined,
@@ -29,6 +30,9 @@ import {
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const { Option } = Select;
+
+const defaultAvatarUrl =
+  "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
 
 function Admin() {
   const { t } = useTranslation();
@@ -64,11 +68,11 @@ function Admin() {
     fetchUsers();
   }, [t]);
 
-  const sendResetPasswordEmail = (email, resetLink) => {
+  const sendVerificationEmail = (email, verifyLink) => {
     const templateParams = {
       to_name: email,
       from_name: "Your Company Name",
-      message: `Click this link to reset your password: ${resetLink}`,
+      message: `Click this link to verify your account: ${verifyLink}`,
     };
 
     emailjs
@@ -89,9 +93,9 @@ function Admin() {
   };
 
   const handleAddOrUpdateUser = async (values) => {
-    const { email, role, status } = values;
+    const { email, role } = values;
 
-    if (!email || !role || !status) {
+    if (!email || !role) {
       message.error(t("Please fill in all fields"));
       return;
     }
@@ -99,49 +103,31 @@ function Admin() {
     try {
       const db = getDatabase();
       const userKey = editMode ? editUserKey : uuidv4();
+      const verificationToken = uuidv4(); // Generate a unique token for verification
       const userRef = ref(db, `users/${userKey}`);
       let userData = {
         id: userKey,
         email,
         password: "1234567", // Default password
-        contact: "",
-        cv_list: [
-          {
-            title: "",
-            description: "",
-            file: "",
-            updatedAt: new Date().toISOString(),
-          },
-        ],
         role,
-        status,
+        status: "inactive", // Set default status to inactive
+        IsExist: "false",
         createdAt: new Date().toISOString(),
-        projetcIds: "",
-        skill: "",
+        verificationToken, // Add the verification token to user data
       };
 
       if (editMode) {
         await update(userRef, userData);
         message.success(t("User updated successfully!"));
       } else {
-        const snapshot = await get(ref(db, "users"));
-        const usersData = snapshot.val();
-        const adminUsers = Object.values(usersData).filter(
-          (user) => user.role === "admin"
-        );
-
-        if (role === "admin" && adminUsers.length === 0) {
-          userData.isAdmin = true;
-        }
-
         await set(userRef, userData);
         message.success(t("User added successfully!"));
 
-        // Send reset password email
-        const resetLink = `http://localhost:5173/reset-password?email=${encodeURIComponent(
+        // Send verification email
+        const verifyLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
           email
-        )}`;
-        sendResetPasswordEmail(email, resetLink);
+        )}&token=${verificationToken}`;
+        sendVerificationEmail(email, verifyLink);
       }
 
       form.resetFields();
@@ -252,10 +238,24 @@ function Admin() {
 
   const columns = [
     {
+      title: t("Profile Picture"),
+      dataIndex: "profilePicture",
+      key: "profilePicture",
+      render: (text, record) => (
+        <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
+      ),
+    },
+    {
       title: t("Email"),
       dataIndex: "email",
       key: "email",
       sorter: (a, b) => a.email.localeCompare(b.email),
+    },
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: t("Role"),
@@ -351,6 +351,9 @@ function Admin() {
         pagination={false}
         className={styles["user-table"]}
         rowKey="key"
+        rowClassName={(record) =>
+          record.IsExist === "false" ? styles["inactive-user-row"] : ""
+        } // Apply class for inactive users
       />
       <Pagination
         current={currentPage}
@@ -392,16 +395,7 @@ function Admin() {
               <Option value="Admin">{t("Admin")}</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            name="status"
-            label={t("Status")}
-            rules={[{ required: true, message: t("Please select a status!") }]}
-          >
-            <Select>
-              <Option value="active">{t("Active")}</Option>
-              <Option value="inactive">{t("Inactive")}</Option>
-            </Select>
-          </Form.Item>
+
           <Form.Item>
             <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
               {editMode ? t("Update User") : t("Add User")}

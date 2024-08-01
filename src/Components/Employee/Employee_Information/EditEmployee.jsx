@@ -189,7 +189,7 @@ const EditEmployee = () => {
           },
         ]}
       >
-        <Input />
+        <InputNumber style={{ width: "100%" }} />
       </Form.Item>
 
       <Form.Item label="Status" name="status" valuePropName="checked">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Space, Table, Button, Tag, message, Input, Select } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
-  SearchOutlined,
 } from "@ant-design/icons";
 import styles from "../../styles/layouts/ViewLanguage.module.scss"; // Import the SCSS module
 
@@ -39,7 +38,7 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(languages);
+        setFilteredData(languages.filter(item => item.deletestatus === false));
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
@@ -51,7 +50,7 @@ const ViewLanguage = () => {
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data;
+      let filtered = data.filter(item => item.deletestatus === false);
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -86,12 +85,42 @@ const ViewLanguage = () => {
       return;
     }
     try {
+      await axios.patch(
+        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
+        { deletestatus: true }
+      );
+      message.success(t("Programming Language moved to bin successfully!"));
+      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
+      setFilteredData(filteredData.filter(item => item.id !== id));
+    } catch (error) {
+      console.error("Error updating deletestatus: ", error);
+      message.error(t("Failed to move Programming Language to bin."));
+    }
+  };
+
+  const handleRestore = async (id) => {
+    try {
+      await axios.patch(
+        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
+        { deletestatus: false }
+      );
+      message.success(t("Programming Language restored successfully!"));
+      setData(data.map(item => item.id === id ? { ...item, deletestatus: false } : item));
+      setFilteredData(filteredData.filter(item => item.id !== id));
+    } catch (error) {
+      console.error("Error restoring Programming Language: ", error);
+      message.error(t("Failed to restore Programming Language."));
+    }
+  };
+
+  const handleDeletePermanently = async (id) => {
+    try {
       await axios.delete(
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
       );
-      message.success(t("Programming Language deleted successfully!"));
-      setData(data.filter((item) => item.id !== id));
-      setFilteredData(filteredData.filter((item) => item.id !== id));
+      message.success(t("Programming Language deleted permanently!"));
+      setData(data.filter(item => item.id !== id));
+      setFilteredData(filteredData.filter(item => item.id !== id));
     } catch (error) {
       console.error("Error deleting Programming Language: ", error);
       message.error(t("Failed to delete Programming Language."));
@@ -210,7 +239,7 @@ const ViewLanguage = () => {
             disabled={record.programingstatus === "Active"}
             onClick={() => handleDelete(record.id, record.programingstatus)}
           >
-            <DeleteOutlined /> {t("Delete")}
+            <DeleteOutlined /> {t("Move to Bin")}
           </Button>
         </Space>
       ),
@@ -220,12 +249,6 @@ const ViewLanguage = () => {
   return (
     <div className={styles["language-list"]}>
       <div className={styles["actions-container"]}>
-        <Input
-          placeholder={t("Search by Name")}
-          value={searchName}
-          onChange={(e) => handleNameFilter(e.target.value)}
-          style={{ width: 200, marginRight: 8 }}
-        />
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -233,6 +256,14 @@ const ViewLanguage = () => {
         >
           {t("Add Programming Language")}
         </Button>
+        <Button
+        type="primary"
+        icon={<DeleteOutlined />}
+        style={{ marginBottom: 16 }}
+        onClick={() => navigate("/LanguageBin")}
+      >
+        {t("View Bin")}
+      </Button>
       </div>
       <Table
         columns={columns}

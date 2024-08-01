@@ -10,11 +10,14 @@ import {
   Table,
   Tag,
   Avatar,
+  Upload,
+  Spin,
 } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   FileExcelOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import { get, getDatabase, ref, remove, set, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +25,12 @@ import { v4 as uuidv4 } from "uuid";
 import * as XLSX from "xlsx";
 import { useTranslation } from "react-i18next";
 import emailjs from "emailjs-com";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import {
   EMAILJS_SERVICE_ID,
   EMAILJS_TEMPLATE_ID,
@@ -38,8 +47,6 @@ function Admin() {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [users, setUsers] = useState([]);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
   const [addModalOpen, setAddModalOpen] = useState(false); // For Add User modal visibility
@@ -47,6 +54,9 @@ function Admin() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [tempProfilePicture, setTempProfilePicture] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +108,11 @@ function Admin() {
 
     if (!email || !role) {
       message.error(t("This email already exists"));
+      return;
+    }
+
+    if (role !== "Admin") {
+      message.error(t("Only Admin role can be created from this page"));
       return;
     }
 
@@ -176,9 +191,27 @@ function Admin() {
         email,
         role,
         status,
-        name,
+        name: values.name,
         updatedAt: new Date().toISOString(),
       };
+
+      if (tempProfilePicture) {
+        setLoading(true);
+        const storage = getStorage();
+        const storageReference = storageRef(
+          storage,
+          `profilePictures/${tempProfilePicture.name}`
+        );
+        const snapshot = await uploadBytes(
+          storageReference,
+          tempProfilePicture
+        );
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        userDataToUpdate.profilePicture = downloadURL;
+        setProfilePicture(downloadURL);
+        setTempProfilePicture(null);
+        setLoading(false);
+      }
 
       await update(userRef, userDataToUpdate);
       message.success(t("User updated successfully!"));
@@ -248,6 +281,7 @@ function Admin() {
       status: user.status,
       name: user.name,
     });
+    setProfilePicture(user.profilePicture || defaultAvatarUrl);
     setEditMode(true);
     setEditUserKey(user.key);
     setEditModalOpen(true);
@@ -377,6 +411,58 @@ function Admin() {
     },
   ];
 
+  const handleProfilePictureChange = ({ file }) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error(t("You can only upload JPG/PNG files!"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setTempProfilePicture(file);
+      setProfilePicture(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleProfilePictureUpload = async () => {
+    try {
+      if (!tempProfilePicture) {
+        message.warning(t("No picture to upload"));
+        return;
+      }
+
+      setLoading(true);
+
+      const storageReference = storageRef(
+        getStorage(),
+        `profilePictures/${tempProfilePicture.name}`
+      );
+      const snapshot = await uploadBytes(storageReference, tempProfilePicture);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("File uploaded, download URL:", downloadURL);
+      setProfilePicture(downloadURL);
+      setTempProfilePicture(null);
+
+      // Update profile picture URL in Firebase Realtime Database
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser && storedUser.key) {
+        const db = getDatabase();
+        const userRef = ref(db, `users/${storedUser.key}`);
+        await update(userRef, { profilePicture: downloadURL });
+        message.success(t("Profile picture updated successfully"));
+      } else {
+        message.error(t("User not authenticated"));
+      }
+    } catch (error) {
+      console.error(t("Error uploading profile picture: "), error);
+      message.error(t("Error uploading profile picture"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles["admin-page"]}>
       <h1>{t("Admin Page")}</h1>
@@ -449,10 +535,10 @@ function Admin() {
           <Form.Item
             name="role"
             label={t("Role")}
+            initialValue="Admin"
             rules={[{ required: true, message: t("Please select a role!") }]}
           >
-            <Select>
-              <Option value="Employee">{t("Employee")}</Option>
+            <Select disabled>
               <Option value="Admin">{t("Admin")}</Option>
             </Select>
           </Form.Item>
@@ -482,49 +568,90 @@ function Admin() {
         footer={null}
         destroyOnClose={true}
       >
-        <Form form={form} onFinish={handleUpdateUser} layout="vertical">
-          <Form.Item
-            name="email"
-            label={t("Email")}
-            rules={[
-              { required: true, message: t("Please input your email!") },
-              {
-                validator: (_, value) =>
-                  value && validateEmail(value)
-                    ? Promise.resolve()
-                    : Promise.reject(t("Please enter a valid email address")),
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+        <Spin spinning={loading}>
+          <Form form={form} onFinish={handleUpdateUser} layout="vertical">
+            <Form.Item
+              name="email"
+              label={t("Email")}
+              rules={[
+                { required: true, message: t("Please input your email!") },
+                {
+                  validator: (_, value) =>
+                    value && validateEmail(value)
+                      ? Promise.resolve()
+                      : Promise.reject(t("Please enter a valid email address")),
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            name="role"
-            label={t("Role")}
-            rules={[{ required: true, message: t("Please select a role!") }]}
-          >
-            <Select>
-              <Option value="Employee">{t("Employee")}</Option>
-              <Option value="Admin">{t("Admin")}</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="status"
-            label={t("Status")}
-            rules={[{ required: true, message: t("Please select a status!") }]}
-          >
-            <Select>
-              <Option value="active">{t("Active")}</Option>
-              <Option value="inactive">{t("Inactive")}</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" style={{ width: "100%" }}>
-              {t("Update User")}
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item
+              name="role"
+              label={t("Role")}
+              initialValue="Admin"
+              rules={[{ required: true, message: t("Please select a role!") }]}
+            >
+              <Select disabled>
+                <Option value="Admin">{t("Admin")}</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="status"
+              label={t("Status")}
+              rules={[
+                { required: true, message: t("Please select a status!") },
+              ]}
+            >
+              <Select>
+                <Option value="active">{t("Active")}</Option>
+                <Option value="inactive">{t("Inactive")}</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item name="name" label={t("Name")}>
+              <Input />
+            </Form.Item>
+
+            <Form.Item label={t("Profile Picture")} valuePropName="file">
+              <Upload
+                showUploadList={false}
+                beforeUpload={() => false}
+                onChange={handleProfilePictureChange}
+              >
+                <Button icon={<UploadOutlined />}>
+                  {t("Change Profile Picture")}
+                </Button>
+              </Upload>
+              {tempProfilePicture && (
+                <Button
+                  type="primary"
+                  onClick={handleProfilePictureUpload}
+                  className={styles.confirmUploadButton}
+                  style={{ marginTop: "10px" }}
+                >
+                  {t("Confirm Upload")}
+                </Button>
+              )}
+              {profilePicture && (
+                <Avatar
+                  src={profilePicture}
+                  size={100}
+                  style={{ marginTop: "10px" }}
+                />
+              )}
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ width: "100%" }}
+              >
+                {t("Update User")}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Spin>
       </Modal>
     </div>
   );

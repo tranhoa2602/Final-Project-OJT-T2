@@ -18,8 +18,17 @@ const ProfileDetail = () => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (storedUser && storedUser.key) {
           const db = getDatabase();
-          const userRef = ref(db, `users/${storedUser.key}`);
-          const snapshot = await get(userRef);
+
+          // Try to get user data from "users" reference
+          let userRef = ref(db, `users/${storedUser.key}`);
+          let snapshot = await get(userRef);
+
+          if (!snapshot.exists()) {
+            // If not found, try to get data from "employees" reference
+            userRef = ref(db, `employees/${storedUser.key}`);
+            snapshot = await get(userRef);
+          }
+
           if (snapshot.exists()) {
             setUserData(snapshot.val());
           } else {
@@ -91,15 +100,34 @@ const ProfileDetail = () => {
           </Col>
           <Col span={12}>
             <p>
+              <strong>{t("Position")}:</strong> {userData.positionName}
+            </p>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <p>
               <strong>{t("Skills")}:</strong> {userData.skill}
+            </p>
+          </Col>
+          <Col span={12}>
+            <p>
+              <strong>{t("Address")}:</strong> {userData.address}
             </p>
           </Col>
         </Row>
         <p>
-          <strong>{t("Address")}:</strong> {userData.address}
-        </p>
-        <p>
-          <strong>{t("Work Experience")}:</strong> {userData.experience}
+          <strong>{t("Work Experience")}:</strong>
+          {userData.cv_list &&
+          userData.cv_list.length > 0 &&
+          userData.cv_list[0].cv_experience
+            ? userData.cv_list[0].cv_experience.map((exp, index) => (
+                <span key={index}>
+                  {exp.description}
+                  {index < userData.cv_list[0].cv_experience.length - 1 && ", "}
+                </span>
+              ))
+            : t("No work experience available")}
         </p>
         <p>
           <strong>{t("Education")}:</strong> {userData.education}

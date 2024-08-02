@@ -13,8 +13,6 @@ import {
 import { getDatabase, ref, get, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import styles from "../../styles/layouts/ProfileDetail.module.scss";
 
 const { Option } = Select;
@@ -133,18 +131,6 @@ const ProfileDetail = () => {
     }
   };
 
-  const exportToPDF = async () => {
-    const input = document.getElementById("profile-detail");
-    const canvas = await html2canvas(input);
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const imgProperties = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("profile-detail.pdf");
-  };
-
   if (!userData) {
     return <div>{t("Loading...")}</div>;
   }
@@ -157,15 +143,12 @@ const ProfileDetail = () => {
     <div className={styles.profilePage} id="profile-detail">
       <Card title={t("Profile Detail")} className={styles.profileCard}>
         <div className={styles.profileHeader}>
-          <Avatar size={100} src={userData.profilePicture} />
+          <Avatar size={200} src={userData.profilePicture} />
           <div className={styles.userInfo}>
             <h2>{userData.name}</h2>
             <p>{userData.email}</p>
             <Button type="primary" onClick={() => navigate("/edit-profile")}>
               {t("Edit Profile")}
-            </Button>
-            <Button onClick={exportToPDF} className={styles.exportButton}>
-              {t("Export to PDF")}
             </Button>
           </div>
         </div>
@@ -208,14 +191,14 @@ const ProfileDetail = () => {
         <p>
           <strong>{t("Work Experience")}:</strong>
           {userData.cv_list &&
-            userData.cv_list.length > 0 &&
-            userData.cv_list[0].cv_experience
+          userData.cv_list.length > 0 &&
+          userData.cv_list[0].cv_experience
             ? userData.cv_list[0].cv_experience.map((exp, index) => (
-              <span key={index}>
-                {exp.description}
-                {index < userData.cv_list[0].cv_experience.length - 1 && ", "}
-              </span>
-            ))
+                <span key={index}>
+                  {exp.description}
+                  {index < userData.cv_list[0].cv_experience.length - 1 && ", "}
+                </span>
+              ))
             : t("No work experience available")}
         </p>
         <p>

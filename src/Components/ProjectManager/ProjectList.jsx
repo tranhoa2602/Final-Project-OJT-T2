@@ -14,6 +14,7 @@ import { saveAs } from "file-saver";
 
 const ListProject = () => {
   const { t } = useTranslation();
+  const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,6 +23,10 @@ const ListProject = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
+    }
     fetchProjects();
   }, []);
 
@@ -46,10 +51,9 @@ const ListProject = () => {
     const project = projects.find((project) => project.id === id);
     if (
       project &&
-      project.startDate <= new Date() &&
-      project.endDate >= new Date()
+      (project.status === "Ongoing" || project.status === "Pending")
     ) {
-      message.error(t("Cannot delete an ongoing project!"));
+      message.error(t("Cannot delete an ongoing or pending project!"));
       return;
     }
 
@@ -115,21 +119,26 @@ const ListProject = () => {
       key: "actions",
       render: (text, record) => (
         <>
-          <Link to={`/projects/details/${record.id}`}>
-            <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
-          </Link>
-          <Link to={`/projects/edit/${record.id}`}>
-            <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
-              {t("Edit")}
-            </Button>
-          </Link>
-          <Button
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-            style={{ marginLeft: 8 }}
-          >
-            {t("Delete")}
-          </Button>
+
+          {user?.position === "Project Manager" && (
+            <>
+              <Link to={`/projects/details/${record.id}`}>
+                <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
+              </Link>
+              <Link to={`/projects/edit/${record.id}`}>
+                <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
+                  {t("Edit")}
+                </Button>
+              </Link>
+              <Button
+                icon={<DeleteOutlined />}
+                onClick={() => handleDelete(record.id)}
+                style={{ marginLeft: 8 }}
+              >
+                {t("Delete")}
+              </Button>
+            </>
+          )}
         </>
       ),
     },
@@ -210,12 +219,16 @@ const ListProject = () => {
           style={{ width: 200 }}
         />
 
-        <Button type="primary" onClick={showModal}>
-          {t("Create new project")}
-        </Button>
-        <Button type="primary" onClick={exportToExcel}>
-          {t("Export to Excel")}
-        </Button>
+        {user?.position === "Project Manager" && (
+          <Button type="primary" onClick={showModal}>
+            {t("Create new project")}
+          </Button>
+        )}
+        {user?.position === "Project Manager" && (
+          <Button type="primary" onClick={exportToExcel}>
+            {t("Export to Excel")}
+          </Button>
+        )}
       </Space>
       <Table
         columns={columns}

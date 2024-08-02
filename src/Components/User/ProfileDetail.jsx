@@ -34,12 +34,10 @@ const ProfileDetail = () => {
         if (storedUser && storedUser.key) {
           const db = getDatabase();
 
-          // Try to get user data from "users" reference
           let userRef = ref(db, `users/${storedUser.key}`);
           let snapshot = await get(userRef);
 
           if (!snapshot.exists()) {
-            // If not found, try to get data from "employees" reference
             userRef = ref(db, `employees/${storedUser.key}`);
             snapshot = await get(userRef);
           }
@@ -91,18 +89,34 @@ const ProfileDetail = () => {
     try {
       const db = getDatabase();
       const userRef = ref(db, `employees/${userData.key}`);
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
+      const projectRef = ref(db, `projects/${selectedProject}`);
+      const [userSnapshot, projectSnapshot] = await Promise.all([
+        get(userRef),
+        get(projectRef),
+      ]);
+
+      if (userSnapshot.exists() && projectSnapshot.exists()) {
+        const userData = userSnapshot.val();
+        const projectData = projectSnapshot.val();
+
         const userProjects = userData.projects || [];
+        const projectEmployees = projectData.employees || [];
+
         if (userProjects.includes(selectedProject)) {
           message.error(t("User is already in this project"));
           return;
         }
+
         userProjects.push(selectedProject);
         await update(userRef, { projects: userProjects });
+
+        projectEmployees.push(userData.key);
+        await update(projectRef, { employees: projectEmployees });
+
         setUserData({ ...userData, projects: userProjects });
         message.success(t("Project joined successfully"));
+      } else {
+        message.error(t("Failed to fetch user or project data"));
       }
     } catch (error) {
       console.error(t("Error joining project: "), error);
@@ -118,14 +132,31 @@ const ProfileDetail = () => {
     try {
       const db = getDatabase();
       const userRef = ref(db, `employees/${userData.key}`);
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
+      const projectRef = ref(db, `projects/${projectId}`);
+      const [userSnapshot, projectSnapshot] = await Promise.all([
+        get(userRef),
+        get(projectRef),
+      ]);
+
+      if (userSnapshot.exists() && projectSnapshot.exists()) {
+        const userData = userSnapshot.val();
+        const projectData = projectSnapshot.val();
+
         const userProjects = userData.projects || [];
-        const updatedProjects = userProjects.filter((id) => id !== projectId);
-        await update(userRef, { projects: updatedProjects });
-        setUserData({ ...userData, projects: updatedProjects });
+        const updatedUserProjects = userProjects.filter((id) => id !== projectId);
+
+        const projectEmployees = projectData.employees || [];
+        const updatedProjectEmployees = projectEmployees.filter(
+          (empId) => empId !== userData.key
+        );
+
+        await update(userRef, { projects: updatedUserProjects });
+        await update(projectRef, { employees: updatedProjectEmployees });
+
+        setUserData({ ...userData, projects: updatedUserProjects });
         message.success(t("Project removed successfully"));
+      } else {
+        message.error(t("Failed to fetch user or project data"));
       }
     } catch (error) {
       console.error(t("Error removing project: "), error);
@@ -218,6 +249,7 @@ const ProfileDetail = () => {
             ))
             : t("No work experience available")}
         </p>
+
         <p>
           <strong>{t("Education")}:</strong> {userData.education}
         </p>

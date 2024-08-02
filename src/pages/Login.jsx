@@ -58,6 +58,7 @@ const Login = ({ setUser }) => {
       const storedUser = {
         key: user.id, // Ensure the user ID is stored correctly
         role: isEmployee ? "Employee" : user.role,
+        position: isEmployee ? user.positionName : null,
       };
       localStorage.setItem("user", JSON.stringify(storedUser));
       setUser(storedUser);

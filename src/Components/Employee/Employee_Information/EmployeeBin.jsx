@@ -146,7 +146,7 @@ const EmployeeBin = () => {
       <Space className={styles["actions-container"]}>
         <Button
           type="default"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/list")}
           className={styles["back-button"]}
         >
           {t("Back to List")}

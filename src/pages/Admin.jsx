@@ -32,7 +32,6 @@ function Admin() {
   const [tempProfilePicture, setTempProfilePicture] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [formConnected, setFormConnected] = useState(false); // New state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,15 +45,12 @@ function Admin() {
           const userData = snapshot.val();
           if (userData) {
             setUser(userData);
-            if (formConnected) {
-              // Only set fields if form is connected
-              form.setFieldsValue(userData);
-              setProfilePicture(userData.profilePicture || defaultAvatarUrl);
-            }
+            form.setFieldsValue(userData);
+            setProfilePicture(userData.profilePicture || defaultAvatarUrl);
+          } else {
+            message.error(t("User not authenticated"));
+            navigate("/");
           }
-        } else {
-          message.error(t("User not authenticated"));
-          navigate("/");
         }
       } catch (error) {
         message.error(t("Error fetching user data"));
@@ -63,7 +59,7 @@ function Admin() {
     };
 
     fetchUser();
-  }, [formConnected, form, navigate, t]);
+  }, [form, navigate, t]);
 
   const handleUpdateUser = async (values) => {
     if (!values.email || !values.role || !values.status) {
@@ -202,12 +198,6 @@ function Admin() {
             <p>
               <strong>{t("Status")}:</strong> {user.status}
             </p>
-            <p>
-              <strong>{t("Skills")}:</strong> {user.skill}
-            </p>
-            <p>
-              <strong>{t("Address")}:</strong> {user.address}
-            </p>
           </div>
           <Modal
             title={t("Edit Profile")}
@@ -215,15 +205,9 @@ function Admin() {
             onCancel={() => setEditModalOpen(false)}
             footer={null}
             destroyOnClose={true}
-            afterClose={() => setFormConnected(false)} // Reset formConnected after closing the modal
           >
             <Spin spinning={loading}>
-              <Form
-                form={form}
-                onFinish={handleUpdateUser}
-                layout="vertical"
-                onFieldsChange={() => setFormConnected(true)} // Set formConnected to true after form fields are connected
-              >
+              <Form form={form} onFinish={handleUpdateUser} layout="vertical">
                 <Form.Item
                   name="email"
                   label={t("Email")}
@@ -259,29 +243,6 @@ function Admin() {
                     {
                       required: true,
                       message: t("Please input your phone number!"),
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-
-                <Form.Item
-                  name="skill"
-                  label={t("Skills")}
-                  rules={[
-                    { required: true, message: t("Please input your skills!") },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-
-                <Form.Item
-                  name="address"
-                  label={t("Address")}
-                  rules={[
-                    {
-                      required: true,
-                      message: t("Please input your address!"),
                     },
                   ]}
                 >

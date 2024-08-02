@@ -84,15 +84,18 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
     }, []);
 
     const determineStatus = (startDate, endDate) => {
-        const today = moment();
-        if (today.isBefore(startDate)) {
+        const today = moment().startOf('day'); // Start of the day for accurate comparison
+        const start = moment(startDate).startOf('day');
+        const end = moment(endDate).startOf('day');
+
+        if (today.isBefore(start)) {
             return "Not Started";
-        } else if (today.isBetween(startDate, endDate, null, "[]")) {
+        } else if (today.isBetween(start, end, null, "[]")) {
             return "Ongoing";
-        } else if (today.isAfter(endDate)) {
+        } else if (today.isAfter(end)) {
             return "Completed";
         }
-        return "Pending";
+        return "Pending"; // Default case, although it might not be needed based on your requirements
     };
 
     const handleSave = async (values) => {

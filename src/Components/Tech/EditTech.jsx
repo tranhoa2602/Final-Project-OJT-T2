@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message, Switch, Select, Upload } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select, Upload, Spin } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useParams, useNavigate } from "react-router-dom";
@@ -21,6 +21,13 @@ const formItemLayout = {
   },
 };
 
+const spinnerStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100vh',
+};
+
 const EditTech = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -29,10 +36,12 @@ const EditTech = () => {
   const [initialValues, setInitialValues] = useState(null);
   const [existingTypes, setExistingTypes] = useState([]);
   const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchTech = async () => {
       try {
+        setLoading(true); 
         const response = await axios.get(
           `${firebaseConfig.databaseURL}/technologies/${id}.json`
         );
@@ -48,9 +57,11 @@ const EditTech = () => {
             url
           })));
         }
+        setLoading(false);
       } catch (error) {
         console.error(t("Error fetching technology:"), error);
         message.error(t("Failed to fetch technology."));
+        setLoading(false);
       }
     };
 
@@ -73,7 +84,7 @@ const EditTech = () => {
   const handleUpload = async () => {
     const storage = getStorage();
     const uploadPromises = fileList.map(file => {
-      if (file.url) return Promise.resolve(file.url); // Skip URLs that are already in storage
+      if (file.url) return Promise.resolve(file.url);
       const storageRef = ref(storage, `techimage/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file.originFileObj);
 
@@ -93,6 +104,7 @@ const EditTech = () => {
 
   const handleSubmit = async (values) => {
     try {
+      setLoading(true);
       values.techstatus = values.techstatus ? "Active" : "Inactive";
       values.deletestatus = false;
 
@@ -114,6 +126,8 @@ const EditTech = () => {
     } catch (error) {
       console.error(t("Error updating technology:"), error);
       message.error(t("Failed to update technology."));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,8 +140,12 @@ const EditTech = () => {
     return wordCount <= 20 ? Promise.resolve() : Promise.reject(new Error(t("Description cannot exceed 20 words")));
   };
 
-  if (!initialValues) {
-    return <div>Loading...</div>;
+  if (loading || !initialValues) {
+    return (
+      <div style={spinnerStyle}>
+        <Spin tip={t("Loading...")} />
+      </div>
+    );
   }
 
   return (
@@ -181,7 +199,7 @@ const EditTech = () => {
         <Upload
           fileList={fileList}
           onChange={({ fileList }) => setFileList(fileList)}
-          beforeUpload={() => false} // Prevent automatic upload
+          beforeUpload={() => false}
           listType="picture"
           multiple
         >
@@ -189,7 +207,7 @@ const EditTech = () => {
         </Upload>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={loading}>
           {t("Submit")}
         </Button>
         <Button

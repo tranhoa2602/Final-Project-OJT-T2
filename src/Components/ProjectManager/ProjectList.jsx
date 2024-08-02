@@ -119,10 +119,14 @@ const ListProject = () => {
       key: "actions",
       render: (text, record) => (
         <>
-          <Link to={`/projects/details/${record.id}`}>
-            <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
-          </Link>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
+            <Link to={`/projects/details/${record.id}`}>
+              <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
+            </Link>
+          )}
+
+          {(user?.position === "Project Manager" && user?.name === record.projectManager) ||
+            user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
@@ -137,7 +141,7 @@ const ListProject = () => {
                 {t("Delete")}
               </Button>
             </>
-          )}
+          ) : null}
         </>
       ),
     },

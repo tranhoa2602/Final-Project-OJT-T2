@@ -26,6 +26,7 @@ import CreateProject from "../ProjectManager/CreateProject";
 import DetailProject from "../ProjectManager/DetailProject";
 import TechBin from "../Tech/TechBin";
 import LanguageBin from "../Language/LanguageBin";
+import ProjectBin from "../ProjectManager/ProjectBin.jsx";
 import EmployeeBin from "../Employee/Employee_Information/EmployeeBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
 // import AssignEmployee from "../ProjectManager/AssignEmployee/Assign"; // Import AssignEmployee
@@ -107,6 +108,7 @@ const Main = () => {
           <Route path="/TechBin" element={<TechBin />} />
           <Route path="/LanguageBin" element={<LanguageBin />} />
           <Route path="/EmployeeBin" element={<EmployeeBin />} />
+          <Route path="/ProjectBin" element={<ProjectBin />} />
         </Routes>
       </main>
     </EmployeeProvider>

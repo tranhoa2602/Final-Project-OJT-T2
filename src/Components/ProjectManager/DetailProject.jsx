@@ -91,6 +91,18 @@ const DetailProject = () => {
     };
 
     await update(projectRef, updatedProject);
+
+    // Cập nhật project vào employee
+    const employeeRef = ref(db, `employees/${values.employee}`);
+    const employeeSnapshot = await get(employeeRef);
+    const employeeData = employeeSnapshot.val();
+    const employeeProjects = employeeData.projects ? employeeData.projects : [];
+    const updatedEmployee = {
+      ...employeeData,
+      projects: [...new Set([...employeeProjects, id])],
+    };
+    await update(employeeRef, updatedEmployee);
+
     message.success(t("Employee assigned successfully!"));
     setIsAssignModalVisible(false);
     form.resetFields();
@@ -125,6 +137,19 @@ const DetailProject = () => {
     };
 
     await update(projectRef, updatedProject);
+
+    // Xóa project từ employee
+    const employeeRef = ref(db, `employees/${values.employee}`);
+    const employeeSnapshot = await get(employeeRef);
+    const employeeData = employeeSnapshot.val();
+    const employeeProjects = employeeData.projects ? employeeData.projects : [];
+    const updatedEmployeeProjects = employeeProjects.filter((proj) => proj !== id);
+    const updatedEmployee = {
+      ...employeeData,
+      projects: updatedEmployeeProjects,
+    };
+    await update(employeeRef, updatedEmployee);
+
     message.success(t("Employee unassigned successfully!"));
     setIsUnassignModalVisible(false);
     form.resetFields();
@@ -193,10 +218,10 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Assigned Employees")}>
               {employees.length > 0
                 ? employees.map((employee) => (
-                    <Tag key={employee.id} color="purple">
-                      {employee.name}
-                    </Tag>
-                  ))
+                  <Tag key={employee.id} color="purple">
+                    {employee.name}
+                  </Tag>
+                ))
                 : t("No employees assigned")}
             </Descriptions.Item>
           </Descriptions>
@@ -296,3 +321,4 @@ const DetailProject = () => {
 };
 
 export default DetailProject;
+

@@ -160,7 +160,15 @@ const CreateEmployee = () => {
   return (
     <div style={{ height: "100vh", marginTop: "20px" }}>
       {loading ? (
-        <Spin size="large" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }} />
+        <Spin
+          size="large"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        />
       ) : (
         <Form
           form={form}
@@ -216,17 +224,6 @@ const CreateEmployee = () => {
 
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={4} />
-          </Form.Item>
-
-          <Form.Item
-            label="CV Upload"
-            name="cv_file"
-            valuePropName="file"
-            getValueFromEvent={handleCvUpload}
-          >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button>Upload CV</Button>
-            </Upload>
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

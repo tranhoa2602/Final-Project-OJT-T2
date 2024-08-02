@@ -205,15 +205,9 @@ function Admin() {
             onCancel={() => setEditModalOpen(false)}
             footer={null}
             destroyOnClose={true}
-            afterClose={() => setFormConnected(false)} // Reset formConnected after closing the modal
           >
             <Spin spinning={loading}>
-              <Form
-                form={form}
-                onFinish={handleUpdateUser}
-                layout="vertical"
-                onFieldsChange={() => setFormConnected(true)} // Set formConnected to true after form fields are connected
-              >
+              <Form form={form} onFinish={handleUpdateUser} layout="vertical">
                 <Form.Item
                   name="email"
                   label={t("Email")}

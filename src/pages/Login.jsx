@@ -33,8 +33,8 @@ const Login = ({ setUser }) => {
         const employeeData = employeeSnapshot.val();
         const employee = employeeData
           ? Object.values(employeeData).find(
-              (employee) => employee.email === email
-            )
+            (employee) => employee.email === email
+          )
           : null;
 
         if (employee) {

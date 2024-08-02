@@ -140,7 +140,7 @@ i18n
                     'Failed to update project': 'Failed to update project',
                     'Tags Mode': 'Tags Mode',
                     'Detail': 'Detail',
-                    'Cannot delete an ongoing project!': 'Cannot delete an ongoing project!',
+                    'Cannot delete an ongoing or pending project!': 'Cannot delete an ongoing or pending project!',
                     'Project deleted successfully!': 'Project deleted successfully!',
                     'Project added successfully!': 'Project added successfully!',
                     "Can't delete status active": "Can't delete status active",
@@ -227,7 +227,9 @@ i18n
                     "Employee not found.": "Employee not found.",
                     "Error deleting employee: ": "Error deleting employee: ",
                     'Employee Name': 'Employee Name',
-
+                    'Cannot delete an active position.': 'Cannot delete an active position.',
+                    'Export to PDF': 'Export to PDF',
+                    'Back to Programming Language List': 'Back to Programming Language List',
                 }
             },
             vi: {
@@ -365,7 +367,7 @@ i18n
                     'Failed to update project': 'Cập nhật Dự án thất bại',
                     'Tags Mode': 'Chế độ Tags',
                     'Detail': 'Chi tiết',
-                    'Cannot delete an ongoing project!': 'Không thể xóa dự án đang tiến hành',
+                    'Cannot delete an ongoing or pending project!': 'Không thể xóa dự án đang diễn ra hoặc đang chờ xử lý!',
                     'Project deleted successfully!': 'Xóa dự án thành công!',
                     'Project added successfully!': 'Thêm dự án thành công!',
                     "Can't delete status active": "Không thể xóa trạng thái đang hoạt động",
@@ -452,6 +454,9 @@ i18n
                     "Employee not found.": "Không tìm thấy nhân viên.",
                     "Error deleting employee: ": "Lỗi khi xóa nhân viên: ",
                     'Employee Name': 'Tên Nhân viên',
+                    'Cannot delete an active position.': 'Không thể xóa vị trí đang hoạt động.',
+                    'Export to PDF': 'Xuất ra PDF',
+                    'Back to Programming Language List': 'Quay lại danh sách ngôn ngữ lập trình',
                 }
             }
         },

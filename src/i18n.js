@@ -230,6 +230,21 @@ i18n
                     'Cannot delete an active position.': 'Cannot delete an active position.',
                     'Export to PDF': 'Export to PDF',
                     'Back to Programming Language List': 'Back to Programming Language List',
+                    'Employee assigned successfully!': 'Employee assigned successfully!',
+                    'Assign Employee to Project': 'Assign Employee to Project',
+                    'Please select a project!': 'Please select a project!',
+                    'Assigned Employees': 'Assigned Employees',
+                    'No employees assigned': 'No employees assigned',
+                    'Assign Employee': 'Assign Employee',
+                    'Unassign Employee': 'Unassign Employee',
+                    'Please select an employee!': 'Please select an employee!',
+                    'Select an employee': 'Select an employee',
+                    'Assign': 'Assign',
+                    'Unassign Employee from Project': 'Unassign Employee from Project',
+                    'Unassign': 'Unassign',
+                    'Employee unassigned successfully!': 'Employee unassigned successfully!',
+                    'Employee is already assigned to this project!': 'Employee is already assigned to this project!',
+
                 }
             },
             vi: {
@@ -457,6 +472,22 @@ i18n
                     'Cannot delete an active position.': 'Không thể xóa vị trí đang hoạt động.',
                     'Export to PDF': 'Xuất ra PDF',
                     'Back to Programming Language List': 'Quay lại danh sách ngôn ngữ lập trình',
+                    'Employee assigned successfully!': 'Nhân viên đã được phân công thành công!',
+                    'Assign Employee to Project': 'Chỉ định nhân viên cho dự án',
+                    'Please select a project!': 'Vui lòng chọn một dự án!',
+                    'Assigned Employees': 'Nhân viên đã được phân công',
+                    'No employees assigned': 'Không có nhân viên nào được chỉ định',
+                    'Assign Employee': 'Chỉ định nhân viên',
+                    'Unassign Employee': 'Bỏ phân công nhân viên',
+                    'Please select an employee!': 'Vui lòng chọn một nhân viên!',
+                    'Select an employee': 'Chọn một nhân viên',
+                    'Assign': 'Giao',
+                    'Unassign Employee from Project': 'Bỏ phân công nhân viên khỏi dự án',
+                    'Unassign': 'Bỏ giao',
+                    'Employee unassigned successfully!': 'Đã hủy phân công nhân viên thành công!',
+                    'Employee is already assigned to this project!': 'Nhân viên đã được phân công vào dự án này!',
+
+
                 }
             }
         },

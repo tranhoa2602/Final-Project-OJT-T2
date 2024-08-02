@@ -33,8 +33,8 @@ const Login = ({ setUser }) => {
         const employeeData = employeeSnapshot.val();
         const employee = employeeData
           ? Object.values(employeeData).find(
-              (employee) => employee.email === email
-            )
+            (employee) => employee.email === email
+          )
           : null;
 
         if (employee) {
@@ -58,6 +58,7 @@ const Login = ({ setUser }) => {
       const storedUser = {
         key: user.id, // Ensure the user ID is stored correctly
         role: isEmployee ? "Employee" : user.role,
+        position: isEmployee ? user.positionName : null,
       };
       localStorage.setItem("user", JSON.stringify(storedUser));
       setUser(storedUser);

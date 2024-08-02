@@ -269,7 +269,7 @@ const ViewLanguage = () => {
         columns={columns}
         dataSource={filteredData}
         rowKey="id"
-        pagination={{ current: currentPage, pageSize: pageSize }}
+        pagination={{ current: currentPage, pageSize: 5 }}
         onChange={handleTableChange}
       />
     </div>

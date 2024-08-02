@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message, Switch, Select, Upload } from "antd";
+import { Button, Form, Input, Typography, message, Switch, Select, Upload, Spin } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,7 @@ const AddTech = () => {
   const navigate = useNavigate();
   const [existingTypes, setExistingTypes] = useState([]);
   const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(false); // State for loading spinner
 
   useEffect(() => {
     const fetchExistingTypes = async () => {
@@ -46,12 +47,11 @@ const AddTech = () => {
     const storage = getStorage();
     const uploadPromises = fileList.map(file => {
       const storageRef = ref(storage, `techimage/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file.originFileObj); // Use originFileObj
+      const uploadTask = uploadBytesResumable(storageRef, file.originFileObj); 
 
       return new Promise((resolve, reject) => {
         uploadTask.on('state_changed',
           snapshot => {
-            // Optional: Track progress
           },
           error => {
             console.error("Upload error: ", error);
@@ -59,7 +59,7 @@ const AddTech = () => {
           },
           () => {
             getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
-              console.log("Download URL retrieved: ", downloadURL); // Log the URL
+              console.log("Download URL retrieved: ", downloadURL); 
               resolve(downloadURL);
             }).catch(error => {
               console.error("Error getting download URL: ", error);
@@ -74,23 +74,16 @@ const AddTech = () => {
   };
 
   const handleSubmit = async (values) => {
+    setLoading(true); // Set loading to true when submission starts
     try {
       values.techstatus = values.techstatus ? "Active" : "Inactive";
-      values.deletestatus = false; // Set deletestatus to false by default
+      values.deletestatus = false;
 
-      // Log to check fileList before uploading
-      console.log("File List: ", fileList);
-
-      // Upload images and get their URLs
       const imageUrls = await handleUpload();
-
-      // Log the obtained image URLs
-      console.log("Uploaded Image URLs: ", imageUrls);
 
       if (imageUrls.length > 0) {
         values.imageUrls = imageUrls;
 
-        // Add the technology with image URLs to the database
         await axios.post(
           `${firebaseConfig.databaseURL}/technologies.json`,
           values
@@ -98,7 +91,7 @@ const AddTech = () => {
 
         message.success(t("Technology added successfully!"));
         form.resetFields();
-        setFileList([]); // Clear the uploaded file list
+        setFileList([]);
         navigate("/TechList");
       } else {
         console.error("No image URLs were retrieved.");
@@ -107,6 +100,8 @@ const AddTech = () => {
     } catch (error) {
       console.error("Error adding technology: ", error);
       message.error(t("Failed to add technology."));
+    } finally {
+      setLoading(false); // Set loading to false when submission ends
     }
   };
 
@@ -120,78 +115,80 @@ const AddTech = () => {
   };
 
   return (
-    <Form
-      {...formItemLayout}
-      form={form}
-      onFinish={handleSubmit}
-      onFinishFailed={handleFailure}
-      style={{ height: "100vh" }}
-      initialValues={{ techstatus: true }}
-    >
-      <Title level={2}>{t("Add New Technology")}</Title>
-      <Form.Item
-        label={t("Tech Name")}
-        name="techname"
-        rules={[{ required: true, message: t("Please input Tech Name!") }]}
+    <Spin spinning={loading}> {/* Wrap the form with Spin */}
+      <Form
+        {...formItemLayout}
+        form={form}
+        onFinish={handleSubmit}
+        onFinishFailed={handleFailure}
+        style={{ height: "100vh" }}
+        initialValues={{ techstatus: true }}
       >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label={t("Tech Type")}
-        name="techtype"
-        rules={[{ required: true, message: t("Please input Tech Type!") }]}
-      >
-        <Select
-          mode="tags"
-          style={{ width: "100%" }}
-          placeholder={t("Tags Mode")}
-          options={existingTypes.map(type => ({ label: type, value: type }))}
-        />
-      </Form.Item>
-      <Form.Item
-        label={t("Tech Status")}
-        name="techstatus"
-        valuePropName="checked"
-      >
-        <Switch
-          checkedChildren={t("Active")}
-          unCheckedChildren={t("Inactive")}
-        />
-      </Form.Item>
-      <Form.Item
-        label={t("Tech Description")}
-        name="techdescription"
-        rules={[{ validator: validateDescription }]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label={t("Upload Images")}
-        name="techimages"
-      >
-        <Upload
-          fileList={fileList}
-          onChange={({ fileList }) => setFileList(fileList)}
-          beforeUpload={() => false} // Prevent automatic upload
-          listType="picture"
-          multiple
+        <Title level={2}>{t("Add New Technology")}</Title>
+        <Form.Item
+          label={t("Tech Name")}
+          name="techname"
+          rules={[{ required: true, message: t("Please input Tech Name!") }]}
         >
-          <Button icon={<UploadOutlined />}>{t("Select Images")}</Button>
-        </Upload>
-      </Form.Item>
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          {t("Submit")}
-        </Button>
-        <Button
-          type="primary"
-          style={{ marginLeft: 8 }}
-          onClick={() => navigate("/TechList")}
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label={t("Tech Type")}
+          name="techtype"
+          rules={[{ required: true, message: t("Please input Tech Type!") }]}
         >
-          {t("Back to Tech List")}
-        </Button>
-      </Form.Item>
-    </Form>
+          <Select
+            mode="tags"
+            style={{ width: "100%" }}
+            placeholder={t("Tags Mode")}
+            options={existingTypes.map(type => ({ label: type, value: type }))}
+          />
+        </Form.Item>
+        <Form.Item
+          label={t("Tech Status")}
+          name="techstatus"
+          valuePropName="checked"
+        >
+          <Switch
+            checkedChildren={t("Active")}
+            unCheckedChildren={t("Inactive")}
+          />
+        </Form.Item>
+        <Form.Item
+          label={t("Tech Description")}
+          name="techdescription"
+          rules={[{ validator: validateDescription }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label={t("Upload Images")}
+          name="techimages"
+        >
+          <Upload
+            fileList={fileList}
+            onChange={({ fileList }) => setFileList(fileList)}
+            beforeUpload={() => false} 
+            listType="picture"
+            multiple
+          >
+            <Button icon={<UploadOutlined />}>{t("Select Images")}</Button>
+          </Upload>
+        </Form.Item>
+        <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+          <Button type="primary" htmlType="submit">
+            {t("Submit")}
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginLeft: 8 }}
+            onClick={() => navigate("/TechList")}
+          >
+            {t("Back to Tech List")}
+          </Button>
+        </Form.Item>
+      </Form>
+    </Spin>
   );
 };
 

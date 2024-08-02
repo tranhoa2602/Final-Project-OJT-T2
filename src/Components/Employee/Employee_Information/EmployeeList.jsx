@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input} from "antd";
+import { Space, Table, Tag, Button, Input, Avatar, message, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useEmployees } from "./EmployeeContext";
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, get, remove } from "firebase/database";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
@@ -14,6 +13,9 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 
+const defaultAvatarUrl =
+  "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
+
 const columns = (
   handleEdit,
   handleDelete,
@@ -22,84 +24,91 @@ const columns = (
   projects,
   t
 ) => [
-    {
-      title: t("Name"),
-      dataIndex: "name",
-      key: "name",
-      render: (text, record) => (
-        <a onClick={() => navigate("/details", { state: { employee: record } })}>
-          {text}
-        </a>
-      ),
+  {
+    title: t("Profile Picture"),
+    dataIndex: "profilePicture",
+    key: "profilePicture",
+    render: (text, record) => (
+      <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
+    ),
+  },
+  {
+    title: t("Name"),
+    dataIndex: "name",
+    key: "name",
+    render: (text, record) => (
+      <a onClick={() => navigate("/details", { state: { employee: record } })}>
+        {text}
+      </a>
+    ),
+  },
+  {
+    title: t("Email"),
+    dataIndex: "email",
+    key: "email",
+  },
+  {
+    title: t("Position"),
+    dataIndex: "positionName",
+    key: "positionName",
+  },
+  {
+    title: t("Status"),
+    key: "status",
+    dataIndex: "status",
+    render: (_, { status }) => {
+      const statusArray = Array.isArray(status) ? status : [status];
+      return (
+        <>
+          {statusArray.map((stat) => {
+            let color = stat.length > 5 ? "geekblue" : "green";
+            if (stat === "inactive") {
+              color = "volcano";
+            }
+            return (
+              <Tag color={color} key={stat}>
+                {status === "active" ? t("Active") : t("Inactive")}
+              </Tag>
+            );
+          })}
+        </>
+      );
     },
-    {
-      title: t("Email"),
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: t("Position"),
-      dataIndex: "positionName",
-      key: "positionName",
-    },
-    {
-      title: t("Status"),
-      key: "status",
-      dataIndex: "status",
-      render: (_, { status }) => {
-        const statusArray = Array.isArray(status) ? status : [status];
-        return (
-          <>
-            {statusArray.map((stat) => {
-              let color = stat.length > 5 ? "geekblue" : "green";
-              if (stat === "inactive") {
-                color = "volcano";
-              }
-              return (
-                <Tag color={color} key={stat}>
-                  {status === "active" ? t("Active") : t("Inactive")}
-                </Tag>
-              );
-            })}
-          </>
-        );
-      },
-    },
-
-    {
-      title: t("Actions"),
-      key: "actions",
-      align: "center",
-      render: (_, record) => (
-        <div className={styles["actions-container"]}>
-          <Button
-            onClick={() => navigate("/edit", { state: { employee: record } })}
-            type="primary"
-            icon={<EditOutlined />}
-            className={styles["edit-button"]}
-          >
-            {t("Edit")}
-          </Button>
-          <Button
-            type="default"
-            onClick={() => navigate("/details", { state: { employee: record } })}
-            icon={<InfoCircleOutlined />}
-            className={styles["detail-button"]}
-          >
-            {t("Detail")}
-          </Button>
-          <Button
-            type="danger"
-            onClick={() => handleDelete(record.key)}
-            icon={<DeleteOutlined />}
-            className={styles["delete-button"]}
-          >
-            {t("Delete")}
-          </Button>
-        </div>
-      ),
-    },
-  ];
+  },
+  {
+    title: t("Actions"),
+    key: "actions",
+    align: "center",
+    render: (_, record) => (
+      <div className={styles["actions-container"]}>
+        <Button
+          onClick={() => navigate("/edit", { state: { employee: record } })}
+          type="primary"
+          icon={<EditOutlined />}
+          className={styles["edit-button"]}
+        >
+          {t("Edit")}
+        </Button>
+        <Button
+          type="default"
+          onClick={() => navigate("/details", { state: { employee: record } })}
+          icon={<InfoCircleOutlined />}
+          className={styles["detail-button"]}
+        >
+          {t("Detail")}
+        </Button>
+        <Button
+          type="danger"
+          onClick={() => handleDelete(record)}
+          icon={<DeleteOutlined />}
+          className={styles["delete-button"]}
+        >
+          {t("Delete")}
+        </Button>
+      </div>
+    ),
+  },
+];
 
 const fetchData = async () => {
   const db = getDatabase();
@@ -119,7 +128,6 @@ const fetchData = async () => {
     ...value,
   }));
 
-
   return { employees: employeesArray, positions, projects };
 };
 
@@ -130,11 +138,10 @@ const EmployeeList = () => {
   const [projects, setProjects] = useState({});
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
-  const { handleEdit, handleDelete } = useEmployees();
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
-      const { employees, positions, projects, emailsInUse } = await fetchData();
+      const { employees, positions, projects } = await fetchData();
       setEmployees(employees);
       setPositions(positions);
       setProjects(projects);
@@ -143,10 +150,22 @@ const EmployeeList = () => {
     fetchDataAndSetState();
   }, []);
 
-  const handleDeleteAndRefresh = async (key) => {
-    await handleDelete(key);
-    const { employees, emailsInUse } = await fetchData();
-    setEmployees(employees);
+  const handleDeleteAndRefresh = async (employee) => {
+    if (employee.status === "active") {
+      message.error("Cannot delete an active employee");
+      return;
+    }
+
+    try {
+      const db = getDatabase();
+      await remove(ref(db, `employees/${employee.key}`));
+      const { employees } = await fetchData();
+      setEmployees(employees);
+      message.success("Employee deleted successfully");
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      message.error("Failed to delete employee");
+    }
   };
 
   const exportToExcel = async () => {
@@ -165,8 +184,6 @@ const EmployeeList = () => {
     ];
 
     employees.forEach((employee) => {
-
-
       worksheet.addRow({
         id: employee.key,
         name: employee.name,

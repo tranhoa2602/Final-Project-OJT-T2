@@ -8,6 +8,7 @@ import {
   EMAILJS_USER_ID,
 } from "../../emailConfig"; // Import email configuration
 import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const sendResetPasswordEmail = (email, resetLink) => {
   const templateParams = {
@@ -106,7 +107,9 @@ const handleAddOrUpdateUser = async (
   setUsers,
   setEditMode,
   setEditUserKey,
-  form
+  form,
+  editMode,
+  editUserKey
 ) => {
   const { email, role, status = "inactive" } = values;
 
@@ -136,7 +139,7 @@ const handleAddOrUpdateUser = async (
       role,
       status,
       createdAt: new Date().toISOString(),
-      projetcIds: "",
+      projectIds: "",
       skill: "",
       verificationToken, // Add the verification token to user data
     };
@@ -175,4 +178,57 @@ const handleAddOrUpdateUser = async (
   }
 };
 
-export { ResetPasswordEmail, handleAddOrUpdateUser, sendVerificationEmail };
+const VerifyAccount = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const verifyAccount = async () => {
+      const query = new URLSearchParams(window.location.search);
+      const email = query.get("email");
+      const token = query.get("token");
+
+      try {
+        const db = getDatabase();
+        const employeesRef = ref(db, "employees");
+
+        const snapshot = await get(employeesRef);
+        if (!snapshot.exists()) {
+          message.error("Invalid verification link.");
+          return;
+        }
+
+        const employees = snapshot.val();
+        const employee = Object.values(employees).find(
+          (emp) => emp.email === email && emp.verificationToken === token
+        );
+
+        if (!employee) {
+          message.error("Invalid verification link.");
+          return;
+        }
+
+        const employeeRef = ref(db, `employees/${employee.id}`);
+        await update(employeeRef, {
+          status: "active",
+          verificationToken: null,
+        });
+
+        message.success("Account verified successfully!");
+        navigate("/list");
+      } catch (error) {
+        console.error("Error verifying account:", error);
+        message.error("Internal server error.");
+      }
+    };
+
+    verifyAccount();
+  }, [navigate]);
+
+  return null;
+};
+
+export {
+  ResetPasswordEmail,
+  handleAddOrUpdateUser,
+  sendVerificationEmail,
+  VerifyAccount,
+};

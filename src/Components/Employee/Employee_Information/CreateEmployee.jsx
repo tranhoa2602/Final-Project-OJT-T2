@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Select, Upload, message, Switch } from "antd";
+import { Form, Input, Button, Select, Upload, message, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, set, get, update } from "firebase/database";
+import { getDatabase, ref, set, get } from "firebase/database";
 import {
   getStorage,
   ref as storageRef,
@@ -24,6 +24,7 @@ const CreateEmployee = () => {
   const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
   const [cvFile, setCvFile] = useState(null);
+  const [loading, setLoading] = useState(false); // State to manage loading
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +48,8 @@ const CreateEmployee = () => {
   }, []);
 
   const handleSubmit = async (values) => {
+    setLoading(true); // Start loading
+
     const storage = getStorage();
     const db = getDatabase();
     const employeesRef = ref(db, "employees");
@@ -60,6 +63,7 @@ const CreateEmployee = () => {
 
     if (emailExists) {
       message.error("This email already exists.");
+      setLoading(false); // Stop loading
       return;
     }
 
@@ -93,6 +97,7 @@ const CreateEmployee = () => {
           ],
         },
       ],
+      deleteStatus: false, // Added deleteStatus field with default value false
     };
 
     const verificationToken = uuidv4();
@@ -114,6 +119,8 @@ const CreateEmployee = () => {
     } catch (error) {
       console.error("Error creating employee:", error);
       message.error("Failed to create employee");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -151,84 +158,90 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Form
-      form={form}
-      onFinish={handleSubmit}
-      style={{ height: "100vh", marginTop: "20px" }}
-    >
-      <Form.Item
-        label="Name"
-        name="name"
-        rules={[{ required: true, message: "Please input the name!" }]}
-      >
-        <Input />
-      </Form.Item>
+    <div style={{ height: "100vh", marginTop: "20px" }}>
+      {loading ? (
+        <Spin size="large" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }} />
+      ) : (
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          style={{ maxWidth: "600px", margin: "auto" }}
+        >
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please input the name!" }]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-          { required: true, message: "Please input the email!" },
-          { type: "email", message: "Please input a valid email!" },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please input the email!" },
+              { type: "email", message: "Please input a valid email!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        label="Phone"
-        name="phone"
-        rules={[
-          { required: true, message: "Please input the phone number!" },
-          {
-            pattern: /^0[0-9]{9,15}$/,
-            message: "Phone number must have 10 numbers",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[
+              { required: true, message: "Please input the phone number!" },
+              {
+                pattern: /^0[0-9]{9,15}$/,
+                message: "Phone number must have 10 numbers",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
 
-      <Form.Item
-        label="Position"
-        name="positionName"
-        rules={[{ required: true, message: "Please select the position!" }]}
-      >
-        <Select>
-          {positions.map((position) => (
-            <Option key={position.name} value={position.name}>
-              {position.name}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
+          <Form.Item
+            label="Position"
+            name="positionName"
+            rules={[{ required: true, message: "Please select the position!" }]}
+          >
+            <Select>
+              {positions.map((position) => (
+                <Option key={position.name} value={position.name}>
+                  {position.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
-      <Form.Item label="Description" name="description">
-        <Input.TextArea rows={4} />
-      </Form.Item>
+          <Form.Item label="Description" name="description">
+            <Input.TextArea rows={4} />
+          </Form.Item>
 
-      <Form.Item
-        label="CV Upload"
-        name="cv_file"
-        valuePropName="file"
-        getValueFromEvent={handleCvUpload}
-      >
-        <Upload beforeUpload={() => false} maxCount={1}>
-          <Button>Upload CV</Button>
-        </Upload>
-      </Form.Item>
+          <Form.Item
+            label="CV Upload"
+            name="cv_file"
+            valuePropName="file"
+            getValueFromEvent={handleCvUpload}
+          >
+            <Upload beforeUpload={() => false} maxCount={1}>
+              <Button>Upload CV</Button>
+            </Upload>
+          </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="Create Account">
-          Create Account
-        </Button>
-      </Form.Item>
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" onClick={gotoEmployeeList}>
-          Back
-        </Button>
-      </Form.Item>
-    </Form>
+          <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+            <Button type="primary" htmlType="submit">
+              Create Account
+            </Button>
+          </Form.Item>
+          <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+            <Button type="primary" onClick={gotoEmployeeList}>
+              Back
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+    </div>
   );
 };
 

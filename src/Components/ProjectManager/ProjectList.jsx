@@ -119,12 +119,11 @@ const ListProject = () => {
       key: "actions",
       render: (text, record) => (
         <>
-
-          {user?.position === "Project Manager" && (
+          <Link to={`/projects/details/${record.id}`}>
+            <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
+          </Link>
+          {(user?.position === "Project Manager" || user?.role === "Admin") && (
             <>
-              <Link to={`/projects/details/${record.id}`}>
-                <Button icon={<InfoCircleOutlined />}>{t("Detail")}</Button>
-              </Link>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
                   {t("Edit")}
@@ -219,12 +218,12 @@ const ListProject = () => {
           style={{ width: 200 }}
         />
 
-        {user?.position === "Project Manager" && (
+        {(user?.position === "Project Manager" || user?.role === "Admin") && (
           <Button type="primary" onClick={showModal}>
             {t("Create new project")}
           </Button>
         )}
-        {user?.position === "Project Manager" && (
+        {(user?.position === "Project Manager" || user?.role === "Admin") && (
           <Button type="primary" onClick={exportToExcel}>
             {t("Export to Excel")}
           </Button>

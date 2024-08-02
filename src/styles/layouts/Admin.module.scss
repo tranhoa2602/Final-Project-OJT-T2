@@ -1,104 +1,94 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 
-.admin-page {
+.profile-detail-page {
   font-family: "Roboto", sans-serif;
-  padding: 30px;
-  background-color: #fff;
+  padding: 50px;
+  background-color: #e39d7d;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-left: 260px;
-  width: 120%;
-  max-width: 1400px;
-  margin: auto; //
+  margin: 100px;
+  max-width: 1200px;
+  text-align: center;
 
-  h1 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-weight: 700;
+  .page-title {
+    font-weight: 800;
     font-size: 32px; // Increased font size
-  }
-
-  .search-bar {
-    margin-bottom: 30px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .actions-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
     margin-bottom: 30px;
   }
 
-  .search-input {
-    max-width: 400px; // Increased max-width
-    width: 100%;
-  }
-
-  .add-user-button,
-  .export-button {
-    display: inline-block;
-  }
-
-  .user-table {
-    margin-bottom: 30px;
-
-    .ant-table-thead > tr > th {
-      background-color: #fafafa;
-      font-weight: 700;
-      font-size: 16px; // Increased font size
-    }
-
-    .ant-table-tbody > tr > td {
-      vertical-align: middle;
-      font-size: 16px; // Increased font size
-    }
-  }
-
-  .pagination {
+  .profile-header {
     display: flex;
-    justify-content: center;
-  }
-
-  .actions-container {
-    display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
 
-    .edit-button,
-    .delete-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      color: #fff;
-      border-radius: 4px;
+    .profile-avatar {
+      margin-right: 30px;
     }
 
-    .edit-button {
-      background-color: #1890ff;
-      border-color: #1890ff;
+    .profile-info {
+      text-align: left;
 
-      &:hover {
-        background-color: #40a9ff;
-        border-color: #40a9ff;
+      .profile-name {
+        font-weight: 500;
+        font-size: 28px; // Increased font size
+        margin-bottom: 5px;
       }
-    }
 
-    .delete-button {
-      background-color: #ff4d4f;
-      border-color: #ff4d4f;
+      .profile-email {
+        font-size: 18px;
+        color: #e8dada;
+        margin-bottom: 20px;
+      }
 
-      &:hover {
-        background-color: #ff7875;
-        border-color: #ff7875;
+      .edit-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        color: #fff;
+        background-color: #1890ff;
+        border-color: #1890ff;
+        border-radius: 4px;
+        padding: 8px 16px;
+
+        &:hover {
+          background-color: #40a9ff;
+          border-color: #40a9ff;
+        }
       }
     }
   }
-  .inactive-user-row {
-    background-color: rgba(191, 189, 189, 0.522);
-    color: rgb(0, 0, 0); // Ensure text is visible on black background
+
+  .profile-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+
+    p {
+      font-size: 18px;
+      margin-bottom: 10px;
+
+      strong {
+        font-weight: 500;
+      }
+    }
+  }
+
+  .ant-modal-title {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .confirmUploadButton {
+    margin-top: 10px;
+  }
+
+  .ant-avatar {
+    margin-top: 10px;
   }
 }

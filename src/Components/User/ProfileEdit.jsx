@@ -42,8 +42,14 @@ const ProfileEdit = () => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (storedUser && storedUser.key) {
           const db = getDatabase();
-          const userRef = ref(db, `users/${storedUser.key}`);
-          const snapshot = await get(userRef);
+          let userRef = ref(db, `users/${storedUser.key}`);
+          let snapshot = await get(userRef);
+
+          if (!snapshot.exists()) {
+            userRef = ref(db, `employees/${storedUser.key}`);
+            snapshot = await get(userRef);
+          }
+
           if (snapshot.exists()) {
             const data = snapshot.val();
             setUserData(data);
@@ -71,7 +77,13 @@ const ProfileEdit = () => {
       const storedUser = JSON.parse(localStorage.getItem("user"));
       if (storedUser && storedUser.key) {
         const db = getDatabase();
-        const userRef = ref(db, `users/${storedUser.key}`);
+        let userRef = ref(db, `users/${storedUser.key}`);
+        let snapshot = await get(userRef);
+
+        if (!snapshot.exists()) {
+          userRef = ref(db, `employees/${storedUser.key}`);
+        }
+
         const updatedData = { ...values, profilePicture: profilePicture || "" };
         await update(userRef, updatedData);
         message.success(t("Profile updated successfully"));
@@ -120,11 +132,16 @@ const ProfileEdit = () => {
       setProfilePicture(downloadURL);
       setTempProfilePicture(null);
 
-      // Update profile picture URL in Firebase Realtime Database
       const storedUser = JSON.parse(localStorage.getItem("user"));
       if (storedUser && storedUser.key) {
         const db = getDatabase();
-        const userRef = ref(db, `users/${storedUser.key}`);
+        let userRef = ref(db, `users/${storedUser.key}`);
+        let snapshot = await get(userRef);
+
+        if (!snapshot.exists()) {
+          userRef = ref(db, `employees/${storedUser.key}`);
+        }
+
         await update(userRef, { profilePicture: downloadURL });
         message.success(t("Profile picture updated successfully"));
       } else {

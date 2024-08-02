@@ -22,9 +22,9 @@ const EmployeeDetails = () => {
     };
 
     fetchPositionName();
-  }, [employee.positionId, employee.projectIds, t]);
+  }, [employee.positionName, t]);
 
-  const returntoPrevious = () => {
+  const returnToPrevious = () => {
     navigate("/list");
   };
 
@@ -59,9 +59,10 @@ const EmployeeDetails = () => {
       >
         {t("Export CV")}
       </Button>
+
       <Button
         type="primary"
-        onClick={returntoPrevious}
+        onClick={returnToPrevious}
         style={{ background: "gray", marginTop: "20px" }}
       >
         {t("Return")}

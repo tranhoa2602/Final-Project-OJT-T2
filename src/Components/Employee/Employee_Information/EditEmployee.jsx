@@ -10,7 +10,6 @@ import {
   message,
 } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEmployees } from "./EmployeeContext";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
   getStorage,
@@ -28,7 +27,6 @@ const EditEmployee = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { employee } = state;
-  const { handleEdit } = useEmployees();
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [emails, setEmails] = useState([]);
@@ -108,9 +106,8 @@ const EditEmployee = () => {
     };
 
     try {
-      await handleEdit(updatedEmployee);
-
-      // Update IsExist values for old and new emails
+      const employeeRef = ref(db, `employees/${employee.key}`);
+      await update(employeeRef, updatedEmployee);
 
       const oldEmail = emails.find((email) => email.email === employee.email);
       const oldEmailRef = ref(db, `users/${oldEmail.id}`);
@@ -205,12 +202,12 @@ const EditEmployee = () => {
         rules={[
           { required: true, message: t("Please input the phone number!") },
           {
-            pattern: /^[0-9]{10}$/,
-            message: t("Phone number must be 10 numbers"),
+            pattern: /^0[0-9]{9,15}$/,
+            message: t("Phone number must have 10 number"),
           },
         ]}
       >
-        <InputNumber style={{ width: "100%" }} />
+        <Input />
       </Form.Item>
 
       <Form.Item label="Status" name="status" valuePropName="checked">

@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Switch,
-  Upload,
-  message,
-} from "antd";
+import { Form, Input, Button, Select, Upload, message, Switch } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useEmployees } from "./EmployeeContext";
-import { getDatabase, ref, get, update } from "firebase/database";
+import { getDatabase, ref, set, get, update } from "firebase/database";
 import {
   getStorage,
   ref as storageRef,
@@ -19,25 +9,26 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
-import { database } from "../../../../firebaseConfig";
-import { useTranslation } from "react-i18next";
-import TextArea from "antd/es/input/TextArea";
+import bcrypt from "bcryptjs";
+import emailjs from "emailjs-com";
+import {
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID,
+  EMAILJS_USER_ID,
+} from "../../../../emailConfig";
 
 const { Option } = Select;
 
 const CreateEmployee = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { handleAdd } = useEmployees();
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const [positions, setPositions] = useState([]);
-  const [emails, setEmails] = useState([]);
   const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const positionsRef = ref(database, "positions");
-      const usersRef = ref(database, "users");
+      const db = getDatabase();
+      const positionsRef = ref(db, "positions");
 
       const positionsSnapshot = await get(positionsRef);
       if (positionsSnapshot.exists()) {
@@ -50,82 +41,104 @@ const CreateEmployee = () => {
       } else {
         setPositions([]);
       }
-
-      const usersSnapshot = await get(usersRef);
-      if (usersSnapshot.exists()) {
-        const data = usersSnapshot.val();
-        const emailList = Object.keys(data)
-          .map((key) => ({
-            id: key,
-            email: data[key].email,
-            isExist: data[key].IsExist === "true",
-            isActive: data[key].status === "active",
-            isAdmin: data[key].role === "Admin",
-          }))
-          .filter((user) => !user.isExist && user.isActive && !user.isAdmin);
-        setEmails(emailList);
-      } else {
-        setEmails([]);
-      }
     };
 
     fetchData();
   }, []);
 
   const handleSubmit = async (values) => {
-    if (!cvFile) {
-      message.error("Please upload a CV file!");
-      return;
-    }
+    const storage = getStorage();
+    const db = getDatabase();
+    const employeesRef = ref(db, "employees");
 
-    const selectedEmail = emails.find((email) => email.email === values.email);
-    if (!selectedEmail) {
-      message.error("Email not available!");
+    const snapshot = await get(employeesRef);
+    const employees = snapshot.exists() ? snapshot.val() : {};
+
+    const emailExists = Object.values(employees).some(
+      (employee) => employee.email === values.email
+    );
+
+    if (emailExists) {
+      message.error("This email already exists.");
       return;
     }
 
     const newEmployeeId = uuidv4();
-    const storage = getStorage();
-    const cvRef = storageRef(storage, `cvs/${newEmployeeId}.pdf`);
+    let cvUrl = "";
+
+    if (cvFile) {
+      const cvRef = storageRef(storage, `cvs/${newEmployeeId}.pdf`);
+      const snapshot = await uploadBytes(cvRef, cvFile);
+      cvUrl = await getDownloadURL(snapshot.ref);
+    }
+
+    const hashedPassword = await bcrypt.hash("1234567", 10);
+
+    const newEmployee = {
+      id: newEmployeeId,
+      name: values.name,
+      phone: values.phone,
+      email: values.email,
+      password: hashedPassword,
+      role: "Employee", // Set default role to Employee
+      status: values.status ? "active" : "inactive",
+      positionName: values.positionName,
+      cv_file: cvUrl,
+      cv_list: [
+        {
+          cv_experience: [
+            {
+              description: values.description,
+            },
+          ],
+        },
+      ],
+    };
+
+    const verificationToken = uuidv4();
+    const verificationLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
+      values.email
+    )}&token=${verificationToken}`;
 
     try {
-      const snapshot = await uploadBytes(cvRef, cvFile);
-      const cvUrl = await getDownloadURL(snapshot.ref);
+      await set(ref(db, `employees/${newEmployeeId}`), {
+        ...newEmployee,
+        verificationToken,
+        IsExist: "false",
+      });
 
-      const newEmployee = {
-        id: newEmployeeId,
-        isAdmin: false,
-        name: values.name,
-        phone: values.phone,
-        email: values.email,
-        role: "Employee",
-        status: values.status ? "active" : "inactive",
-        positionName: values.positionName,
-        cv_file: cvUrl,
-        cv_list: [
-          {
-            cv_experience: [
-              {
-                description: values.description,
-              },
-            ],
-          },
-        ],
-      };
-
-      await handleAdd(newEmployee);
-
-      // Update IsExist to true for the selected email
-      const db = getDatabase();
-      const emailRef = ref(db, `users/${selectedEmail.id}`);
-      await update(emailRef, { IsExist: "true" });
+      sendVerificationEmail(values.email, verificationLink);
 
       navigate("/list");
-      message.success("Successfully added employee");
+      message.success("Employee created successfully!");
     } catch (error) {
-      console.error("Error adding employee:", error);
-      message.error("Failed to add employee");
+      console.error("Error creating employee:", error);
+      message.error("Failed to create employee");
     }
+  };
+
+  const sendVerificationEmail = (email, verificationLink) => {
+    const templateParams = {
+      to_name: email,
+      from_name: "Your Company Name",
+      message: `Click this link to verify your account: ${verificationLink}`,
+    };
+
+    emailjs
+      .send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_USER_ID
+      )
+      .then(
+        (response) => {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        (error) => {
+          console.log("FAILED...", error);
+        }
+      );
   };
 
   const handleCvUpload = ({ file }) => {
@@ -137,65 +150,39 @@ const CreateEmployee = () => {
     navigate("/list");
   };
 
-  const emailValidator = (_, value) => {
-    if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
-      return Promise.resolve();
-    }
-    return Promise.reject(
-      new Error(
-        "Please enter a valid email address with a domain name (e.g., @gmail.com)"
-      )
-    );
-  };
-
   return (
     <Form
       form={form}
       onFinish={handleSubmit}
       style={{ height: "100vh", marginTop: "20px" }}
-      initialValues={{ status: true }}
     >
       <Form.Item
-        label={t("Name")}
+        label="Name"
         name="name"
-        rules={[{ required: true, message: t("Please input the name!") }]}
+        rules={[{ required: true, message: "Please input the name!" }]}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label={t("Email")}
+        label="Email"
         name="email"
         rules={[
           { required: true, message: "Please input the email!" },
           { type: "email", message: "Please input a valid email!" },
-          {
-            validator: (_, value) => {
-              return emails.some((user) => user.email === value)
-                ? Promise.resolve()
-                : Promise.reject("Email not available!");
-            },
-          },
-          { validator: emailValidator },
         ]}
       >
-        <Select>
-          {emails.map((user) => (
-            <Option key={user.id} value={user.email}>
-              {user.email}
-            </Option>
-          ))}
-        </Select>
+        <Input />
       </Form.Item>
 
       <Form.Item
-        label={t("Phone")}
+        label="Phone"
         name="phone"
         rules={[
-          { required: true, message: t("Please input the phone number!") },
+          { required: true, message: "Please input the phone number!" },
           {
-            pattern: /^[0-9]{10}$/,
-            message: t("Phone number must be 10 numbers"),
+            pattern: /^0[0-9]{9,15}$/,
+            message: "Phone number must have 10 numbers",
           },
         ]}
       >
@@ -209,7 +196,7 @@ const CreateEmployee = () => {
       <Form.Item
         label="Position"
         name="positionName"
-        rules={[{ required: true, message: t("Please select the position!") }]}
+        rules={[{ required: true, message: "Please select the position!" }]}
       >
         <Select>
           {positions.map((position) => (
@@ -220,16 +207,15 @@ const CreateEmployee = () => {
         </Select>
       </Form.Item>
 
-      <Form.Item label={t("Description")} name="description">
-        <TextArea rows={4} />
+      <Form.Item label="Description" name="description">
+        <Input.TextArea rows={4} />
       </Form.Item>
 
       <Form.Item
-        label={t("CV Upload")}
+        label="CV Upload"
         name="cv_file"
         valuePropName="file"
         getValueFromEvent={handleCvUpload}
-        rules={[{ required: true, message: t("Please upload a CV file!") }]}
       >
         <Upload beforeUpload={() => false} maxCount={1}>
           <Button>Upload CV</Button>
@@ -238,12 +224,12 @@ const CreateEmployee = () => {
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" htmlType="submit">
-          {t("Submit")}
+          Submit
         </Button>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
         <Button type="primary" onClick={gotoEmployeeList}>
-          {t("Back")}
+          Back
         </Button>
       </Form.Item>
     </Form>

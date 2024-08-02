@@ -10,8 +10,9 @@ import {
   LogoutOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button } from "antd";
+import { Layout, Menu, Switch } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/logoPMIT.png"; // Đường dẫn tới logo của bạn
 
 const { Sider } = Layout;
 
@@ -36,6 +37,7 @@ const Sidebar = () => {
   const { t } = useTranslation();
   const [userRole, setUserRole] = useState(null);
   const [openKeys, setOpenKeys] = useState([]);
+  const [language, setLanguage] = useState(i18n.language); // Quản lý ngôn ngữ hiện tại
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,8 +52,10 @@ const Sidebar = () => {
     navigate("/");
   };
 
-  const changeLanguage = (language) => {
-    i18n.changeLanguage(language);
+  const changeLanguage = () => {
+    const newLanguage = language === "en" ? "vi" : "en";
+    i18n.changeLanguage(newLanguage);
+    setLanguage(newLanguage);
   };
 
   const onOpenChange = (keys) => {
@@ -95,18 +99,6 @@ const Sidebar = () => {
           key: "3",
           label: <Link to="/projects">{t("Projects list")}</Link>,
         },
-        // {
-        //   key: "4",
-        //   label: (
-        //     <Link to="/AssignEmployee/Assign">{t("Assign Employee")}</Link>
-        //   ),
-        // },
-        // {
-        //   key: "5",
-        //   label: (
-        //     <Link to="/AssignEmployee/Unassign">{t("Unassign Employee")}</Link>
-        //   ),
-        // },
       ],
     },
     {
@@ -168,6 +160,13 @@ const Sidebar = () => {
   return (
     <Layout style={layoutStyle}>
       <Sider width="15%" style={siderStyle}>
+        <div style={{ textAlign: "center", padding: "10px 0" }}>
+          <img
+            src={logo}
+            alt="Logo"
+            style={{ width: "60%", margin: "10px", borderRadius: "5px" }}
+          />
+        </div>
         <Menu
           defaultSelectedKeys={["1"]}
           defaultOpenKeys={["sub1"]}
@@ -178,13 +177,12 @@ const Sidebar = () => {
           onOpenChange={onOpenChange}
         />
         <div style={{ textAlign: "center", padding: "10px 0" }}>
-          <Button
-            onClick={() => changeLanguage("vi")}
-            style={{ marginRight: 10 }}
-          >
-            {t("Vietnamese")}
-          </Button>
-          <Button onClick={() => changeLanguage("en")}>{t("English")}</Button>
+          <Switch
+            checkedChildren={t("Vietnamese")}
+            unCheckedChildren={t("English")}
+            onChange={changeLanguage}
+            checked={language === "vi"}
+          />
         </div>
       </Sider>
       <div style={{ marginLeft: "15%", width: "85%", padding: "16px" }}>

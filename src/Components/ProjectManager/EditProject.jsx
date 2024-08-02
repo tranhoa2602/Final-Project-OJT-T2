@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Form, Input, Button, DatePicker, Select, message, Space } from "antd";
+import { Form, Input, Button, DatePicker, Select, message, Space, Spin } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -18,25 +18,35 @@ const EditProject = () => {
     const [technologies, setTechnologies] = useState([]);
     const [languages, setLanguages] = useState([]);
     const [projectManagers, setProjectManagers] = useState([]);
+    const [loading, setLoading] = useState(true); // State to manage loading
 
     useEffect(() => {
         const fetchProject = async () => {
-            const db = getDatabase();
-            const projectRef = ref(db, `projects/${id}`);
-            const snapshot = await get(projectRef);
-            if (snapshot.exists()) {
-                const projectData = snapshot.val();
-                setProject(projectData);
-                form.setFieldsValue({
-                    ...projectData,
-                    dateRange: [
-                        dayjs(projectData.startDate),
-                        dayjs(projectData.endDate),
-                    ],
-                });
-            } else {
-                message.error(t("Project not found"));
+            try {
+                setLoading(true);
+                const db = getDatabase();
+                const projectRef = ref(db, `projects/${id}`);
+                const snapshot = await get(projectRef);
+                if (snapshot.exists()) {
+                    const projectData = snapshot.val();
+                    setProject(projectData);
+                    form.setFieldsValue({
+                        ...projectData,
+                        dateRange: [
+                            dayjs(projectData.startDate),
+                            dayjs(projectData.endDate),
+                        ],
+                    });
+                } else {
+                    message.error(t("Project not found"));
+                    navigate("/projects");
+                }
+            } catch (error) {
+                console.error("Failed to fetch project:", error);
+                message.error(t("Failed to fetch project"));
                 navigate("/projects");
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -102,6 +112,7 @@ const EditProject = () => {
             ...values,
             startDate: startDate.format("YYYY-MM-DD"),
             endDate: endDate.format("YYYY-MM-DD"),
+            deleteStatus: project?.deletestatus ?? false, // Ensure deleteStatus is included
         };
 
         delete updatedProject.dateRange;
@@ -119,123 +130,127 @@ const EditProject = () => {
     return (
         <div>
             <h2>{t("Edit Project")}</h2>
-            {project && (
-                <Form form={form} layout="vertical" onFinish={onFinish}>
-                    <Space direction="vertical" size="large" style={{ width: "100%" }}>
-                        <Form.Item
-                            name="name"
-                            label={t("Name")}
-                            rules={[{ required: true, message: t("Please input the name!") }]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="description"
-                            label={t("Description")}
-                            rules={[
-                                { required: true, message: t("Please input the description!") },
-                            ]}
-                        >
-                            <TextArea rows={4} />
-                        </Form.Item>
-                        <Form.Item
-                            name="technology"
-                            label={t("Technology")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the technologies!"),
-                                },
-                            ]}
-                        >
-                            <Select
-                                mode="multiple"
-                                placeholder={t("Please select the technologies!")}
+            {loading ? (
+                <Spin size="large" />
+            ) : (
+                project && (
+                    <Form form={form} layout="vertical" onFinish={onFinish}>
+                        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+                            <Form.Item
+                                name="name"
+                                label={t("Name")}
+                                rules={[{ required: true, message: t("Please input the name!") }]}
                             >
-                                {technologies.map((tech) => (
-                                    <Option key={tech.id} value={tech.techname}>
-                                        {tech.techname}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
-                            name="programmingLanguage"
-                            label={t("Programming Language")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the programming languages!"),
-                                },
-                            ]}
-                        >
-                            <Select
-                                mode="multiple"
-                                placeholder={t("Please select the programming languages!")}
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="description"
+                                label={t("Description")}
+                                rules={[
+                                    { required: true, message: t("Please input the description!") },
+                                ]}
                             >
-                                {languages.map((lang) => (
-                                    <Option key={lang.id} value={lang.programingname}>
-                                        {lang.programingname}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
-                            name="projectManager"
-                            label={t("Project Manager")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the project manager!"),
-                                },
-                            ]}
-                        >
-                            <Select placeholder={t("Please select the project manager!")}>
-                                {projectManagers.map((manager) => (
-                                    <Option key={manager.id} value={manager.name}>
-                                        {manager.name}
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
-                            name="dateRange"
-                            label={t("Date Range")}
-                            rules={[
-                                { required: true, message: t("Please select the date range!") },
-                            ]}
-                        >
-                            <RangePicker
-                                format="YYYY-MM-DD"
-                                getPopupContainer={(trigger) => trigger.parentNode}
-                            />
-                        </Form.Item>
-                        <Form.Item
-                            name="status"
-                            label={t("Status")}
-                            rules={[
-                                { required: true, message: t("Please select the project status!") },
-                            ]}
-                        >
-                            <Select placeholder={t("Please select the project status!")}>
-                                <Option value="Not Started">{t("Not Started")}</Option>
-                                <Option value="Ongoing">{t("Ongoing")}</Option>
-                                <Option value="Completed">{t("Completed")}</Option>
-                                <Option value="Pending">{t("Pending")}</Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item>
-                            <Space>
-                                <Button type="primary" htmlType="submit">
-                                    {t("Update Project")}
-                                </Button>
-                                <Button type="default" onClick={() => navigate("/projects")}>
-                                    {t("Back to Project List")}
-                                </Button>
-                            </Space>
-                        </Form.Item>
-                    </Space>
-                </Form>
+                                <TextArea rows={4} />
+                            </Form.Item>
+                            <Form.Item
+                                name="technology"
+                                label={t("Technology")}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: t("Please select the technologies!"),
+                                    },
+                                ]}
+                            >
+                                <Select
+                                    mode="multiple"
+                                    placeholder={t("Please select the technologies!")}
+                                >
+                                    {technologies.map((tech) => (
+                                        <Option key={tech.id} value={tech.techname}>
+                                            {tech.techname}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item
+                                name="programmingLanguage"
+                                label={t("Programming Language")}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: t("Please select the programming languages!"),
+                                    },
+                                ]}
+                            >
+                                <Select
+                                    mode="multiple"
+                                    placeholder={t("Please select the programming languages!")}
+                                >
+                                    {languages.map((lang) => (
+                                        <Option key={lang.id} value={lang.programingname}>
+                                            {lang.programingname}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item
+                                name="projectManager"
+                                label={t("Project Manager")}
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: t("Please select the project manager!"),
+                                    },
+                                ]}
+                            >
+                                <Select placeholder={t("Please select the project manager!")}>
+                                    {projectManagers.map((manager) => (
+                                        <Option key={manager.id} value={manager.name}>
+                                            {manager.name}
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item
+                                name="dateRange"
+                                label={t("Date Range")}
+                                rules={[
+                                    { required: true, message: t("Please select the date range!") },
+                                ]}
+                            >
+                                <RangePicker
+                                    format="YYYY-MM-DD"
+                                    getPopupContainer={(trigger) => trigger.parentNode}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                name="status"
+                                label={t("Status")}
+                                rules={[
+                                    { required: true, message: t("Please select the project status!") },
+                                ]}
+                            >
+                                <Select placeholder={t("Please select the project status!")}>
+                                    <Option value="Not Started">{t("Not Started")}</Option>
+                                    <Option value="Ongoing">{t("Ongoing")}</Option>
+                                    <Option value="Completed">{t("Completed")}</Option>
+                                    <Option value="Pending">{t("Pending")}</Option>
+                                </Select>
+                            </Form.Item>
+                            <Form.Item>
+                                <Space>
+                                    <Button type="primary" htmlType="submit">
+                                        {t("Update Project")}
+                                    </Button>
+                                    <Button type="default" onClick={() => navigate("/projects")}>
+                                        {t("Back to Project List")}
+                                    </Button>
+                                </Space>
+                            </Form.Item>
+                        </Space>
+                    </Form>
+                )
             )}
         </div>
     );

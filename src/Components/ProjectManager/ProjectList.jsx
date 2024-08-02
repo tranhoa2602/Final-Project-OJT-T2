@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Tag, message, Input, Space } from "antd";
-import { getDatabase, ref, get, remove } from "firebase/database";
+import { getDatabase, ref, update, get } from "firebase/database";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -36,32 +36,31 @@ const ListProject = () => {
     const snapshot = await get(projectsRef);
     if (snapshot.exists()) {
       const data = snapshot.val();
-      const formattedData = Object.keys(data).map((key) => ({
-        id: key,
-        ...data[key],
-        startDate: new Date(data[key].startDate),
-        endDate: new Date(data[key].endDate),
-      }));
+      const formattedData = Object.keys(data)
+        .map((key) => ({
+          id: key,
+          ...data[key],
+          startDate: new Date(data[key].startDate),
+          endDate: new Date(data[key].endDate),
+        }))
+        .filter((project) => project.deletestatus === false); // Only include projects not marked as deleted
       setProjects(formattedData);
       setFilteredProjects(sortProjects(formattedData));
     }
   };
 
   const handleDelete = async (id) => {
-    const project = projects.find((project) => project.id === id);
-    if (
-      project &&
-      (project.status === "Ongoing" || project.status === "Pending")
-    ) {
-      message.error(t("Cannot delete an ongoing or pending project!"));
-      return;
+    try {
+      const db = getDatabase();
+      await update(ref(db, `projects/${id}`), { deletestatus: true });
+      message.success(t("Project moved to bin successfully!"));
+      fetchProjects(); // Refresh the project list after deletion
+    } catch (error) {
+      console.error("Error updating delete status:", error);
+      message.error(t("Failed to move project to bin!"));
     }
-
-    const db = getDatabase();
-    await remove(ref(db, `projects/${id}`));
-    message.success(t("Project deleted successfully!"));
-    fetchProjects();
   };
+  
 
   const getStatusTag = (status) => {
     switch (status) {
@@ -230,6 +229,11 @@ const ListProject = () => {
         {(user?.position === "Project Manager" || user?.role === "Admin") && (
           <Button type="primary" onClick={exportToExcel}>
             {t("Export to Excel")}
+          </Button>
+        )}
+        {(user?.position === "Project Manager" || user?.role === "Admin") && (
+          <Button type="default" onClick={() => navigate("/ProjectBin")}>
+            {t("Project Bin")}
           </Button>
         )}
       </Space>

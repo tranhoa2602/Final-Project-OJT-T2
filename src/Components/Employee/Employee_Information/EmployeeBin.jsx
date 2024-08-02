@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Space, Table, Tag, Button, Avatar, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update, remove } from "firebase/database";
-import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 

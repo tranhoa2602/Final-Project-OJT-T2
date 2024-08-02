@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input, Avatar, message, Modal } from "antd";
+import { Space, Table, Tag, Button, Input, Avatar, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, get, remove } from "firebase/database";
+import { getDatabase, ref, get, update } from "firebase/database";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
@@ -16,14 +16,7 @@ import styles from "../../../styles/layouts/EmployeeList.module.scss";
 const defaultAvatarUrl =
   "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
 
-const columns = (
-  handleEdit,
-  handleDelete,
-  navigate,
-  positions,
-  projects,
-  t
-) => [
+const columns = (handleEdit, handleDelete, navigate, positions, projects, t) => [
   {
     title: t("Profile Picture"),
     dataIndex: "profilePicture",
@@ -67,7 +60,7 @@ const columns = (
             }
             return (
               <Tag color={color} key={stat}>
-                {status === "active" ? t("Active") : t("Inactive")}
+                {stat === "active" ? t("Active") : t("Inactive")}
               </Tag>
             );
           })}
@@ -123,10 +116,12 @@ const fetchData = async () => {
   const positions = positionsSnapshot.exists() ? positionsSnapshot.val() : {};
   const projects = projectsSnapshot.exists() ? projectsSnapshot.val() : {};
 
-  const employeesArray = Object.entries(employees).map(([key, value]) => ({
-    key,
-    ...value,
-  }));
+  const employeesArray = Object.entries(employees)
+    .filter(([key, value]) => !value.deleteStatus) // Filter out deleted employees
+    .map(([key, value]) => ({
+      key,
+      ...value,
+    }));
 
   return { employees: employeesArray, positions, projects };
 };
@@ -158,13 +153,14 @@ const EmployeeList = () => {
 
     try {
       const db = getDatabase();
-      await remove(ref(db, `employees/${employee.key}`));
+      const employeeRef = ref(db, `employees/${employee.key}`);
+      await update(employeeRef, { deleteStatus: true });
       const { employees } = await fetchData();
       setEmployees(employees);
-      message.success("Employee deleted successfully");
+      message.success("Employee status updated to deleted successfully");
     } catch (error) {
-      console.error("Error deleting employee:", error);
-      message.error("Failed to delete employee");
+      console.error("Error updating employee status:", error);
+      message.error("Failed to update employee status");
     }
   };
 
@@ -230,16 +226,16 @@ const EmployeeList = () => {
         >
           {t("Export to Excel")}
         </Button>
+        <Button
+          type="default"
+          onClick={() => navigate("/EmployeeBin")}
+          className={styles["view-bin-button"]}
+        >
+          {t("View Bin")}
+        </Button>
       </Space>
       <Table
-        columns={columns(
-          null,
-          handleDeleteAndRefresh,
-          navigate,
-          positions,
-          projects,
-          t
-        )}
+        columns={columns(null, handleDeleteAndRefresh, navigate, positions, projects, t)}
         dataSource={filteredEmployees}
         rowKey="key"
         pagination={{ pageSize: 6 }}

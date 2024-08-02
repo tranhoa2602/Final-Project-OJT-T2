@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Switch, Button, Upload, message, Spin } from "antd";
+import {
+  Form,
+  Input,
+  Select,
+  Switch,
+  Button,
+  Upload,
+  message,
+  Spin,
+} from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
@@ -73,7 +82,7 @@ const EditEmployee = () => {
           ],
         },
       ],
-      deleteStatus: employee.deleteStatus, // Retain the existing deleteStatus value
+      deleteStatus: employee.deleteStatus ?? false, // Ensure deleteStatus is not undefined
     };
 
     try {
@@ -102,7 +111,15 @@ const EditEmployee = () => {
   return (
     <div style={{ height: "100vh", marginTop: "20px" }}>
       {loading ? (
-        <Spin size="large" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }} />
+        <Spin
+          size="large"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        />
       ) : (
         <Form
           form={form}
@@ -115,7 +132,7 @@ const EditEmployee = () => {
             status: employee.status === "active",
             positionName: employee.positionName,
             description: employee.cv_list[0]?.cv_experience[0]?.description,
-            deleteStatus: employee.deleteStatus ?? false, // Set default value if undefined
+            deleteStatus: employee.deleteStatus ?? false, // Ensure deleteStatus is not undefined
           }}
         >
           <Form.Item
@@ -158,7 +175,9 @@ const EditEmployee = () => {
           <Form.Item
             label={t("Position")}
             name="positionName"
-            rules={[{ required: true, message: t("Please select the position!") }]}
+            rules={[
+              { required: true, message: t("Please select the position!") },
+            ]}
           >
             <Select>
               {positions.map((position) => (

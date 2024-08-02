@@ -10,7 +10,7 @@ import {
   LogoutOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Switch } from "antd";
+import { Layout, Menu, Switch, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logoPMIT.png"; // Đường dẫn tới logo của bạn
 
@@ -23,6 +23,9 @@ const siderStyle = {
   position: "fixed",
   left: 0,
   top: 0,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
 };
 
 const layoutStyle = {
@@ -138,51 +141,51 @@ const Sidebar = () => {
       label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
     },
-    {
-      key: "12",
-      icon: <LogoutOutlined />,
-      label: (
-        <button
-          onClick={handleLogout}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          {t("Logout")}
-        </button>
-      ),
-    },
   ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
   return (
     <Layout style={layoutStyle}>
       <Sider width="15%" style={siderStyle}>
-        <div style={{ textAlign: "center", padding: "10px 0" }}>
-          <img
-            src={logo}
-            alt="Logo"
-            style={{ width: "60%", margin: "10px", borderRadius: "5px" }}
+        <div>
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
+            <img
+              src={logo}
+              alt="Logo"
+              style={{ width: "60%", margin: "10px", borderRadius: "5px" }}
+            />
+          </div>
+          <Menu
+            defaultSelectedKeys={["1"]}
+            defaultOpenKeys={["sub1"]}
+            mode="inline"
+            theme="dark"
+            items={items}
+            openKeys={openKeys}
+            onOpenChange={onOpenChange}
           />
         </div>
-        <Menu
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          theme="dark"
-          items={items}
-          openKeys={openKeys}
-          onOpenChange={onOpenChange}
-        />
-        <div style={{ textAlign: "center", padding: "10px 0" }}>
-          <Switch
-            checkedChildren={t("Vietnamese")}
-            unCheckedChildren={t("English")}
-            onChange={changeLanguage}
-            checked={language === "vi"}
-          />
+        <div>
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
+            <Switch
+              checkedChildren={t("Vietnamese")}
+              unCheckedChildren={t("English")}
+              onChange={changeLanguage}
+              checked={language === "vi"}
+            />
+          </div>
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
+            <Button
+              type="link"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              style={{
+                color: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              {t("Logout")}
+            </Button>
+          </div>
         </div>
       </Sider>
       <div style={{ marginLeft: "15%", width: "85%", padding: "16px" }}>

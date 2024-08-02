@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Switch,
-  Button,
-  Upload,
-  message,
-} from "antd";
+import { Form, Input, Select, Switch, Button, Upload, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
@@ -29,14 +20,12 @@ const EditEmployee = () => {
   const { employee } = state;
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
-  const [emails, setEmails] = useState([]);
   const [cvFile, setCvFile] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       const db = getDatabase();
       const positionsRef = ref(db, "positions");
-      const usersRef = ref(db, "users");
 
       const positionsSnapshot = await get(positionsRef);
       if (positionsSnapshot.exists()) {
@@ -49,31 +38,10 @@ const EditEmployee = () => {
       } else {
         setPositions([]);
       }
-
-      const usersSnapshot = await get(usersRef);
-      if (usersSnapshot.exists()) {
-        const data = usersSnapshot.val();
-        const emailList = Object.keys(data)
-          .map((key) => ({
-            id: key,
-            email: data[key].email,
-            isExist: data[key].IsExist === "true",
-            isActive: data[key].status === "active",
-            isAdmin: data[key].role === "Admin",
-          }))
-          .filter(
-            (user) =>
-              (!user.isExist && user.isActive && !user.isAdmin) ||
-              user.email === employee.email
-          );
-        setEmails(emailList);
-      } else {
-        setEmails([]);
-      }
     };
 
     fetchData();
-  }, [employee.email]);
+  }, []);
 
   const handleSubmit = async (values) => {
     const storage = getStorage();
@@ -81,7 +49,7 @@ const EditEmployee = () => {
 
     let cvUrl = employee.cv_file;
     if (cvFile) {
-      const cvRef = storageRef(storage, `cvs/${employee.id}.pdf`);
+      const cvRef = storageRef(storage, `cvs/${employee.key}.pdf`);
       const snapshot = await uploadBytes(cvRef, cvFile);
       cvUrl = await getDownloadURL(snapshot.ref);
     }
@@ -90,7 +58,6 @@ const EditEmployee = () => {
       ...employee,
       name: values.name,
       phone: values.phone,
-      email: values.email,
       status: values.status ? "active" : "inactive",
       positionName: values.positionName,
       cv_file: cvUrl,
@@ -109,18 +76,6 @@ const EditEmployee = () => {
       const employeeRef = ref(db, `employees/${employee.key}`);
       await update(employeeRef, updatedEmployee);
 
-      const oldEmail = emails.find((email) => email.email === employee.email);
-      const oldEmailRef = ref(db, `users/${oldEmail.id}`);
-      const newEmail = emails.find((email) => email.email === values.email);
-
-      if (employee.email !== values.email) {
-        if (newEmail) {
-          const newEmailRef = ref(db, `users/${newEmail.id}`);
-          await update(newEmailRef, { IsExist: "true" });
-        }
-        await update(oldEmailRef, { IsExist: "false" });
-      }
-
       navigate("/list");
       message.success("Successfully edited employee");
     } catch (error) {
@@ -136,17 +91,6 @@ const EditEmployee = () => {
 
   const gotoEmployeeList = () => {
     navigate("/list");
-  };
-
-  const emailValidator = (_, value) => {
-    if (!value || /^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
-      return Promise.resolve();
-    }
-    return Promise.reject(
-      new Error(
-        "Please enter a valid email address with a domain name (e.g., @gmail.com)"
-      )
-    );
   };
 
   return (
@@ -177,23 +121,9 @@ const EditEmployee = () => {
         rules={[
           { required: true, message: "Please input the email!" },
           { type: "email", message: "Please input a valid email!" },
-          {
-            validator: (_, value) => {
-              return emails.some((user) => user.email === value)
-                ? Promise.resolve()
-                : Promise.reject("Email not available!");
-            },
-          },
-          { validator: emailValidator },
         ]}
       >
-        <Select>
-          {emails.map((user) => (
-            <Option key={user.id} value={user.email}>
-              {user.email}
-            </Option>
-          ))}
-        </Select>
+        <Input disabled />
       </Form.Item>
 
       <Form.Item

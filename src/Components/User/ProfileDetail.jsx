@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Avatar, Row, Col, message } from "antd";
-import { getDatabase, ref, get } from "firebase/database";
+import {
+  Button,
+  Card,
+  Avatar,
+  Row,
+  Col,
+  message,
+  Select,
+  List,
+  Popconfirm,
+} from "antd";
+import { getDatabase, ref, get, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import styles from "../../styles/layouts/ProfileDetail.module.scss";
 
+const { Option } = Select;
+
 const ProfileDetail = () => {
   const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [availableProjects, setAvailableProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,8 +60,78 @@ const ProfileDetail = () => {
       }
     };
 
+    const fetchProjects = async () => {
+      const db = getDatabase();
+      const projectsRef = ref(db, "projects");
+      const snapshot = await get(projectsRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const formattedData = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setProjects(formattedData);
+        setAvailableProjects(formattedData);
+      }
+    };
+
     fetchUserData();
+    fetchProjects();
   }, [navigate, t]);
+
+  const handleJoinProject = async () => {
+    if (!userData || !userData.key) {
+      message.error(t("User data not available"));
+      return;
+    }
+    if (!selectedProject) {
+      message.error(t("Please select a project first"));
+      return;
+    }
+    try {
+      const db = getDatabase();
+      const userRef = ref(db, `employees/${userData.key}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        const userProjects = userData.projects || [];
+        if (userProjects.includes(selectedProject)) {
+          message.error(t("User is already in this project"));
+          return;
+        }
+        userProjects.push(selectedProject);
+        await update(userRef, { projects: userProjects });
+        setUserData({ ...userData, projects: userProjects });
+        message.success(t("Project joined successfully"));
+      }
+    } catch (error) {
+      console.error(t("Error joining project: "), error);
+      message.error(t("Error joining project"));
+    }
+  };
+
+  const handleRemoveProject = async (projectId) => {
+    if (!userData || !userData.key) {
+      message.error(t("User data not available"));
+      return;
+    }
+    try {
+      const db = getDatabase();
+      const userRef = ref(db, `employees/${userData.key}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        const userProjects = userData.projects || [];
+        const updatedProjects = userProjects.filter((id) => id !== projectId);
+        await update(userRef, { projects: updatedProjects });
+        setUserData({ ...userData, projects: updatedProjects });
+        message.success(t("Project removed successfully"));
+      }
+    } catch (error) {
+      console.error(t("Error removing project: "), error);
+      message.error(t("Error removing project"));
+    }
+  };
 
   const exportToPDF = async () => {
     const input = document.getElementById("profile-detail");
@@ -63,6 +148,10 @@ const ProfileDetail = () => {
   if (!userData) {
     return <div>{t("Loading...")}</div>;
   }
+
+  const userProjects = projects.filter((project) =>
+    (userData.projects || []).includes(project.id)
+  );
 
   return (
     <div className={styles.profilePage} id="profile-detail">
@@ -119,19 +208,65 @@ const ProfileDetail = () => {
         <p>
           <strong>{t("Work Experience")}:</strong>
           {userData.cv_list &&
-          userData.cv_list.length > 0 &&
-          userData.cv_list[0].cv_experience
+            userData.cv_list.length > 0 &&
+            userData.cv_list[0].cv_experience
             ? userData.cv_list[0].cv_experience.map((exp, index) => (
-                <span key={index}>
-                  {exp.description}
-                  {index < userData.cv_list[0].cv_experience.length - 1 && ", "}
-                </span>
-              ))
+              <span key={index}>
+                {exp.description}
+                {index < userData.cv_list[0].cv_experience.length - 1 && ", "}
+              </span>
+            ))
             : t("No work experience available")}
         </p>
         <p>
           <strong>{t("Education")}:</strong> {userData.education}
         </p>
+
+        <div className={styles.projectSection}>
+          <h3>{t("Projects")}</h3>
+          <List
+            bordered
+            dataSource={userProjects}
+            renderItem={(project) => (
+              <List.Item
+                actions={[
+                  <Popconfirm
+                    title={t("Are you sure to remove this project?")}
+                    onConfirm={() => handleRemoveProject(project.id)}
+                  >
+                    <Button>{t("Remove")}</Button>
+                  </Popconfirm>,
+                ]}
+              >
+                {project.name}
+              </List.Item>
+            )}
+          />
+        </div>
+
+        <div className={styles.joinProjectSection}>
+          <h3>{t("Join a Project")}</h3>
+          <Row gutter={16}>
+            <Col span={18}>
+              <Select
+                style={{ width: "100%" }}
+                placeholder={t("Select a project")}
+                onChange={(value) => setSelectedProject(value)}
+              >
+                {availableProjects.map((project) => (
+                  <Option key={project.id} value={project.id}>
+                    {project.name}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col span={6}>
+              <Button type="primary" onClick={handleJoinProject}>
+                {t("Join")}
+              </Button>
+            </Col>
+          </Row>
+        </div>
       </Card>
     </div>
   );

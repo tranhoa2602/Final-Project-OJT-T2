@@ -78,12 +78,8 @@ const Sidebar = () => {
     userRole === "Employee" && {
       key: "sub2",
       icon: <UserOutlined />,
-      label: t("Profile"),
+      label: <Link to="/profile">{t("Profile")}</Link>,
       children: [
-        {
-          key: "profile",
-          label: <Link to="/profile">{t("Profile")}</Link>,
-        },
         {
           key: "change-password",
           label: <Link to="/change-password">{t("Change Password")}</Link>,

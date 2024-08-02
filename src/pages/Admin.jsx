@@ -47,10 +47,10 @@ function Admin() {
             setUser(userData);
             form.setFieldsValue(userData);
             setProfilePicture(userData.profilePicture || defaultAvatarUrl);
-          } else {
-            message.error(t("User not authenticated"));
-            navigate("/");
           }
+        } else {
+          message.error(t("User not authenticated"));
+          navigate("/");
         }
       } catch (error) {
         message.error(t("Error fetching user data"));
@@ -205,9 +205,15 @@ function Admin() {
             onCancel={() => setEditModalOpen(false)}
             footer={null}
             destroyOnClose={true}
+            afterClose={() => setFormConnected(false)} // Reset formConnected after closing the modal
           >
             <Spin spinning={loading}>
-              <Form form={form} onFinish={handleUpdateUser} layout="vertical">
+              <Form
+                form={form}
+                onFinish={handleUpdateUser}
+                layout="vertical"
+                onFieldsChange={() => setFormConnected(true)} // Set formConnected to true after form fields are connected
+              >
                 <Form.Item
                   name="email"
                   label={t("Email")}

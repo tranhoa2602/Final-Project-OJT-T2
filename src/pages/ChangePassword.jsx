@@ -23,9 +23,21 @@ const ChangePassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `employees/${user.key}`);
+      let userRef;
+
+      if (user.role === "Admin") {
+        userRef = ref(db, `users/${user.key}`);
+      } else {
+        userRef = ref(db, `employees/${user.key}`);
+      }
+
       const snapshot = await get(userRef);
       const userData = snapshot.val();
+
+      if (!userData || !userData.password) {
+        setError(t("User data not found."));
+        return;
+      }
 
       const isPasswordCorrect = await bcrypt.compare(
         currentPassword,

@@ -257,7 +257,7 @@ const TechList = () => {
         columns={columns}
         dataSource={filteredData}
         rowKey="id"
-        pagination={{ current: currentPage, pageSize: 3 }} // Set pageSize to 3
+        pagination={{ current: currentPage, pageSize: 3 }} 
         onChange={handleTableChange}
       />
     </>

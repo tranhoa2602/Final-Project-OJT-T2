@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Descriptions, Button } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Descriptions, Button } from "antd";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 const EmployeeDetails = () => {
   const { t } = useTranslation();
@@ -22,10 +22,10 @@ const EmployeeDetails = () => {
     };
 
     fetchPositionName();
-  }, [employee.positionId, employee.projectIds, t]);
+  }, [employee.positionName, t]);
 
-  const returntoPrevious = () => {
-    navigate('/list');
+  const returnToPrevious = () => {
+    navigate("/list");
   };
 
   const handleDownloadCv = () => {
@@ -34,28 +34,37 @@ const EmployeeDetails = () => {
       return;
     }
 
-    window.open(employee.cv_file, '_blank');
+    window.open(employee.cv_file, "_blank");
   };
 
   return (
     <>
-      <Descriptions
-        title={t("Employee Details")}
-        bordered
-        column={1}
-      >
-        <Descriptions.Item label="Employee Name">{employee.name}</Descriptions.Item>
+      <Descriptions title={t("Employee Details")} bordered column={1}>
+        <Descriptions.Item label="Employee Name">
+          {employee.name}
+        </Descriptions.Item>
         <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>
         <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
         <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
         <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
-        <Descriptions.Item label="Position">{employee.positionName}</Descriptions.Item>
+        <Descriptions.Item label="Position">
+          {employee.positionName}
+        </Descriptions.Item>
       </Descriptions>
 
-      <Button type="primary" onClick={handleDownloadCv} style={{ background: 'blue', marginTop: '20px' }}>
+      <Button
+        type="primary"
+        onClick={handleDownloadCv}
+        style={{ background: "blue", marginTop: "20px" }}
+      >
         {t("Export CV")}
       </Button>
-      <Button type="primary" onClick={returntoPrevious} style={{ background: 'gray', marginTop: '20px' }}>
+
+      <Button
+        type="primary"
+        onClick={returnToPrevious}
+        style={{ background: "gray", marginTop: "20px" }}
+      >
         {t("Return")}
       </Button>
     </>

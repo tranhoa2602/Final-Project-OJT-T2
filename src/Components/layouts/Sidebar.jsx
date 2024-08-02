@@ -78,12 +78,8 @@ const Sidebar = () => {
     userRole === "Employee" && {
       key: "sub2",
       icon: <UserOutlined />,
-      label: t("Profile"),
+      label: <Link to="/profile">{t("Profile")}</Link>,
       children: [
-        {
-          key: "profile",
-          label: <Link to="/profile">{t("Profile")}</Link>,
-        },
         {
           key: "change-password",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
@@ -130,7 +126,7 @@ const Sidebar = () => {
       children: [
         {
           key: "7",
-          label: <Link to="/list">{t("Employee Profile")}</Link>,
+          label: <Link to="/list">{t("Employee List")}</Link>,
         },
         {
           key: "8",
@@ -139,6 +135,11 @@ const Sidebar = () => {
           ),
         },
       ],
+    },
+    userRole === "Employee" && {
+      key: "assign-project",
+      icon: <SolutionOutlined />,
+      label: <Link to="/assign-project">{t("Assign Project")}</Link>,
     },
     {
       key: "sub6",

@@ -10,10 +10,6 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
-
-
-
-// Define Option as a variable from Select
 const { Option } = Select;
 
 const TechList = () => {
@@ -25,7 +21,6 @@ const TechList = () => {
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,7 +105,6 @@ const TechList = () => {
 
   const handleTableChange = (pagination) => {
     setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
   };
 
   const columns = [
@@ -263,7 +257,7 @@ const TechList = () => {
         columns={columns}
         dataSource={filteredData}
         rowKey="id"
-        pagination={{ current: currentPage, pageSize: pageSize }}
+        pagination={{ current: currentPage, pageSize: 3 }} // Set pageSize to 3
         onChange={handleTableChange}
       />
     </>

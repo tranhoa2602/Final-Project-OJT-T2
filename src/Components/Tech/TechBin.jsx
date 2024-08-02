@@ -13,6 +13,8 @@ import 'swiper/css/navigation';
 const TechBin = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(3);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,6 +65,11 @@ const TechBin = () => {
       console.error("Error deleting technology:", error);
       message.error(t("Failed to delete technology."));
     }
+  };
+
+  const handleTableChange = (pagination) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
   };
 
   const columns = [
@@ -157,6 +164,8 @@ const TechBin = () => {
         columns={columns}
         dataSource={data}
         rowKey="id"
+        pagination={{ current: currentPage, pageSize: 3 }}
+        onChange={handleTableChange}
       />
     </div>
   );

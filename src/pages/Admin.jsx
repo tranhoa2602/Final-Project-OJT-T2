@@ -141,7 +141,6 @@ function Admin() {
         password: "1234567", // Default password
         role,
         status: "inactive", // Set default status to inactive
-        IsExist: "false",
         createdAt: new Date().toISOString(),
         verificationToken, // Add the verification token to user data
       };
@@ -244,13 +243,8 @@ function Admin() {
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 
-      if (userData.role === "Admin") {
-        message.error(t("Cannot delete an admin user"));
-        return;
-      }
-
-      if (userData.role === "Employee" && userData.status === "active") {
-        message.error(t("Cannot delete an active employee"));
+      if (userData.role === "Admin" && userData.status === "active") {
+        message.error(t("Cannot delete an active admin"));
         return;
       }
 

@@ -223,8 +223,8 @@ const CreateEmployee = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          Submit
+        <Button type="primary" htmlType="Create Account">
+          Create Account
         </Button>
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

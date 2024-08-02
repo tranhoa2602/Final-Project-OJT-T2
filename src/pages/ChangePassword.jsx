@@ -23,7 +23,7 @@ const ChangePassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${user.key}`);
+      const userRef = ref(db, `employees/${user.key}`);
       const snapshot = await get(userRef);
       const userData = snapshot.val();
 

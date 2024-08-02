@@ -40,7 +40,7 @@ const ResetPassword = () => {
     try {
       const db = getDatabase();
       const userRef = query(
-        ref(db, "users"),
+        ref(db, "employees"),
         orderByChild("email"),
         equalTo(email)
       );
@@ -49,7 +49,9 @@ const ResetPassword = () => {
       if (userData) {
         const userKey = Object.keys(userData)[0];
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await update(ref(db, `users/${userKey}`), { password: hashedPassword });
+        await update(ref(db, `employees/${userKey}`), {
+          password: hashedPassword,
+        });
         setMessage(
           "Password reset successfully! You can now log in with your new password."
         );

@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  Select,
-  Switch,
-  Button,
-  Upload,
-  message,
-  Spin,
-} from "antd";
+import { Form, Input, Select, Button, Upload, message, Spin } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
@@ -30,7 +21,7 @@ const EditEmployee = () => {
   const [form] = Form.useForm();
   const [positions, setPositions] = useState([]);
   const [cvFile, setCvFile] = useState(null);
-  const [loading, setLoading] = useState(false); // State to manage loading
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,12 +45,12 @@ const EditEmployee = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    setLoading(true); // Start loading
+    setLoading(true);
 
     const storage = getStorage();
     const db = getDatabase();
 
-    let cvUrl = employee.cv_file;
+    let cvUrl = employee.cv_file || "";
     if (cvFile) {
       const cvRef = storageRef(storage, `cvs/${employee.id}.pdf`);
       const snapshot = await uploadBytes(cvRef, cvFile);
@@ -70,9 +61,9 @@ const EditEmployee = () => {
       ...employee,
       name: values.name,
       phone: values.phone,
-      status: values.status ? "active" : "inactive",
+      status: values.status,
       positionName: values.positionName,
-      cv_file: cvUrl,
+      cv_file: cvUrl, // Ensure cv_file is not undefined
       cv_list: [
         {
           cv_experience: [
@@ -90,12 +81,12 @@ const EditEmployee = () => {
       await update(employeeRef, updatedEmployee);
 
       navigate("/list");
-      message.success("Successfully edited employee");
+      message.success(t("Successfully edited employee"));
     } catch (error) {
       console.error("Error editing employee:", error);
-      message.error("Failed to edit employee");
+      message.error(t("Failed to edit employee"));
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -129,7 +120,7 @@ const EditEmployee = () => {
             name: employee.name,
             email: employee.email,
             phone: employee.phone,
-            status: employee.status === "active",
+            status: employee.status,
             positionName: employee.positionName,
             description: employee.cv_list[0]?.cv_experience[0]?.description,
             deleteStatus: employee.deleteStatus ?? false, // Ensure deleteStatus is not undefined
@@ -168,8 +159,18 @@ const EditEmployee = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item label={t("Status")} name="status" valuePropName="checked">
-            <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+          <Form.Item
+            label={t("Status")}
+            name="status"
+            rules={[
+              { required: true, message: t("Please select the status!") },
+            ]}
+          >
+            <Select>
+              <Option value="Involved">{t("Involved")}</Option>
+              <Option value="Available">{t("Available")}</Option>
+              <Option value="Inactive">{t("Inactive")}</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -192,14 +193,9 @@ const EditEmployee = () => {
             <TextArea rows={4} />
           </Form.Item>
 
-          <Form.Item
-            label={t("CV Upload")}
-            name="cv_file"
-            valuePropName="file"
-            getValueFromEvent={handleCvUpload}
-          >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button>{t("Upload CV")}</Button>
+          <Form.Item label={t("Upload CV")}>
+            <Upload beforeUpload={handleCvUpload}>
+              <Button>{t("Click to Upload")}</Button>
             </Upload>
           </Form.Item>
 

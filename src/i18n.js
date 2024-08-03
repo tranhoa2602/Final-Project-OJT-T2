@@ -284,6 +284,7 @@ i18n.use(initReactI18next).init({
         "Join a Project": "Join a Project",
         Join: "Join",
         "Admin Profile": "Admin Profile",
+        "Employee List": "Employee List",
       },
     },
     vi: {
@@ -570,6 +571,7 @@ i18n.use(initReactI18next).init({
         "Join a Project": "Tham gia một dự án",
         Join: "Tham gia",
         "Admin Profile": "Hồ sơ quản trị",
+        "Employee List": "Danh sách nhân viên",
       },
     },
   },

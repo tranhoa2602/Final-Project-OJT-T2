@@ -25,8 +25,8 @@ const DetailProject = () => {
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
   const [allEmployees, setAllEmployees] = useState([]);
-  const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
-  const [isUnassignModalVisible, setIsUnassignModalVisible] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const DetailProject = () => {
       if (snapshot.exists()) {
         const projectData = snapshot.val();
         setProject(projectData);
-        fetchEmployees(projectData.employees || []);
+        fetchEmployees(projectData.assignedEmployees || []);
       } else {
         message.error(t("Project not found"));
       }
@@ -50,7 +50,7 @@ const DetailProject = () => {
       const snapshot = await get(employeesRef);
       if (snapshot.exists()) {
         const allEmployees = snapshot.val();
-        const assignedEmployees = [...new Set(employeeIds)].map((empId) => ({
+        const assignedEmployees = employeeIds.map((empId) => ({
           id: empId,
           name: allEmployees[empId]?.name || "Unknown",
         }));
@@ -60,39 +60,68 @@ const DetailProject = () => {
             id: key,
             name: allEmployees[key].name,
           }))
-        ); // Lưu toàn bộ danh sách nhân viên
+        );
       }
     };
 
     fetchProject();
   }, [id, t]);
 
+  const updateEmployeeStatus = async (employeeId) => {
+    const db = getDatabase();
+    const employeeRef = ref(db, `employees/${employeeId}`);
+    const employeeSnapshot = await get(employeeRef);
+    if (!employeeSnapshot.exists()) return;
+
+    const employeeData = employeeSnapshot.val();
+    const employeeProjects = employeeData.projects || [];
+
+    const projectStatuses = await Promise.all(
+      employeeProjects.map(async (projId) => {
+        const projectRef = ref(db, `projects/${projId}`);
+        const projectSnapshot = await get(projectRef);
+        return projectSnapshot.exists() ? projectSnapshot.val().status : null;
+      })
+    );
+
+    let newStatus = "Available";
+    if (
+      projectStatuses.some(
+        (status) => status === "Ongoing" || status === "Not Started"
+      )
+    ) {
+      newStatus = "Involved";
+    } else if (projectStatuses.every((status) => status === "Completed")) {
+      newStatus = "Inactive";
+    }
+
+    await update(employeeRef, { status: newStatus });
+  };
+
   const handleAssign = async (values) => {
-    console.log("handleAssign called with values:", values); // Thêm log để kiểm tra
     const db = getDatabase();
     const projectRef = ref(db, `projects/${id}`);
     const projectSnapshot = await get(projectRef);
     const projectData = projectSnapshot.val();
 
-    // Đảm bảo rằng projectData.employees là một mảng
-    const employeeList = projectData.employees ? projectData.employees : [];
+    const employeeList = projectData.assignedEmployees
+      ? projectData.assignedEmployees
+      : [];
 
-    // Check if employee is already assigned
     if (employeeList.includes(values.employee)) {
       message.error(t("Employee is already assigned to this project!"));
-      setIsAssignModalVisible(false);
+      setIsAssignModalOpen(false);
       form.resetFields();
       return;
     }
 
     const updatedProject = {
       ...projectData,
-      employees: [...new Set([...employeeList, values.employee])],
+      assignedEmployees: [...new Set([...employeeList, values.employee])],
     };
 
     await update(projectRef, updatedProject);
 
-    // Cập nhật project vào employee
     const employeeRef = ref(db, `employees/${values.employee}`);
     const employeeSnapshot = await get(employeeRef);
     const employeeData = employeeSnapshot.val();
@@ -103,11 +132,12 @@ const DetailProject = () => {
     };
     await update(employeeRef, updatedEmployee);
 
+    await updateEmployeeStatus(values.employee);
+
     message.success(t("Employee assigned successfully!"));
-    setIsAssignModalVisible(false);
+    setIsAssignModalOpen(false);
     form.resetFields();
-    // Update state without re-fetching
-    setProject(updatedProject); // Update project state
+    setProject(updatedProject);
     setEmployees((prevEmployees) => {
       const newEmployee = allEmployees.find(
         (emp) => emp.id === values.employee
@@ -119,49 +149,55 @@ const DetailProject = () => {
   };
 
   const handleUnassign = async (values) => {
-    console.log("handleUnassign called with values:", values); // Thêm log để kiểm tra
     const db = getDatabase();
     const projectRef = ref(db, `projects/${id}`);
     const projectSnapshot = await get(projectRef);
     const projectData = projectSnapshot.val();
 
-    // Đảm bảo rằng projectData.employees là một mảng
-    const employeeList = projectData.employees ? projectData.employees : [];
+    const employeeList = projectData.assignedEmployees
+      ? projectData.assignedEmployees
+      : [];
 
     const updatedEmployees = employeeList.filter(
       (emp) => emp !== values.employee
     );
     const updatedProject = {
       ...projectData,
-      employees: updatedEmployees,
+      assignedEmployees: updatedEmployees,
     };
 
     await update(projectRef, updatedProject);
 
-    // Xóa project từ employee
     const employeeRef = ref(db, `employees/${values.employee}`);
     const employeeSnapshot = await get(employeeRef);
     const employeeData = employeeSnapshot.val();
     const employeeProjects = employeeData.projects ? employeeData.projects : [];
-    const updatedEmployeeProjects = employeeProjects.filter((proj) => proj !== id);
+    const updatedEmployeeProjects = employeeProjects.filter(
+      (proj) => proj !== id
+    );
     const updatedEmployee = {
       ...employeeData,
       projects: updatedEmployeeProjects,
     };
     await update(employeeRef, updatedEmployee);
 
+    await updateEmployeeStatus(values.employee);
+
     message.success(t("Employee unassigned successfully!"));
-    setIsUnassignModalVisible(false);
+    setIsUnassignModalOpen(false);
     form.resetFields();
-    // Update state without re-fetching
-    setProject(updatedProject); // Update project state
+    setProject(updatedProject);
     setEmployees((prevEmployees) =>
       prevEmployees.filter((emp) => emp.id !== values.employee)
     );
   };
 
   if (loading) {
-    return <Spin tip={t("Loading...")} />;
+    return (
+      <Spin tip={t("Loading...")}>
+        <div style={{ height: "100vh", width: "100%" }} />
+      </Spin>
+    );
   }
 
   const renderTags = (items) => {
@@ -218,23 +254,23 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Assigned Employees")}>
               {employees.length > 0
                 ? employees.map((employee) => (
-                  <Tag key={employee.id} color="purple">
-                    {employee.name}
-                  </Tag>
-                ))
+                    <Tag key={employee.id} color="purple">
+                      {employee.name}
+                    </Tag>
+                  ))
                 : t("No employees assigned")}
             </Descriptions.Item>
           </Descriptions>
           <Button
             type="primary"
-            onClick={() => setIsAssignModalVisible(true)}
+            onClick={() => setIsAssignModalOpen(true)}
             style={{ marginTop: 20 }}
           >
             {t("Assign Employee")}
           </Button>
           <Button
             type="danger"
-            onClick={() => setIsUnassignModalVisible(true)}
+            onClick={() => setIsUnassignModalOpen(true)}
             style={{
               marginTop: 20,
               marginLeft: 10,
@@ -256,8 +292,8 @@ const DetailProject = () => {
           </Button>
           <Modal
             title={t("Assign Employee to Project")}
-            visible={isAssignModalVisible}
-            onCancel={() => setIsAssignModalVisible(false)}
+            open={isAssignModalOpen}
+            onCancel={() => setIsAssignModalOpen(false)}
             footer={null}
           >
             <Form form={form} onFinish={handleAssign} layout="vertical">
@@ -285,8 +321,8 @@ const DetailProject = () => {
           </Modal>
           <Modal
             title={t("Unassign Employee from Project")}
-            visible={isUnassignModalVisible}
-            onCancel={() => setIsUnassignModalVisible(false)}
+            open={isUnassignModalOpen}
+            onCancel={() => setIsUnassignModalOpen(false)}
             footer={null}
           >
             <Form form={form} onFinish={handleUnassign} layout="vertical">
@@ -321,4 +357,3 @@ const DetailProject = () => {
 };
 
 export default DetailProject;
-

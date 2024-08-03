@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Input, Avatar, message } from "antd";
+import {
+  Space,
+  Table,
+  Tag,
+  Button,
+  Input,
+  Avatar,
+  message,
+  Select,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import ExcelJS from "exceljs";
@@ -9,14 +18,24 @@ import {
   DeleteOutlined,
   InfoCircleOutlined,
   FileExcelOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 
+const { Option } = Select;
+
 const defaultAvatarUrl =
   "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
 
-const columns = (handleEdit, handleDelete, navigate, positions, projects, t) => [
+const columns = (
+  handleEdit,
+  handleDelete,
+  navigate,
+  positions,
+  projects,
+  t
+) => [
   {
     title: t("Profile Picture"),
     dataIndex: "profilePicture",
@@ -39,28 +58,82 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects, t) => 
     title: t("Email"),
     dataIndex: "email",
     key: "email",
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          placeholder={`Search ${t("Email")}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => confirm()}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            {t("Search")}
+          </Button>
+          <Button
+            onClick={() => clearFilters()}
+            size="small"
+            style={{ width: 90 }}
+          >
+            {t("Reset")}
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record.email.toLowerCase().includes(value.toLowerCase()),
   },
   {
     title: t("Position"),
     dataIndex: "positionName",
     key: "positionName",
+    filters: Object.values(positions).map((position) => ({
+      text: position.name,
+      value: position.name,
+    })),
+    onFilter: (value, record) => record.positionName === value,
   },
   {
     title: t("Status"),
     key: "status",
     dataIndex: "status",
+    filters: [
+      { text: t("Involved"), value: "Involved" },
+      { text: t("Available"), value: "Available" },
+      { text: t("Inactive"), value: "Inactive" },
+    ],
+    onFilter: (value, record) => record.status === value,
     render: (_, { status }) => {
       const statusArray = Array.isArray(status) ? status : [status];
       return (
         <>
           {statusArray.map((stat) => {
-            let color = stat.length > 5 ? "geekblue" : "green";
-            if (stat === "inactive") {
-              color = "volcano";
-            }
+            let color =
+              stat === "Inactive"
+                ? "#f50" // Bright red for Inactive
+                : stat === "Available"
+                ? "#87d068" // Light green for Available
+                : "#2db7f5"; // Bright blue for Involved
             return (
               <Tag color={color} key={stat}>
-                {stat === "active" ? t("Active") : t("Inactive")}
+                {t(stat)}
               </Tag>
             );
           })}
@@ -90,14 +163,16 @@ const columns = (handleEdit, handleDelete, navigate, positions, projects, t) => 
         >
           {t("Detail")}
         </Button>
-        <Button
-          type="danger"
-          onClick={() => handleDelete(record)}
-          icon={<DeleteOutlined />}
-          className={styles["delete-button"]}
-        >
-          {t("Delete")}
-        </Button>
+        {record.status === "Inactive" && (
+          <Button
+            type="danger"
+            onClick={() => handleDelete(record)}
+            icon={<DeleteOutlined />}
+            className={styles["delete-button"]}
+          >
+            {t("Delete")}
+          </Button>
+        )}
       </div>
     ),
   },
@@ -118,10 +193,41 @@ const fetchData = async () => {
 
   const employeesArray = Object.entries(employees)
     .filter(([key, value]) => !value.deleteStatus) // Filter out deleted employees
-    .map(([key, value]) => ({
-      key,
-      ...value,
-    }));
+    .map(([key, value]) => {
+      const assignedProjects = Object.entries(projects)
+        .filter(([projKey, projValue]) =>
+          projValue.assignedEmployees?.includes(key)
+        )
+        .map(([projKey, projValue]) => projValue);
+
+      let newStatus = "Available"; // Default status
+
+      if (
+        assignedProjects.some((project) =>
+          ["Ongoing", "Not Started"].includes(project.status)
+        )
+      ) {
+        newStatus = "Involved";
+      } else if (
+        assignedProjects.some((project) => project.status === "Pending")
+      ) {
+        newStatus = "Available";
+      } else if (
+        assignedProjects.every((project) => project.status === "Completed")
+      ) {
+        newStatus = "Inactive";
+      }
+
+      // Update the employee status in the database
+      const employeeRef = ref(db, `employees/${key}`);
+      update(employeeRef, { status: newStatus });
+
+      return {
+        key,
+        ...value,
+        status: newStatus,
+      };
+    });
 
   return { employees: employeesArray, positions, projects };
 };
@@ -132,6 +238,8 @@ const EmployeeList = () => {
   const [positions, setPositions] = useState({});
   const [projects, setProjects] = useState({});
   const [searchText, setSearchText] = useState("");
+  const [selectedPosition, setSelectedPosition] = useState("");
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -140,14 +248,15 @@ const EmployeeList = () => {
       setEmployees(employees);
       setPositions(positions);
       setProjects(projects);
+      setFilteredEmployees(employees);
     };
 
     fetchDataAndSetState();
   }, []);
 
   const handleDeleteAndRefresh = async (employee) => {
-    if (employee.status === "active") {
-      message.error("Cannot delete an active employee");
+    if (employee.status !== "Inactive") {
+      message.error("Only Inactive employees can be deleted");
       return;
     }
 
@@ -157,6 +266,7 @@ const EmployeeList = () => {
       await update(employeeRef, { deleteStatus: true });
       const { employees } = await fetchData();
       setEmployees(employees);
+      applyFilters(searchText, selectedPosition, employees);
       message.success("Employee status updated to deleted successfully");
     } catch (error) {
       console.error("Error updating employee status:", error);
@@ -179,7 +289,7 @@ const EmployeeList = () => {
       { header: "CV File", key: "cv_file", width: 50 },
     ];
 
-    employees.forEach((employee) => {
+    filteredEmployees.forEach((employee) => {
       worksheet.addRow({
         id: employee.key,
         name: employee.name,
@@ -199,18 +309,119 @@ const EmployeeList = () => {
     saveAs(blob, "employee-list.xlsx");
   };
 
-  const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const handleSearch = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchText(value);
+    applyFilters(value, selectedPosition, employees);
+  };
+
+  const handlePositionChange = (value) => {
+    setSelectedPosition(value);
+    applyFilters(searchText, value, employees);
+  };
+
+  const applyFilters = (searchText, selectedPosition, employees) => {
+    const filteredData = employees.filter((employee) => {
+      const matchesEmail = employee.email.toLowerCase().includes(searchText);
+      const matchesPosition = selectedPosition
+        ? employee.positionName === selectedPosition
+        : true;
+      return matchesEmail && matchesPosition;
+    });
+    setFilteredEmployees(filteredData);
+  };
+
+  const handleJoinProject = async (employeeId, projectId) => {
+    const db = getDatabase();
+    const employeeRef = ref(db, `employees/${employeeId}`);
+    const projectRef = ref(db, `projects/${projectId}`);
+
+    const [employeeSnapshot, projectSnapshot] = await Promise.all([
+      get(employeeRef),
+      get(projectRef),
+    ]);
+
+    if (employeeSnapshot.exists() && projectSnapshot.exists()) {
+      const employeeData = employeeSnapshot.val();
+      const projectData = projectSnapshot.val();
+
+      // Update employee's project list
+      const updatedProjects = [...(employeeData.projects || []), projectId];
+      await update(employeeRef, { projects: updatedProjects });
+
+      // Update project's assigned employee list
+      const updatedAssignedEmployees = [
+        ...(projectData.assignedEmployees || []),
+        employeeId,
+      ];
+      await update(projectRef, { assignedEmployees: updatedAssignedEmployees });
+
+      // Re-fetch the data to update statuses
+      const { employees } = await fetchData();
+      setEmployees(employees);
+      applyFilters(searchText, selectedPosition, employees);
+      message.success("Employee assigned to project successfully");
+    } else {
+      message.error("Failed to assign employee to project");
+    }
+  };
+
+  const handleRemoveProject = async (employeeId, projectId) => {
+    const db = getDatabase();
+    const employeeRef = ref(db, `employees/${employeeId}`);
+    const projectRef = ref(db, `projects/${projectId}`);
+
+    const [employeeSnapshot, projectSnapshot] = await Promise.all([
+      get(employeeRef),
+      get(projectRef),
+    ]);
+
+    if (employeeSnapshot.exists() && projectSnapshot.exists()) {
+      const employeeData = employeeSnapshot.val();
+      const projectData = projectSnapshot.val();
+
+      // Update employee's project list
+      const updatedProjects = (employeeData.projects || []).filter(
+        (projId) => projId !== projectId
+      );
+      await update(employeeRef, { projects: updatedProjects });
+
+      // Update project's assigned employee list
+      const updatedAssignedEmployees = (
+        projectData.assignedEmployees || []
+      ).filter((empId) => empId !== employeeId);
+      await update(projectRef, { assignedEmployees: updatedAssignedEmployees });
+
+      // Re-fetch the data to update statuses
+      const { employees } = await fetchData();
+      setEmployees(employees);
+      applyFilters(searchText, selectedPosition, employees);
+      message.success("Employee removed from project successfully");
+    } else {
+      message.error("Failed to remove employee from project");
+    }
+  };
 
   return (
     <div className={styles["employee-list"]}>
       <Space className={styles["actions-container"]}>
         <Input
-          placeholder={t("Search by Name")}
-          onChange={(e) => setSearchText(e.target.value)}
+          placeholder={t("Search by Email")}
+          onChange={handleSearch}
           className={styles["search-input"]}
         />
+        <Select
+          placeholder={t("Filter by Position")}
+          onChange={handlePositionChange}
+          className={styles["position-select"]}
+          allowClear
+        >
+          {Object.values(positions).map((position) => (
+            <Option key={position.name} value={position.name}>
+              {position.name}
+            </Option>
+          ))}
+        </Select>
         <Button
           type="primary"
           onClick={() => navigate("/create")}
@@ -235,7 +446,14 @@ const EmployeeList = () => {
         </Button>
       </Space>
       <Table
-        columns={columns(null, handleDeleteAndRefresh, navigate, positions, projects, t)}
+        columns={columns(
+          null,
+          handleDeleteAndRefresh,
+          navigate,
+          positions,
+          projects,
+          t
+        )}
         dataSource={filteredEmployees}
         rowKey="key"
         pagination={{ pageSize: 6 }}

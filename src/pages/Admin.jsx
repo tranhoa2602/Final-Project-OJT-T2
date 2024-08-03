@@ -62,11 +62,6 @@ function Admin() {
   }, [form, navigate, t]);
 
   const handleUpdateUser = async (values) => {
-    if (!values.email || !values.role || !values.status) {
-      message.error(t("Please fill in all required fields"));
-      return;
-    }
-
     try {
       const db = getDatabase();
       const userKey = user.id;

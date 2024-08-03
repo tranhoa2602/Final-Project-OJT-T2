@@ -283,6 +283,7 @@ i18n.use(initReactI18next).init({
         Images: "Images",
         "Join a Project": "Join a Project",
         Join: "Join",
+        "Admin Profile": "Admin Profile",
       },
     },
     vi: {
@@ -568,6 +569,7 @@ i18n.use(initReactI18next).init({
         Images: "hình ảnh",
         "Join a Project": "Tham gia một dự án",
         Join: "Tham gia",
+        "Admin Profile": "Hồ sơ quản trị",
       },
     },
   },

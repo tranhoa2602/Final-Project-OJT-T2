@@ -281,6 +281,8 @@ i18n.use(initReactI18next).init({
         "Move to Bin": "Move to Bin",
         "Add Technology": "Add Technology",
         Images: "Images",
+        "Join a Project": "Join a Project",
+        Join: "Join",
       },
     },
     vi: {
@@ -564,6 +566,8 @@ i18n.use(initReactI18next).init({
         "Move to Bin": "Chuyển đến Thùng rác",
         "Add Technology": "Thêm Công nghệ",
         Images: "hình ảnh",
+        "Join a Project": "Tham gia một dự án",
+        Join: "Tham gia",
       },
     },
   },

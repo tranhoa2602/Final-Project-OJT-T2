@@ -127,6 +127,31 @@ const EditProject = () => {
         }
     };
 
+    const getStatusOptions = () => {
+        if (!project) return [];
+        
+        const currentStatus = project.status;
+        const statusOptions = [
+            { value: "Not Started", label: t("Not Started") },
+            { value: "Ongoing", label: t("Ongoing") },
+            { value: "Completed", label: t("Completed") },
+            { value: "Pending", label: t("Pending") },
+        ];
+
+        // Filter out options based on current status
+        if (currentStatus === "Pending" || currentStatus === "Ongoing") {
+            return statusOptions.filter(
+                (option) => option.value !== "Not Started"
+            );
+        } else if (currentStatus === "Completed") {
+            return statusOptions.filter(
+                (option) => option.value === "Completed"
+            );
+        }
+
+        return statusOptions;
+    };
+
     return (
         <div>
             <h2>{t("Edit Project")}</h2>
@@ -232,10 +257,11 @@ const EditProject = () => {
                                 ]}
                             >
                                 <Select placeholder={t("Please select the project status!")}>
-                                    <Option value="Not Started">{t("Not Started")}</Option>
-                                    <Option value="Ongoing">{t("Ongoing")}</Option>
-                                    <Option value="Completed">{t("Completed")}</Option>
-                                    <Option value="Pending">{t("Pending")}</Option>
+                                    {getStatusOptions().map((option) => (
+                                        <Option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </Option>
+                                    ))}
                                 </Select>
                             </Form.Item>
                             <Form.Item>

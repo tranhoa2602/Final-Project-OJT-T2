@@ -47,6 +47,13 @@ function Admin() {
             setUser(userData);
             form.setFieldsValue(userData);
             setProfilePicture(userData.profilePicture || defaultAvatarUrl);
+
+            // Lưu chỉ key và role vào localStorage
+            const userStorageData = {
+              key: storedUser.key,
+              role: userData.role,
+            };
+            localStorage.setItem("user", JSON.stringify(userStorageData));
           }
         } else {
           message.error(t("User not authenticated"));
@@ -94,7 +101,12 @@ function Admin() {
       message.success(t("Profile updated successfully!"));
 
       setUser(userDataToUpdate);
-      localStorage.setItem("user", JSON.stringify(userDataToUpdate));
+      // Lưu chỉ key và role vào localStorage
+      const userStorageData = {
+        key: userKey,
+        role: userDataToUpdate.role,
+      };
+      localStorage.setItem("user", JSON.stringify(userStorageData));
       setEditModalOpen(false);
     } catch (error) {
       message.error(t("Error updating profile"));

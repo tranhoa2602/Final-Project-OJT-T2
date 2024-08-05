@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, message, Spin } from "antd";
+import { Form, Input, Button, message, Spin, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, set, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
@@ -109,6 +109,21 @@ const CreateEmployee = () => {
       );
   };
 
+  const handleConfirmSubmit = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        Modal.confirm({
+          title: "Confirm Create",
+          content: "Are you sure you want to create this employee?",
+          onOk: () => handleSubmit(values),
+        });
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  };
+
   const gotoEmployeeList = () => {
     navigate("/list");
   };
@@ -137,7 +152,7 @@ const CreateEmployee = () => {
       ) : (
         <Form
           form={form}
-          onFinish={handleSubmit}
+          onFinish={handleConfirmSubmit}
           style={{ maxWidth: "600px", margin: "auto" }}
         >
           <Form.Item

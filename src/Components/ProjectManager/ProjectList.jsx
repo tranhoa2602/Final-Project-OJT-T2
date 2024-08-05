@@ -60,7 +60,6 @@ const ListProject = () => {
       message.error(t("Failed to move project to bin!"));
     }
   };
-  
 
   const getStatusTag = (status) => {
     switch (status) {
@@ -136,6 +135,7 @@ const ListProject = () => {
                 icon={<DeleteOutlined />}
                 onClick={() => handleDelete(record.id)}
                 style={{ marginLeft: 8 }}
+                disabled={record.status === "Ongoing" || record.status === "Pending"} // Disable button if status is "Ongoing" or "Pending"
               >
                 {t("Delete")}
               </Button>

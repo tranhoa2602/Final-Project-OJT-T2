@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Select, Upload, message, Spin } from "antd";
+import { Form, Input, Button, message, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, set, get } from "firebase/database";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import emailjs from "emailjs-com";
@@ -17,40 +11,14 @@ import {
   EMAILJS_USER_ID,
 } from "../../../../emailConfig";
 
-const { Option } = Select;
-
 const CreateEmployee = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [positions, setPositions] = useState([]);
-  const [cvFile, setCvFile] = useState(null);
   const [loading, setLoading] = useState(false); // State to manage loading
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const db = getDatabase();
-      const positionsRef = ref(db, "positions");
-
-      const positionsSnapshot = await get(positionsRef);
-      if (positionsSnapshot.exists()) {
-        const data = positionsSnapshot.val();
-        const formattedData = Object.keys(data).map((key) => ({
-          name: data[key].name,
-          ...data[key],
-        }));
-        setPositions(formattedData);
-      } else {
-        setPositions([]);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const handleSubmit = async (values) => {
     setLoading(true); // Start loading
 
-    const storage = getStorage();
     const db = getDatabase();
     const employeesRef = ref(db, "employees");
 
@@ -68,14 +36,6 @@ const CreateEmployee = () => {
     }
 
     const newEmployeeId = uuidv4();
-    let cvUrl = "";
-
-    if (cvFile) {
-      const cvRef = storageRef(storage, `cvs/${newEmployeeId}.pdf`);
-      const snapshot = await uploadBytes(cvRef, cvFile);
-      cvUrl = await getDownloadURL(snapshot.ref);
-    }
-
     const hashedPassword = await bcrypt.hash("1234567", 10);
 
     const newEmployee = {
@@ -85,9 +45,7 @@ const CreateEmployee = () => {
       email: values.email,
       password: hashedPassword,
       role: "Employee", // Set default role to Employee
-      status: values.status ? "active" : "inactive",
-      positionName: values.positionName,
-      cv_file: cvUrl,
+      status: "Involved", // Default status is Involved
       cv_list: [
         {
           cv_experience: [
@@ -148,11 +106,6 @@ const CreateEmployee = () => {
       );
   };
 
-  const handleCvUpload = ({ file }) => {
-    setCvFile(file);
-    return false; // Prevents the default behavior of uploading the file
-  };
-
   const gotoEmployeeList = () => {
     navigate("/list");
   };
@@ -160,7 +113,15 @@ const CreateEmployee = () => {
   return (
     <div style={{ height: "100vh", marginTop: "20px" }}>
       {loading ? (
-        <Spin size="large" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }} />
+        <Spin
+          size="large"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        />
       ) : (
         <Form
           form={form}
@@ -200,33 +161,8 @@ const CreateEmployee = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item
-            label="Position"
-            name="positionName"
-            rules={[{ required: true, message: "Please select the position!" }]}
-          >
-            <Select>
-              {positions.map((position) => (
-                <Option key={position.name} value={position.name}>
-                  {position.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={4} />
-          </Form.Item>
-
-          <Form.Item
-            label="CV Upload"
-            name="cv_file"
-            valuePropName="file"
-            getValueFromEvent={handleCvUpload}
-          >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button>Upload CV</Button>
-            </Upload>
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

@@ -116,25 +116,8 @@ const Sidebar = () => {
     },
     userRole === "Admin" && {
       key: "sub5",
-      label: t("Employee"),
+      label: <Link to="/list">{t("Employee List")}</Link>,
       icon: <TeamOutlined />,
-      children: [
-        {
-          key: "7",
-          label: <Link to="/list">{t("Employee List")}</Link>,
-        },
-        {
-          key: "8",
-          label: (
-            <Link to="/../Employee/EmployeeList">{t("Assign Project")}</Link>
-          ),
-        },
-      ],
-    },
-    userRole === "Employee" && {
-      key: "assign-project",
-      icon: <SolutionOutlined />,
-      label: <Link to="/assign-project">{t("Assign Project")}</Link>,
     },
     {
       key: "sub6",

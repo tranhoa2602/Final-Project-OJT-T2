@@ -39,12 +39,25 @@ const ResetPassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = query(
+
+      // First check in the 'users' reference
+      let userRef = query(
         ref(db, "users"),
         orderByChild("email"),
         equalTo(email)
       );
-      const snapshot = await get(userRef);
+      let snapshot = await get(userRef);
+
+      // If not found, check in the 'employees' reference
+      if (!snapshot.exists()) {
+        userRef = query(
+          ref(db, "employees"),
+          orderByChild("email"),
+          equalTo(email)
+        );
+        snapshot = await get(userRef);
+      }
+
       const userData = snapshot.val();
       if (userData) {
         const userKey = Object.keys(userData)[0];

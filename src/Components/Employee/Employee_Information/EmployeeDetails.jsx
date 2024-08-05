@@ -1,40 +1,44 @@
-import React, { useState, useEffect } from "react";
-import { Descriptions, Button } from "antd";
+import React, { useEffect, useState } from "react";
+import { Descriptions, Button, Tag, Card } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import { getDatabase, ref, get } from "firebase/database";
 import { useTranslation } from "react-i18next";
+import { getDatabase, ref, get } from "firebase/database";
+import exportEmployeeCV from "../Employee_Information/EmployeeCV";
 
 const EmployeeDetails = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { state } = useLocation();
   const { employee } = state;
-  const [positionName, setPositionName] = useState("");
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    const fetchPositionName = async () => {
+    const fetchProjects = async (projectIds) => {
       const db = getDatabase();
-      const positionRef = ref(db, `positions/${employee.positionName}`);
-      const snapshot = await get(positionRef);
+      const projectsRef = ref(db, "projects");
+      const snapshot = await get(projectsRef);
+
       if (snapshot.exists()) {
-        setPositionName(snapshot.val().name);
+        const allProjects = snapshot.val();
+        const assignedProjects = projectIds.map((projId) => ({
+          id: projId,
+          ...allProjects[projId],
+        }));
+        setProjects(assignedProjects);
       }
     };
 
-    fetchPositionName();
-  }, [employee.positionName, t]);
+    if (employee.projects) {
+      fetchProjects(employee.projects);
+    }
+  }, [employee.projects]);
 
   const returnToPrevious = () => {
     navigate("/list");
   };
 
-  const handleDownloadCv = () => {
-    if (!employee.cv_file) {
-      console.error(t("CV file not found"));
-      return;
-    }
-
-    window.open(employee.cv_file, "_blank");
+  const handleExportCV = () => {
+    exportEmployeeCV(employee, projects);
   };
 
   return (
@@ -50,11 +54,49 @@ const EmployeeDetails = () => {
         <Descriptions.Item label="Position">
           {employee.positionName}
         </Descriptions.Item>
+        <Descriptions.Item label="Projects">
+          {projects.length > 0
+            ? projects.map((project) => (
+                <Tag key={project.id} color="blue">
+                  {project.name}
+                </Tag>
+              ))
+            : t("No projects assigned")}
+        </Descriptions.Item>
       </Descriptions>
+
+      <Card title={t("Projects")} style={{ marginTop: "20px" }}>
+        {projects.length > 0
+          ? projects.map((project) => (
+              <Card key={project.id} style={{ marginBottom: "10px" }}>
+                <p>
+                  <strong>{t("Project Name")}: </strong>
+                  {project.name}
+                </p>
+                <p>
+                  <strong>{t("Role")}: </strong>
+                  {employee.positionName}
+                </p>
+                <p>
+                  <strong>{t("Description")}: </strong>
+                  {project.description}
+                </p>
+                <p>
+                  <strong>{t("Languages and Framework")}: </strong>
+                  {project.programmingLanguage}
+                </p>
+                <p>
+                  <strong>{t("Technologies")}: </strong>
+                  {project.technology}
+                </p>
+              </Card>
+            ))
+          : t("No projects assigned")}
+      </Card>
 
       <Button
         type="primary"
-        onClick={handleDownloadCv}
+        onClick={handleExportCV}
         style={{ background: "blue", marginTop: "20px" }}
       >
         {t("Export CV")}

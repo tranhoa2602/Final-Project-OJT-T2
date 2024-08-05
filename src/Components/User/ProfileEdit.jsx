@@ -11,9 +11,10 @@ import {
   Avatar,
   Upload,
   Spin,
+  Tag,
 } from "antd";
 import { getDatabase, ref, get, update } from "firebase/database";
-import { storage } from "../../../firebaseConfig"; // Import storage from your Firebase config
+import { storage } from "../../../firebaseConfig";
 import {
   ref as storageRef,
   uploadBytes,
@@ -22,6 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UploadOutlined } from "@ant-design/icons";
+import exportEmployeeCV from "../Employee/Employee_Information/EmployeeCV"; // Ensure this path is correct
 import styles from "../../styles/layouts/ProfileEdit.module.scss";
 
 const { Option } = Select;
@@ -34,6 +36,7 @@ const ProfileEdit = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [tempProfilePicture, setTempProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +58,7 @@ const ProfileEdit = () => {
             setUserData(data);
             setProfilePicture(data.profilePicture);
             form.setFieldsValue(data);
+            fetchProjects(data.projects || []);
           } else {
             message.error(t("User data not found"));
             navigate("/");
@@ -66,6 +70,20 @@ const ProfileEdit = () => {
       } catch (error) {
         console.error(t("Error fetching user data: "), error);
         message.error(t("Error fetching user data"));
+      }
+    };
+
+    const fetchProjects = async (projectIds) => {
+      const db = getDatabase();
+      const projectsRef = ref(db, "projects");
+      const snapshot = await get(projectsRef);
+
+      if (snapshot.exists()) {
+        const allProjects = snapshot.val();
+        const assignedProjects = projectIds.map(
+          (projId) => allProjects[projId]
+        );
+        setProjects(assignedProjects);
       }
     };
 
@@ -128,7 +146,6 @@ const ProfileEdit = () => {
       );
       const snapshot = await uploadBytes(storageReference, tempProfilePicture);
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("File uploaded, download URL:", downloadURL);
       setProfilePicture(downloadURL);
       setTempProfilePicture(null);
 
@@ -153,6 +170,15 @@ const ProfileEdit = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExportCV = () => {
+    exportEmployeeCV({
+      ...userData,
+      specification: form.getFieldValue("specification"),
+      experience: form.getFieldValue("experience"),
+      projects,
+    });
   };
 
   if (!userData) {
@@ -276,14 +302,48 @@ const ProfileEdit = () => {
           >
             <TextArea rows={4} />
           </Form.Item>
+
           <Form.Item
-            name="education"
-            label={t("Education")}
+            name="specification"
+            label={t("Specification")}
             rules={[
-              { required: true, message: t("Please input your education!") },
+              {
+                required: true,
+                message: t("Please input your specification!"),
+              },
             ]}
           >
-            <TextArea rows={4} />
+            <TextArea rows={2} />
+          </Form.Item>
+          <Form.Item label={t("Projects")}>
+            {projects.map((project) => (
+              <Card key={project.name} className={styles.projectCard}>
+                <p>
+                  <strong>{t("Project Name")}: </strong>
+                  {project.name}
+                </p>
+                <p>
+                  <strong>{t("Role")}: </strong>
+                  {userData.positionName}
+                </p>
+                <p>
+                  <strong>{t("Description")}: </strong>
+                  {project.description}
+                </p>
+                <p>
+                  <strong>{t("Specification")}: </strong>
+                  {form.getFieldValue("specification")}
+                </p>
+                <p>
+                  <strong>{t("Languages and Framework")}: </strong>
+                  {project.programmingLanguage}
+                </p>
+                <p>
+                  <strong>{t("Technologies")}: </strong>
+                  {project.technology}
+                </p>
+              </Card>
+            ))}
           </Form.Item>
           <div className={styles.buttonsContainer}>
             <Button

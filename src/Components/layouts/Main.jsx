@@ -17,7 +17,6 @@ import AdminRoute from "../Admin/AdminRoute";
 import EditEmployee from "../Employee/Employee_Information/EditEmployee";
 import EmployeeList from "../Employee/Employee_Information/EmployeeList";
 import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
-import CVExport from "../Employee/Employee_Information/ExportEmployeeCV";
 import ChangePassword from "../../pages/ChangePassword";
 import ListPosition from "../PositionManager/ListPosition";
 import EditProject from "../ProjectManager/EditProject";
@@ -29,9 +28,8 @@ import LanguageBin from "../Language/LanguageBin";
 import ProjectBin from "../ProjectManager/ProjectBin.jsx";
 import EmployeeBin from "../Employee/Employee_Information/EmployeeBin";
 import { EmployeeProvider } from "../Employee/Employee_Information/EmployeeContext";
-// import AssignEmployee from "../ProjectManager/AssignEmployee/Assign"; // Import AssignEmployee
 import VerifyAccount from "../../../VerifyAccount";
-// import UnassignEmployee from "../ProjectManager/AssignEmployee/Unassign";
+import EmployeeCV from "../Employee/Employee_Information/EmployeeCV.jsx";
 import ProfileDetail from "../User/ProfileDetail";
 import ProfileEdit from "../User/ProfileEdit";
 
@@ -71,8 +69,7 @@ const Main = () => {
           <Route path="/register" element={<Register setUser={setUser} />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/verify-account" element={<VerifyAccount />} />{" "}
-          {/* Add the VerifyAccount route */}
+          <Route path="/verify-account" element={<VerifyAccount />} />
           <Route
             path="/admin"
             element={
@@ -92,7 +89,7 @@ const Main = () => {
           <Route path="/profile" element={<ProfileDetail />} />
           <Route path="/verify-account" element={<VerifyAccount />} />
           <Route path="/edit-profile" element={<ProfileEdit />} />
-          <Route path="/exportcv" element={<CVExport />} />
+          <Route path="/cv/:id" element={<EmployeeCV />} />
           <Route path="/AddTech" element={<AddTech />} />
           <Route path="/EditTech/:id" element={<EditTech />} />
           <Route path="/TechList" element={<TechList />} />
@@ -109,6 +106,7 @@ const Main = () => {
           <Route path="/LanguageBin" element={<LanguageBin />} />
           <Route path="/EmployeeBin" element={<EmployeeBin />} />
           <Route path="/ProjectBin" element={<ProjectBin />} />
+          {/* Corrected path */}
         </Routes>
       </main>
     </EmployeeProvider>

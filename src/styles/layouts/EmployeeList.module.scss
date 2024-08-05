@@ -4,6 +4,26 @@
   font-family: "Roboto", sans-serif;
   padding: 20px;
 
+  .delete-button {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+
+    &:hover {
+      background-color: #ff7875;
+    }
+
+    &:focus {
+      background-color: #d9363e;
+    }
+
+    &[disabled] {
+      background-color: #ff4d4f;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: not-allowed;
+    }
+  }
+
   .actions-container {
     display: flex;
     align-items: center;
@@ -69,6 +89,7 @@
     margin: 0 auto; // Center the table within its container
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed;
 
     th,
     td {
@@ -87,6 +108,16 @@
 
     tr:nth-child(even) {
       background-color: #f9f9f9;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+
+    tr {
+      &:hover {
+        background-color: #f9f9f9; // Ensure the hover color is consistent with even rows
+      }
     }
 
     .actions-container {

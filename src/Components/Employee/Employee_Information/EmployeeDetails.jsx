@@ -87,11 +87,11 @@ const EmployeeDetails = () => {
                 </p>
                 <p>
                   <strong>{t("Languages and Framework")}: </strong>
-                  {project.programmingLanguage}
+                  {project.programmingLanguage.join(", ")}
                 </p>
                 <p>
                   <strong>{t("Technologies")}: </strong>
-                  {project.technology}
+                  {project.technology.join(", ")}                
                 </p>
               </Card>
             ))

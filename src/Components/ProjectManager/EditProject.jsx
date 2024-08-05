@@ -17,8 +17,9 @@ const EditProject = () => {
     const [technologies, setTechnologies] = useState([]);
     const [languages, setLanguages] = useState([]);
     const [projectManagers, setProjectManagers] = useState([]);
-    const [loading, setLoading] = useState(true); // State to manage loading
+    const [loading, setLoading] = useState(true);
     const [noEndDate, setNoEndDate] = useState(false);
+    const [dateError, setDateError] = useState(false);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -33,8 +34,10 @@ const EditProject = () => {
                     setNoEndDate(!projectData.endDate);
                     form.setFieldsValue({
                         ...projectData,
-                        startDate: dayjs(projectData.startDate),
-                        endDate: projectData.endDate ? dayjs(projectData.endDate) : null,
+                        dateRange: [
+                            projectData.startDate ? dayjs(projectData.startDate) : null,
+                            projectData.endDate ? dayjs(projectData.endDate) : null
+                        ],
                     });
                 } else {
                     message.error(t("Project not found"));
@@ -104,16 +107,26 @@ const EditProject = () => {
     }, [id, form, navigate, t]);
 
     const onFinish = async (values) => {
+        const [startDate, endDate] = values.dateRange;
+
+        if (endDate && dayjs(endDate).isBefore(dayjs(startDate))) {
+            message.error(t("End date cannot be before start date!"));
+            setDateError(true);
+            return;
+        }
+
+        setDateError(false);
+
         const db = getDatabase();
         const projectRef = ref(db, `projects/${id}`);
-        const startDate = values.startDate;
-        const endDate = noEndDate ? null : values.endDate;
         const updatedProject = {
             ...values,
             startDate: startDate.format("YYYY-MM-DD"),
             endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
-            deleteStatus: project?.deletestatus ?? false, // Ensure deleteStatus is included
+            deleteStatus: project?.deletestatus ?? false,
         };
+
+        delete updatedProject.dateRange;
 
         try {
             await update(projectRef, updatedProject);
@@ -127,7 +140,7 @@ const EditProject = () => {
 
     const getStatusOptions = () => {
         if (!project) return [];
-        
+
         const currentStatus = project.status;
         const statusOptions = [
             { value: "Not Started", label: t("Not Started") },
@@ -235,46 +248,17 @@ const EditProject = () => {
                                     ))}
                                 </Select>
                             </Form.Item>
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="startDate"
-                                        label={t("Start Date")}
-                                        rules={[{ required: true, message: t("Please select the start date!") }]}
-                                    >
-                                        <DatePicker
-                                            format="YYYY-MM-DD"
-                                            getPopupContainer={(trigger) => trigger.parentNode}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item
-                                        name="endDate"
-                                        label={t("End Date")}
-                                        rules={[
-                                            {
-                                                required: !noEndDate,
-                                                message: t("Please select the end date!"),
-                                            },
-                                        ]}
-                                    >
-                                        <DatePicker
-                                            format="YYYY-MM-DD"
-                                            getPopupContainer={(trigger) => trigger.parentNode}
-                                            disabled={noEndDate}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item>
-                                        <Checkbox
-                                            checked={noEndDate}
-                                            onChange={(e) => setNoEndDate(e.target.checked)}
-                                        >
-                                            {t("No end date yet")}
-                                        </Checkbox>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <Form.Item
+                                name="dateRange"
+                                label={t("Project Duration")}
+                                rules={[{ required: true, message: t("Please select the project duration!") }]}
+                            >
+                                <DatePicker.RangePicker
+                                    format="YYYY-MM-DD"
+                                    getPopupContainer={(trigger) => trigger.parentNode}
+                                    onChange={() => setDateError(false)}  // Reset the date error on change
+                                />
+                            </Form.Item>
                             <Form.Item
                                 name="status"
                                 label={t("Status")}
@@ -292,7 +276,7 @@ const EditProject = () => {
                             </Form.Item>
                             <Form.Item>
                                 <Space>
-                                    <Button type="primary" htmlType="submit">
+                                    <Button type="primary" htmlType="submit" disabled={dateError}>
                                         {t("Update Project")}
                                     </Button>
                                     <Button type="default" onClick={() => navigate("/projects")}>

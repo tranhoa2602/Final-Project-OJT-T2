@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
+import emailjs from "emailjs-com";
 
 const { Option } = Select;
 
@@ -107,6 +108,24 @@ const DetailProject = () => {
     await update(employeeRef, { status: newStatus });
   };
 
+  const sendEmail = (email, projectName, actions) => {
+    emailjs
+      .send(
+        "service_kd15yr5",
+        "template_wzyncdg",
+        { email, projectName, actions },
+        "ORWrLvyLXRoxL0Q-f"
+      )
+      .then(
+        (response) => {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        (error) => {
+          console.log("FAILED...", error);
+        }
+      );
+  };
+
   const handleAssign = async (values) => {
     const db = getDatabase();
     const projectRef = ref(db, `projects/${id}`);
@@ -142,6 +161,9 @@ const DetailProject = () => {
     await update(employeeRef, updatedEmployee);
 
     await updateEmployeeStatus(values.employee);
+
+    // Send email notification
+    sendEmail(employeeData.email, projectData.name, "added");
 
     message.success(t("Employee assigned successfully!"));
     setIsAssignModalOpen(false);
@@ -191,6 +213,9 @@ const DetailProject = () => {
     await update(employeeRef, updatedEmployee);
 
     await updateEmployeeStatus(values.employee);
+
+    // Send email notification
+    sendEmail(employeeData.email, projectData.name, "fired");
 
     message.success(t("Employee unassigned successfully!"));
     setIsUnassignModalOpen(false);

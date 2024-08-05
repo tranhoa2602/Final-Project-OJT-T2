@@ -193,12 +193,6 @@ const EditEmployee = () => {
             <TextArea rows={4} />
           </Form.Item>
 
-          <Form.Item label={t("Upload CV")}>
-            <Upload beforeUpload={handleCvUpload}>
-              <Button>{t("Click to Upload")}</Button>
-            </Upload>
-          </Form.Item>
-
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {t("Submit")}

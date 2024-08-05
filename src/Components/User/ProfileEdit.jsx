@@ -102,7 +102,10 @@ const ProfileEdit = () => {
           userRef = ref(db, `employees/${storedUser.key}`);
         }
 
-        const updatedData = { ...values, profilePicture: profilePicture || "" };
+        // Remove the email field from the values to prevent updating it
+        const { email, ...updatedData } = values;
+        updatedData.profilePicture = profilePicture || "";
+
         await update(userRef, updatedData);
         message.success(t("Profile updated successfully"));
         setUserData(updatedData);

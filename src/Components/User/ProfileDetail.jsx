@@ -221,24 +221,7 @@ const ProfileDetail = () => {
         </Row>
         <p>
           <strong>{t("Work Experience")}:</strong>
-<<<<<<< HEAD
-          {userData.cv_list &&
-            userData.cv_list.length > 0 &&
-            userData.cv_list[0].cv_experience
-            ? userData.cv_list[0].cv_experience.map((exp, index) => (
-              <span key={index}>
-                {exp.description}
-                {index < userData.cv_list[0].cv_experience.length - 1 && ", "}
-              </span>
-            ))
-            : t("No work experience available")}
-        </p>
-
-        <p>
-          <strong>{t("Education")}:</strong> {userData.education}
-=======
           {userData.experience || t("No work experience available")}
->>>>>>> 6431e10339bb953fde84043ada66bc1046b22fd6
         </p>
 
         <div className={styles.projectSection}>

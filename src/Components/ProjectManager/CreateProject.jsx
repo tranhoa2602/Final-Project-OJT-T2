@@ -71,7 +71,6 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                 console.error("Error fetching programming languages:", error);
             }
         };
-
         const fetchProjectManagers = async () => {
             try {
                 const db = getDatabase();
@@ -79,16 +78,18 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                 const snapshot = await get(empRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
+                    console.log("All employees data:", data); // Log dữ liệu thô từ Firebase
                     const formattedData = Object.keys(data)
                         .map((key) => ({
                             id: key,
                             ...data[key],
                         }))
-                        .filter(
-                            (emp) =>
-                                emp.positionName === "Project Manager" &&
-                                emp.status === "active"
-                        );
+                        .filter((emp) => {
+                            console.log("Employee:", emp); // Log từng nhân viên để kiểm tra giá trị
+                            return emp.positionName === "Project Manager" &&
+                                (emp.status === "Involved" || emp.status === "Available");
+                        });
+                    console.log("Filtered project managers:", formattedData); // Log danh sách project managers đã lọc
                     setProjectManagers(formattedData);
                 } else {
                     console.log("No employees data available");
@@ -97,6 +98,10 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                 console.error("Error fetching project managers:", error);
             }
         };
+
+
+
+
 
         fetchTechnologies();
         fetchLanguages();

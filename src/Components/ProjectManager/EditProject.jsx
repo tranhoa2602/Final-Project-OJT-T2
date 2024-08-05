@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Form, Input, Button, DatePicker, Select, message, Space, Spin } from "antd";
+import { Form, Input, Button, DatePicker, Select, message, Space, Spin, Checkbox, Row, Col } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 const EditProject = () => {
     const { t } = useTranslation();
@@ -19,6 +18,7 @@ const EditProject = () => {
     const [languages, setLanguages] = useState([]);
     const [projectManagers, setProjectManagers] = useState([]);
     const [loading, setLoading] = useState(true); // State to manage loading
+    const [noEndDate, setNoEndDate] = useState(false);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -30,12 +30,11 @@ const EditProject = () => {
                 if (snapshot.exists()) {
                     const projectData = snapshot.val();
                     setProject(projectData);
+                    setNoEndDate(!projectData.endDate);
                     form.setFieldsValue({
                         ...projectData,
-                        dateRange: [
-                            dayjs(projectData.startDate),
-                            dayjs(projectData.endDate),
-                        ],
+                        startDate: dayjs(projectData.startDate),
+                        endDate: projectData.endDate ? dayjs(projectData.endDate) : null,
                     });
                 } else {
                     message.error(t("Project not found"));
@@ -107,15 +106,14 @@ const EditProject = () => {
     const onFinish = async (values) => {
         const db = getDatabase();
         const projectRef = ref(db, `projects/${id}`);
-        const [startDate, endDate] = values.dateRange;
+        const startDate = values.startDate;
+        const endDate = noEndDate ? null : values.endDate;
         const updatedProject = {
             ...values,
             startDate: startDate.format("YYYY-MM-DD"),
-            endDate: endDate.format("YYYY-MM-DD"),
+            endDate: endDate ? endDate.format("YYYY-MM-DD") : null,
             deleteStatus: project?.deletestatus ?? false, // Ensure deleteStatus is included
         };
-
-        delete updatedProject.dateRange;
 
         try {
             await update(projectRef, updatedProject);
@@ -212,18 +210,46 @@ const EditProject = () => {
                                     ))}
                                 </Select>
                             </Form.Item>
-                            <Form.Item
-                                name="dateRange"
-                                label={t("Date Range")}
-                                rules={[
-                                    { required: true, message: t("Please select the date range!") },
-                                ]}
-                            >
-                                <RangePicker
-                                    format="YYYY-MM-DD"
-                                    getPopupContainer={(trigger) => trigger.parentNode}
-                                />
-                            </Form.Item>
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name="startDate"
+                                        label={t("Start Date")}
+                                        rules={[{ required: true, message: t("Please select the start date!") }]}
+                                    >
+                                        <DatePicker
+                                            format="YYYY-MM-DD"
+                                            getPopupContainer={(trigger) => trigger.parentNode}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name="endDate"
+                                        label={t("End Date")}
+                                        rules={[
+                                            {
+                                                required: !noEndDate,
+                                                message: t("Please select the end date!"),
+                                            },
+                                        ]}
+                                    >
+                                        <DatePicker
+                                            format="YYYY-MM-DD"
+                                            getPopupContainer={(trigger) => trigger.parentNode}
+                                            disabled={noEndDate}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item>
+                                        <Checkbox
+                                            checked={noEndDate}
+                                            onChange={(e) => setNoEndDate(e.target.checked)}
+                                        >
+                                            {t("No end date yet")}
+                                        </Checkbox>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                             <Form.Item
                                 name="status"
                                 label={t("Status")}

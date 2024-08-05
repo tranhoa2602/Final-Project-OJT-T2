@@ -17,6 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 import moment from "moment";
 import emailjs from "emailjs-com";
+import axios from "axios"; // Add this if you decide to use an alternative email service like SendGrid
 
 const { Option } = Select;
 
@@ -108,22 +109,28 @@ const DetailProject = () => {
     await update(employeeRef, { status: newStatus });
   };
 
-  const sendEmail = (email, projectName, actions) => {
-    emailjs
-      .send(
-        "service_kd15yr5",
-        "template_wzyncdg",
+  const sendEmail = async (emails, projectName, actions) => {
+    const emailPromises = emails.map((email) =>
+      emailjs.send(
+        "service_npsa81b",
+        "template_j26jobr",
         { email, projectName, actions },
-        "ORWrLvyLXRoxL0Q-f"
+        "Tj4lqdQXNHyDVUreX"
       )
-      .then(
-        (response) => {
-          console.log("SUCCESS!", response.status, response.text);
-        },
-        (error) => {
-          console.log("FAILED...", error);
-        }
-      );
+    );
+
+    try {
+      await Promise.all(emailPromises);
+      console.log("Emails sent successfully");
+    } catch (error) {
+      console.error("Error sending emails", error);
+      if (error.status === 426) {
+        // Handle rate limit error
+        message.error("Rate limit reached. Please try again later.");
+      } else {
+        message.error("Failed to send emails.");
+      }
+    }
   };
 
   const handleAssign = async (values) => {
@@ -132,12 +139,16 @@ const DetailProject = () => {
     const projectSnapshot = await get(projectRef);
     const projectData = projectSnapshot.val();
 
-    const employeeList = projectData.assignedEmployees
-      ? projectData.assignedEmployees
-      : [];
+    const employeeList = projectData.assignedEmployees || [];
 
-    if (employeeList.includes(values.employee)) {
-      message.error(t("Employee is already assigned to this project!"));
+    const newEmployees = values.employees.filter(
+      (employee) => !employeeList.includes(employee)
+    );
+
+    if (newEmployees.length === 0) {
+      message.error(
+        t("Selected employees are already assigned to this project!")
+      );
       setIsAssignModalOpen(false);
       form.resetFields();
       return;
@@ -145,38 +156,36 @@ const DetailProject = () => {
 
     const updatedProject = {
       ...projectData,
-      assignedEmployees: [...new Set([...employeeList, values.employee])],
+      assignedEmployees: [...new Set([...employeeList, ...newEmployees])],
     };
 
     await update(projectRef, updatedProject);
 
-    const employeeRef = ref(db, `employees/${values.employee}`);
-    const employeeSnapshot = await get(employeeRef);
-    const employeeData = employeeSnapshot.val();
-    const employeeProjects = employeeData.projects ? employeeData.projects : [];
-    const updatedEmployee = {
-      ...employeeData,
-      projects: [...new Set([...employeeProjects, id])],
-    };
-    await update(employeeRef, updatedEmployee);
+    const updatedEmails = [];
+    for (const employeeId of newEmployees) {
+      const employeeRef = ref(db, `employees/${employeeId}`);
+      const employeeSnapshot = await get(employeeRef);
+      const employeeData = employeeSnapshot.val();
+      const employeeProjects = employeeData.projects || [];
+      const updatedEmployee = {
+        ...employeeData,
+        projects: [...new Set([...employeeProjects, id])],
+      };
+      await update(employeeRef, updatedEmployee);
+      await updateEmployeeStatus(employeeId);
+      updatedEmails.push(employeeData.email);
+    }
 
-    await updateEmployeeStatus(values.employee);
+    sendEmail(updatedEmails, projectData.name, "added");
 
-    // Send email notification
-    sendEmail(employeeData.email, projectData.name, "added");
-
-    message.success(t("Employee assigned successfully!"));
+    message.success(t("Employees assigned successfully!"));
     setIsAssignModalOpen(false);
     form.resetFields();
     setProject(updatedProject);
-    setEmployees((prevEmployees) => {
-      const newEmployee = allEmployees.find(
-        (emp) => emp.id === values.employee
-      );
-      return [...prevEmployees, newEmployee].filter(
-        (emp, index, self) => self.findIndex((e) => e.id === emp.id) === index
-      );
-    });
+    setEmployees((prevEmployees) => [
+      ...prevEmployees,
+      ...newEmployees.map((id) => allEmployees.find((emp) => emp.id === id)),
+    ]);
   };
 
   const handleUnassign = async (values) => {
@@ -185,13 +194,11 @@ const DetailProject = () => {
     const projectSnapshot = await get(projectRef);
     const projectData = projectSnapshot.val();
 
-    const employeeList = projectData.assignedEmployees
-      ? projectData.assignedEmployees
-      : [];
-
+    const employeeList = projectData.assignedEmployees || [];
     const updatedEmployees = employeeList.filter(
-      (emp) => emp !== values.employee
+      (emp) => !values.employees.includes(emp)
     );
+
     const updatedProject = {
       ...projectData,
       assignedEmployees: updatedEmployees,
@@ -199,30 +206,32 @@ const DetailProject = () => {
 
     await update(projectRef, updatedProject);
 
-    const employeeRef = ref(db, `employees/${values.employee}`);
-    const employeeSnapshot = await get(employeeRef);
-    const employeeData = employeeSnapshot.val();
-    const employeeProjects = employeeData.projects ? employeeData.projects : [];
-    const updatedEmployeeProjects = employeeProjects.filter(
-      (proj) => proj !== id
-    );
-    const updatedEmployee = {
-      ...employeeData,
-      projects: updatedEmployeeProjects,
-    };
-    await update(employeeRef, updatedEmployee);
+    const updatedEmails = [];
+    for (const employeeId of values.employees) {
+      const employeeRef = ref(db, `employees/${employeeId}`);
+      const employeeSnapshot = await get(employeeRef);
+      const employeeData = employeeSnapshot.val();
+      const employeeProjects = employeeData.projects || [];
+      const updatedEmployeeProjects = employeeProjects.filter(
+        (proj) => proj !== id
+      );
+      const updatedEmployee = {
+        ...employeeData,
+        projects: updatedEmployeeProjects,
+      };
+      await update(employeeRef, updatedEmployee);
+      await updateEmployeeStatus(employeeId);
+      updatedEmails.push(employeeData.email);
+    }
 
-    await updateEmployeeStatus(values.employee);
+    sendEmail(updatedEmails, projectData.name, "fired");
 
-    // Send email notification
-    sendEmail(employeeData.email, projectData.name, "fired");
-
-    message.success(t("Employee unassigned successfully!"));
+    message.success(t("Employees unassigned successfully!"));
     setIsUnassignModalOpen(false);
     form.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) =>
-      prevEmployees.filter((emp) => emp.id !== values.employee)
+      prevEmployees.filter((emp) => !values.employees.includes(emp.id))
     );
   };
 
@@ -290,10 +299,10 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Assigned Employees")}>
               {employees.length > 0
                 ? employees.map((employee) => (
-                  <Tag key={employee.id} color="purple">
-                    {employee.name}
-                  </Tag>
-                ))
+                    <Tag key={employee.id} color="purple">
+                      {employee.name}
+                    </Tag>
+                  ))
                 : t("No employees assigned")}
             </Descriptions.Item>
           </Descriptions>
@@ -302,7 +311,7 @@ const DetailProject = () => {
             onClick={() => setIsAssignModalOpen(true)}
             style={{ marginTop: 20 }}
           >
-            {t("Assign Employee")}
+            {t("Assign Employees")}
           </Button>
           <Button
             type="danger"
@@ -317,7 +326,7 @@ const DetailProject = () => {
             }}
             disabled={employees.length === 0}
           >
-            {t("Unassign Employee")}
+            {t("Unassign Employees")}
           </Button>
           <Button
             type="default"
@@ -327,20 +336,24 @@ const DetailProject = () => {
             {t("Back to Project List")}
           </Button>
           <Modal
-            title={t("Assign Employee to Project")}
+            title={t("Assign Employees to Project")}
             open={isAssignModalOpen}
             onCancel={() => setIsAssignModalOpen(false)}
             footer={null}
           >
             <Form form={form} onFinish={handleAssign} layout="vertical">
               <Form.Item
-                name="employee"
-                label={t("Employee")}
+                name="employees"
+                label={t("Employees")}
                 rules={[
-                  { required: true, message: t("Please select an employee!") },
+                  { required: true, message: t("Please select employees!") },
                 ]}
               >
-                <Select placeholder={t("Select an employee")}>
+                <Select
+                  mode="multiple"
+                  placeholder={t("Select employees")}
+                  optionFilterProp="children"
+                >
                   {allEmployees.map((employee) => (
                     <Option key={employee.id} value={employee.id}>
                       {employee.name}
@@ -356,20 +369,24 @@ const DetailProject = () => {
             </Form>
           </Modal>
           <Modal
-            title={t("Unassign Employee from Project")}
+            title={t("Unassign Employees from Project")}
             open={isUnassignModalOpen}
             onCancel={() => setIsUnassignModalOpen(false)}
             footer={null}
           >
             <Form form={form} onFinish={handleUnassign} layout="vertical">
               <Form.Item
-                name="employee"
-                label={t("Employee")}
+                name="employees"
+                label={t("Employees")}
                 rules={[
-                  { required: true, message: t("Please select an employee!") },
+                  { required: true, message: t("Please select employees!") },
                 ]}
               >
-                <Select placeholder={t("Select an employee")}>
+                <Select
+                  mode="multiple"
+                  placeholder={t("Select employees")}
+                  optionFilterProp="children"
+                >
                   {employees.map((employee) => (
                     <Option key={employee.id} value={employee.id}>
                       {employee.name}

@@ -38,29 +38,42 @@ const EmployeeDetails = () => {
   };
 
   const handleExportCV = () => {
-    exportEmployeeCV(employee, projects);
+    const translations = {
+      addressLabel: t("Address"),
+      emailLabel: t("Email"),
+      workingExperience: t("WORKING EXPERIENCE"),
+      typicalProjects: t("TYPICAL PROJECTS"),
+      projectName: t("Project Name"),
+      roleLabel: t("Role"),
+      descriptionLabel: t("Description"),
+      specificationLabel: t("Specification"),
+      languagesFrameworkLabel: t("Languages and Framework"),
+      technologiesLabel: t("Technologies"),
+    };
+
+    exportEmployeeCV(employee, projects, translations);
   };
 
   return (
     <>
       <Descriptions title={t("Employee Details")} bordered column={1}>
-        <Descriptions.Item label="Employee Name">
+        <Descriptions.Item label={t("Employee Name")}>
           {employee.name}
         </Descriptions.Item>
-        <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>
-        <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
-        <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
-        <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
-        <Descriptions.Item label="Position">
+        <Descriptions.Item label={t("Email")}>{employee.email}</Descriptions.Item>
+        <Descriptions.Item label={t("Phone")}>{employee.phone}</Descriptions.Item>
+        <Descriptions.Item label={t("Role")}>{employee.role}</Descriptions.Item>
+        <Descriptions.Item label={t("Status")}>{employee.status}</Descriptions.Item>
+        <Descriptions.Item label={t("Position")}>
           {employee.positionName}
         </Descriptions.Item>
-        <Descriptions.Item label="Projects">
+        <Descriptions.Item label={t("Projects")}>
           {projects.length > 0
             ? projects.map((project) => (
-                <Tag key={project.id} color="blue">
-                  {project.name}
-                </Tag>
-              ))
+              <Tag key={project.id} color="blue">
+                {project.name}
+              </Tag>
+            ))
             : t("No projects assigned")}
         </Descriptions.Item>
       </Descriptions>
@@ -68,33 +81,33 @@ const EmployeeDetails = () => {
       <Card title={t("Projects")} style={{ marginTop: "20px" }}>
         {projects.length > 0
           ? projects.map((project) => (
-              <Card key={project.id} style={{ marginBottom: "10px" }}>
-                <p>
-                  <strong>{t("Project Name")}: </strong>
-                  {project.name}
-                </p>
-                <p>
-                  <strong>{t("Role")}: </strong>
-                  {employee.positionName}
-                </p>
-                <p>
-                  <strong>{t("Description")}: </strong>
-                  {project.description}
-                </p>
-                <p>
-                  <strong>{t("Specification")}: </strong>
-                  {employee.specification}
-                </p>
-                <p>
-                  <strong>{t("Languages and Framework")}: </strong>
-                  {project.programmingLanguage.join(", ")}
-                </p>
-                <p>
-                  <strong>{t("Technologies")}: </strong>
-                  {project.technology.join(", ")}                
-                </p>
-              </Card>
-            ))
+            <Card key={project.id} style={{ marginBottom: "10px" }}>
+              <p>
+                <strong>{t("Project Name")}: </strong>
+                {project.name}
+              </p>
+              <p>
+                <strong>{t("Role")}: </strong>
+                {employee.positionName}
+              </p>
+              <p>
+                <strong>{t("Description")}: </strong>
+                {project.description}
+              </p>
+              <p>
+                <strong>{t("Specification")}: </strong>
+                {employee.specification}
+              </p>
+              <p>
+                <strong>{t("Languages and Framework")}: </strong>
+                {project.programmingLanguage.join(", ")}
+              </p>
+              <p>
+                <strong>{t("Technologies")}: </strong>
+                {project.technology.join(", ")}
+              </p>
+            </Card>
+          ))
           : t("No projects assigned")}
       </Card>
 

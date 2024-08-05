@@ -11,9 +11,12 @@ import {
   Modal,
   Form,
   Select,
+  DatePicker,
+  Checkbox,
 } from "antd";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
+import emailjs from "emailjs-com";
 
 const { Option } = Select;
 
@@ -28,6 +31,7 @@ const DetailProject = () => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const [noEndDate, setNoEndDate] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -37,7 +41,13 @@ const DetailProject = () => {
       if (snapshot.exists()) {
         const projectData = snapshot.val();
         setProject(projectData);
+        setNoEndDate(!projectData.endDate);
         fetchEmployees(projectData.assignedEmployees || []);
+        form.setFieldsValue({
+          ...projectData,
+          startDate: moment(projectData.startDate),
+          endDate: projectData.endDate ? moment(projectData.endDate) : null,
+        });
       } else {
         message.error(t("Project not found"));
       }
@@ -65,7 +75,7 @@ const DetailProject = () => {
     };
 
     fetchProject();
-  }, [id, t]);
+  }, [id, t, form]);
 
   const updateEmployeeStatus = async (employeeId) => {
     const db = getDatabase();
@@ -96,6 +106,24 @@ const DetailProject = () => {
     }
 
     await update(employeeRef, { status: newStatus });
+  };
+
+  const sendEmail = (email, projectName, actions) => {
+    emailjs
+      .send(
+        "service_kd15yr5",
+        "template_wzyncdg",
+        { email, projectName, actions },
+        "ORWrLvyLXRoxL0Q-f"
+      )
+      .then(
+        (response) => {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        (error) => {
+          console.log("FAILED...", error);
+        }
+      );
   };
 
   const handleAssign = async (values) => {
@@ -133,6 +161,9 @@ const DetailProject = () => {
     await update(employeeRef, updatedEmployee);
 
     await updateEmployeeStatus(values.employee);
+
+    // Send email notification
+    sendEmail(employeeData.email, projectData.name, "added");
 
     message.success(t("Employee assigned successfully!"));
     setIsAssignModalOpen(false);
@@ -182,6 +213,9 @@ const DetailProject = () => {
     await update(employeeRef, updatedEmployee);
 
     await updateEmployeeStatus(values.employee);
+
+    // Send email notification
+    sendEmail(employeeData.email, projectData.name, "fired");
 
     message.success(t("Employee unassigned successfully!"));
     setIsUnassignModalOpen(false);
@@ -244,7 +278,9 @@ const DetailProject = () => {
               {moment(project.startDate).format("YYYY-MM-DD")}
             </Descriptions.Item>
             <Descriptions.Item label={t("End Date")}>
-              {moment(project.endDate).format("YYYY-MM-DD")}
+              {project.endDate
+                ? moment(project.endDate).format("YYYY-MM-DD")
+                : t("No end date yet")}
             </Descriptions.Item>
             <Descriptions.Item label={t("Status")}>
               <Tag color={getStatusTagColor(project.status)}>
@@ -254,10 +290,10 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Assigned Employees")}>
               {employees.length > 0
                 ? employees.map((employee) => (
-                    <Tag key={employee.id} color="purple">
-                      {employee.name}
-                    </Tag>
-                  ))
+                  <Tag key={employee.id} color="purple">
+                    {employee.name}
+                  </Tag>
+                ))
                 : t("No employees assigned")}
             </Descriptions.Item>
           </Descriptions>

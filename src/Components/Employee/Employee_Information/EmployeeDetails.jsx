@@ -82,6 +82,10 @@ const EmployeeDetails = () => {
                   {project.description}
                 </p>
                 <p>
+                  <strong>{t("Specification")}: </strong>
+                  {employee.specification}
+                </p>
+                <p>
                   <strong>{t("Languages and Framework")}: </strong>
                   {project.programmingLanguage.join(", ")}
                 </p>

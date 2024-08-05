@@ -243,6 +243,12 @@ const fetchData = async () => {
       };
     });
 
+  // Sort employees by status: Involved, Available, Inactive
+  employeesArray.sort((a, b) => {
+    const order = ["Involved", "Available", "Inactive"];
+    return order.indexOf(a.status) - order.indexOf(b.status);
+  });
+
   return { employees: employeesArray, positions, projects };
 };
 

@@ -1,7 +1,20 @@
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 
-const exportEmployeeCV = (employee, projects) => {
+const exportEmployeeCV = (employee, projects, translations) => {
+  const {
+    addressLabel,
+    emailLabel,
+    workingExperience,
+    typicalProjects,
+    projectName,
+    roleLabel,
+    descriptionLabel,
+    specificationLabel,
+    languagesFrameworkLabel,
+    technologiesLabel,
+  } = translations;
+
   const experienceArray = employee.experience
     ? employee.experience.split("\n")
     : [];
@@ -30,7 +43,7 @@ const exportEmployeeCV = (employee, projects) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: `Address: ${employee.address || ""}`,
+                text: `${addressLabel}: ${employee.address || ""}`,
                 size: 28,
                 color: "#7f8c8d",
                 font: "Times New Roman",
@@ -41,7 +54,7 @@ const exportEmployeeCV = (employee, projects) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: `Email: ${employee.email}`,
+                text: `${emailLabel}: ${employee.email}`,
                 size: 28,
                 color: "#7f8c8d",
                 font: "Times New Roman",
@@ -54,7 +67,7 @@ const exportEmployeeCV = (employee, projects) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "WORKING EXPERIENCE",
+                text: workingExperience,
                 bold: true,
                 size: 30,
                 color: "#2980b9",
@@ -81,7 +94,7 @@ const exportEmployeeCV = (employee, projects) => {
           new Paragraph({
             children: [
               new TextRun({
-                text: "TYPICAL PROJECTS",
+                text: typicalProjects,
                 bold: true,
                 size: 30,
                 color: "#2980b9",
@@ -95,7 +108,7 @@ const exportEmployeeCV = (employee, projects) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Project Name: ${project.name || ""}`,
+                    text: `${projectName}: ${project.name || ""}`,
                     bold: true,
                     size: 24,
                     color: "#34495e",
@@ -106,7 +119,7 @@ const exportEmployeeCV = (employee, projects) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Role: ${employee.positionName || ""}`,
+                    text: `${roleLabel}: ${employee.positionName || ""}`,
                     size: 20,
                     color: "#7f8c8d",
                     font: "Times New Roman",
@@ -116,7 +129,7 @@ const exportEmployeeCV = (employee, projects) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Description: ${project.description || ""}`,
+                    text: `${descriptionLabel}: ${project.description || ""}`,
                     size: 20,
                     color: "#2c3e50",
                     font: "Times New Roman",
@@ -126,7 +139,7 @@ const exportEmployeeCV = (employee, projects) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Specification: ${employee.specification || ""}`,
+                    text: `${specificationLabel}: ${employee.specification || ""}`,
                     size: 20,
                     color: "#2c3e50",
                     font: "Times New Roman",
@@ -136,9 +149,8 @@ const exportEmployeeCV = (employee, projects) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Languages and Framework: ${
-                      project.programmingLanguage || ""
-                    }`,
+                    text: `${languagesFrameworkLabel}: ${project.programmingLanguage || ""
+                      }`,
                     size: 20,
                     color: "#2c3e50",
                     font: "Times New Roman",
@@ -148,7 +160,7 @@ const exportEmployeeCV = (employee, projects) => {
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: `Technologies: ${project.technology || ""}`,
+                    text: `${technologiesLabel}: ${project.technology || ""}`,
                     size: 20,
                     color: "#2c3e50",
                     font: "Times New Roman",

@@ -309,6 +309,11 @@ i18n.use(initReactI18next).init({
                 'Back to Language List': 'Back to Language List',
                 'Please select the project duration!': 'Please select the project duration!',
                 'Project Duration': 'Project Duration',
+                'Are you sure you want to delete this employee?': 'Are you sure you want to delete this employee?',
+                'Confirm Delete': 'Confirm Delete',
+                "WORKING EXPERIENCE": "WORKING EXPERIENCE",
+                "TYPICAL PROJECTS": "TYPICAL PROJECTS",
+
             },
         },
         vi: {
@@ -619,6 +624,10 @@ i18n.use(initReactI18next).init({
                 'Back to Language List': 'Quay lại danh sách ngôn ngữ',
                 'Please select the project duration!': 'Vui lòng chọn thời gian thực hiện dự án!',
                 'Project Duration': 'Thời gian dự án',
+                'Are you sure you want to delete this employee?': 'Bạn có chắc chắn muốn xóa nhân viên này?',
+                'Confirm Delete': 'Xác nhận Xóa',
+                "WORKING EXPERIENCE": "KINH NGHIỆM LÀM VIỆC",
+                "TYPICAL PROJECTS": "CÁC DỰ ÁN TIÊU BIỂU",
             },
         },
     },

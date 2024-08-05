@@ -280,8 +280,8 @@ const EmployeeList = () => {
       return;
     }
     Modal.confirm({
-      title: "Confirm Delete",
-      content: "Are you sure you want to delete this employee?",
+      title: t("Confirm Delete"),
+      content: t("Are you sure you want to delete this employee?"),
       onOk: async () => {
         try {
           const db = getDatabase();
@@ -290,10 +290,10 @@ const EmployeeList = () => {
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
-          message.success("Employee status updated to deleted successfully");
+          message.success(t("Employee status updated to deleted successfully"));
         } catch (error) {
-          console.error("Error updating employee status:", error);
-          message.error("Failed to update employee status");
+          console.error(t("Error updating employee status:"), error);
+          message.error(t("Failed to update employee status"));
         }
       }
     });
@@ -318,14 +318,14 @@ const EmployeeList = () => {
     const worksheet = workbook.addWorksheet("Employees");
 
     worksheet.columns = [
-      { header: "ID", key: "id", width: 10 },
-      { header: "Name", key: "name", width: 30 },
-      { header: "Email", key: "email", width: 30 },
-      { header: "Phone", key: "phone", width: 15 },
-      { header: "Status", key: "status", width: 15 },
-      { header: "Position", key: "positionName", width: 15 },
-      { header: "Description", key: "description", width: 50 },
-      { header: "CV File", key: "cv_file", width: 50 },
+      { header: t("ID"), key: "id", width: 10 },
+      { header: t("Name"), key: "name", width: 30 },
+      { header: t("Email"), key: "email", width: 30 },
+      { header: t("Phone"), key: "phone", width: 15 },
+      { header: t("Status"), key: "status", width: 15 },
+      { header: t("Position"), key: "positionName", width: 15 },
+      { header: t("Description"), key: "description", width: 50 },
+      { header: t("CV File"), key: "cv_file", width: 50 },
     ];
 
     filteredEmployees.forEach((employee) => {

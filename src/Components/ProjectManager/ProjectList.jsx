@@ -125,7 +125,7 @@ const ListProject = () => {
 
           {(user?.position === "Project Manager" &&
             user?.name === record.projectManager) ||
-          user?.role === "Admin" ? (
+            user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
@@ -191,25 +191,25 @@ const ListProject = () => {
 
   const exportToExcel = () => {
     const dataToExport = filteredProjects.map((project) => ({
-      Name: project.name,
-      Description: project.description,
-      Technology: project.technology.join(", "),
-      ProgrammingLanguage: project.programmingLanguage.join(", "),
-      StartDate: project.startDate.toLocaleDateString(),
-      EndDate: project.endDate.toLocaleDateString(),
-      Status: project.status,
-      ProjectManager: project.projectManager,
+      [t("Name")]: project.name,
+      [t("Description")]: project.description,
+      [t("Technology")]: project.technology.join(", "),
+      [t("Programming Language")]: project.programmingLanguage.join(", "),
+      [t("Start Date")]: project.startDate.toLocaleDateString(),
+      [t("End Date")]: project.endDate.toLocaleDateString(),
+      [t("Status")]: project.status,
+      [t("Project Manager")]: project.projectManager,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
+    XLSX.utils.book_append_sheet(workbook, worksheet, t("Projects"));
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "ProjectRoster.xlsx");
+    saveAs(data, t("ProjectRoster") + ".xlsx");
   };
 
   return (

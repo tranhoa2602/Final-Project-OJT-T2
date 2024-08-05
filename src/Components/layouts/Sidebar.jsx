@@ -9,6 +9,8 @@ import {
   DeploymentUnitOutlined,
   LogoutOutlined,
   TeamOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Switch, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -42,6 +44,7 @@ const Sidebar = () => {
   const [userRole, setUserRole] = useState(null);
   const [openKeys, setOpenKeys] = useState([]);
   const [language, setLanguage] = useState(i18n.language); // Quản lý ngôn ngữ hiện tại
+  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,6 +68,10 @@ const Sidebar = () => {
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
     setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+  };
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
   };
 
   const items = [
@@ -129,13 +136,23 @@ const Sidebar = () => {
 
   return (
     <Layout style={layoutStyle}>
-      <Sider width="15%" style={siderStyle}>
+      <Sider
+        width="15%"
+        style={siderStyle}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={toggleCollapse}
+      >
         <div>
           <div style={{ textAlign: "center", padding: "10px 0" }}>
             <img
               src={logo}
               alt="Logo"
-              style={{ width: "45%", margin: "10px", borderRadius: "100px" }}
+              style={{
+                width: collapsed ? "60%" : "45%",
+                margin: "10px",
+                borderRadius: "100px",
+              }}
             />
           </div>
           <Menu
@@ -185,6 +202,19 @@ const Sidebar = () => {
           </div>
         </div>
       </Sider>
+      <Button
+        type="primary"
+        onClick={toggleCollapse}
+        style={{
+          position: "fixed",
+          top: 10,
+          left: collapsed ? 80 : 200,
+          zIndex: 1,
+          transition: "left 0.2s",
+        }}
+      >
+        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+      </Button>
     </Layout>
   );
 };

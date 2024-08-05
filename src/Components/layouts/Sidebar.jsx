@@ -149,8 +149,7 @@ const Sidebar = () => {
               src={logo}
               alt="Logo"
               style={{
-                width: collapsed ? "60%" : "45%",
-                margin: "10px",
+                width: collapsed ? "60%" : "70%",
                 borderRadius: "100px",
               }}
             />

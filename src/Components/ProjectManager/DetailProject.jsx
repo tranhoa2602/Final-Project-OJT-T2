@@ -112,7 +112,7 @@ const DetailProject = () => {
     emailjs
       .send(
         "service_kd15yr5",
-        "template_wzyncdg",
+        "template_yqxco6d",
         { email, projectName, actions },
         "ORWrLvyLXRoxL0Q-f"
       )
@@ -290,10 +290,10 @@ const DetailProject = () => {
             <Descriptions.Item label={t("Assigned Employees")}>
               {employees.length > 0
                 ? employees.map((employee) => (
-                  <Tag key={employee.id} color="purple">
-                    {employee.name}
-                  </Tag>
-                ))
+                    <Tag key={employee.id} color="purple">
+                      {employee.name}
+                    </Tag>
+                  ))
                 : t("No employees assigned")}
             </Descriptions.Item>
           </Descriptions>

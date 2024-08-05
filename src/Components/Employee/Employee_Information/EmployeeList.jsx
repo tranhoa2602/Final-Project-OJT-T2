@@ -8,7 +8,14 @@ import {
   Avatar,
   message,
   Select,
+  Tooltip,
+  Modal
 } from "antd";
+import {
+  UserAddOutlined,
+  TeamOutlined,
+  ExportOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import ExcelJS from "exceljs";
@@ -163,16 +170,23 @@ const columns = (
         >
           {t("Detail")}
         </Button>
-        {record.status === "Inactive" && (
-          <Button
-            type="danger"
-            onClick={() => handleDelete(record)}
-            icon={<DeleteOutlined />}
-            className={styles["delete-button"]}
-          >
-            {t("Delete")}
-          </Button>
-        )}
+        <Tooltip
+                  title={
+                    record.status !== "Inactive"
+                      ? t("Cannot delete this user while not in inactive state.")
+                      : ""
+                  }
+                >
+                  <Button
+                    type="danger"
+                    onClick={() => handleDelete(record)}
+                    icon={<DeleteOutlined />}
+                    className={styles["delete-button"]}
+                    disabled={record.status !== "Inactive"}
+                  >
+                    {t("Delete")}
+                  </Button>
+                </Tooltip>
       </div>
     ),
   },
@@ -254,13 +268,32 @@ const EmployeeList = () => {
     fetchDataAndSetState();
   }, []);
 
-  const handleDeleteAndRefresh = async (employee) => {
+  const handleDelete = async (employee) => {
     if (employee.status !== "Inactive") {
       message.error("Only Inactive employees can be deleted");
       return;
     }
+    Modal.confirm({
+      title: "Confirm Delete",
+      content: "Are you sure you want to delete this employee?",
+      onOk: async () => {
+         try {
+          const db = getDatabase();
+          const employeeRef = ref(db, `employees/${employee.key}`);
+          await update(employeeRef, { deleteStatus: true });
+          const { employees } = await fetchData();
+          setEmployees(employees);
+          applyFilters(searchText, selectedPosition, employees);
+          message.success("Employee status updated to deleted successfully");
+        } catch (error) {
+          console.error("Error updating employee status:", error);
+          message.error("Failed to update employee status");
+        } 
+      }
+    });
+  
 
-    try {
+  /*  try {
       const db = getDatabase();
       const employeeRef = ref(db, `employees/${employee.key}`);
       await update(employeeRef, { deleteStatus: true });
@@ -271,7 +304,7 @@ const EmployeeList = () => {
     } catch (error) {
       console.error("Error updating employee status:", error);
       message.error("Failed to update employee status");
-    }
+    } */
   };
 
   const exportToExcel = async () => {
@@ -424,6 +457,7 @@ const EmployeeList = () => {
         </Select>
         <Button
           type="primary"
+          icon={<UserAddOutlined></UserAddOutlined>}
           onClick={() => navigate("/create")}
           className={styles["add-button"]}
         >
@@ -431,7 +465,7 @@ const EmployeeList = () => {
         </Button>
         <Button
           type="primary"
-          icon={<FileExcelOutlined />}
+          icon={<ExportOutlined />}
           onClick={exportToExcel}
           className={styles["export-button"]}
         >
@@ -448,7 +482,7 @@ const EmployeeList = () => {
       <Table
         columns={columns(
           null,
-          handleDeleteAndRefresh,
+          handleDelete,
           navigate,
           positions,
           projects,

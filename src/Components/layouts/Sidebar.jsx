@@ -12,7 +12,8 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Switch, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/logoPMIT.png"; // Đường dẫn tới logo của bạn
+import { FaFlagUsa, FaFlag } from "react-icons/fa";
+import logo from "../../assets/logo.png"; // Đường dẫn tới logo của bạn
 
 const { Sider } = Layout;
 
@@ -134,7 +135,7 @@ const Sidebar = () => {
             <img
               src={logo}
               alt="Logo"
-              style={{ width: "60%", margin: "10px", borderRadius: "5px" }}
+              style={{ width: "45%", margin: "10px", borderRadius: "100px" }}
             />
           </div>
           <Menu
@@ -150,20 +151,33 @@ const Sidebar = () => {
         <div>
           <div style={{ textAlign: "center", padding: "10px 0" }}>
             <Switch
-              checkedChildren={t("Vietnamese")}
-              unCheckedChildren={t("English")}
+              checkedChildren={
+                <>
+                  <FaFlag style={{ marginRight: 5 }} />
+                  {t("Vietnamese")}
+                </>
+              }
+              unCheckedChildren={
+                <>
+                  <FaFlagUsa style={{ marginRight: 5 }} />
+                  {t("English")}
+                </>
+              }
               onChange={changeLanguage}
               checked={language === "vi"}
             />
           </div>
-          <div style={{ textAlign: "center", padding: "10px 0" }}>
+          <div style={{ textAlign: "center", padding: "5px" }}>
             <Button
-              type="link"
+              type="primary"
               icon={<LogoutOutlined />}
               onClick={handleLogout}
               style={{
                 color: "#fff",
-                cursor: "pointer",
+                backgroundColor: "#ff4d4f",
+                borderColor: "#ff4d4f",
+                width: "80%",
+                margin: "10px auto",
               }}
             >
               {t("Logout")}
@@ -171,9 +185,6 @@ const Sidebar = () => {
           </div>
         </div>
       </Sider>
-      <div style={{ marginLeft: "15%", width: "85%", padding: "16px" }}>
-        {/* The rest of your main content will go here */}
-      </div>
     </Layout>
   );
 };

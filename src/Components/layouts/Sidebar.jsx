@@ -189,9 +189,8 @@ const Sidebar = () => {
               icon={<LogoutOutlined />}
               onClick={handleLogout}
               style={{
-                color: "#fff",
-                backgroundColor: "#ff4d4f",
-                borderColor: "#ff4d4f",
+                color: "#000",
+                backgroundImage: "linear-gradient(to right, #ffffff, #87CEEB)",
                 width: "80%",
                 margin: "10px auto",
               }}

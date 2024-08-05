@@ -202,19 +202,6 @@ const Sidebar = () => {
           </div>
         </div>
       </Sider>
-      <Button
-        type="primary"
-        onClick={toggleCollapse}
-        style={{
-          position: "fixed",
-          top: 10,
-          left: collapsed ? 80 : 200,
-          zIndex: 1,
-          transition: "left 0.2s",
-        }}
-      >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </Button>
     </Layout>
   );
 };

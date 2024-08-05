@@ -40,7 +40,7 @@ const ResetPassword = () => {
     try {
       const db = getDatabase();
 
-      // First check in the 'users' reference
+      // Check in the 'users' reference
       let userRef = query(
         ref(db, "users"),
         orderByChild("email"),
@@ -62,7 +62,16 @@ const ResetPassword = () => {
       if (userData) {
         const userKey = Object.keys(userData)[0];
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await update(ref(db, `users/${userKey}`), { password: hashedPassword });
+
+        // Determine the correct reference path ('users' or 'employees')
+        const path = snapshot.ref._path.pieces_.includes("users")
+          ? "users"
+          : "employees";
+
+        await update(ref(db, `${path}/${userKey}`), {
+          password: hashedPassword,
+        });
+
         setMessage(
           "Password reset successfully! You can now log in with your new password."
         );

@@ -25,8 +25,11 @@ const CreateEmployee = () => {
     const snapshot = await get(employeesRef);
     const employees = snapshot.exists() ? snapshot.val() : {};
 
+    // Convert email to lowercase
+    const emailLowercase = values.email.toLowerCase();
+
     const emailExists = Object.values(employees).some(
-      (employee) => employee.email === values.email
+      (employee) => employee.email === emailLowercase
     );
 
     if (emailExists) {
@@ -42,7 +45,7 @@ const CreateEmployee = () => {
       id: newEmployeeId,
       name: values.name,
       phone: values.phone,
-      email: values.email,
+      email: emailLowercase, // Store email in lowercase
       password: hashedPassword,
       role: "Employee", // Set default role to Employee
       status: "Involved", // Default status is Involved
@@ -50,7 +53,7 @@ const CreateEmployee = () => {
         {
           cv_experience: [
             {
-              description: values.description,
+              description: values.description || "", // Ensure description is not undefined
             },
           ],
         },
@@ -60,7 +63,7 @@ const CreateEmployee = () => {
 
     const verificationToken = uuidv4();
     const verificationLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
-      values.email
+      emailLowercase
     )}&token=${verificationToken}`;
 
     try {
@@ -70,7 +73,7 @@ const CreateEmployee = () => {
         IsExist: "false",
       });
 
-      sendVerificationEmail(values.email, verificationLink);
+      sendVerificationEmail(emailLowercase, verificationLink);
 
       navigate("/list");
       message.success("Employee created successfully!");
@@ -110,6 +113,15 @@ const CreateEmployee = () => {
     navigate("/list");
   };
 
+  const validateEmail = (_, value) => {
+    if (value && /^[A-Z]/.test(value)) {
+      return Promise.reject(
+        new Error("The first letter of the email cannot be capitalized")
+      );
+    }
+    return Promise.resolve();
+  };
+
   return (
     <div style={{ height: "100vh", marginTop: "20px" }}>
       {loading ? (
@@ -142,6 +154,7 @@ const CreateEmployee = () => {
             rules={[
               { required: true, message: "Please input the email!" },
               { type: "email", message: "Please input a valid email!" },
+              { validator: validateEmail },
             ]}
           >
             <Input />
@@ -159,10 +172,6 @@ const CreateEmployee = () => {
             ]}
           >
             <Input />
-          </Form.Item>
-
-          <Form.Item label="Description" name="description">
-            <Input.TextArea rows={4} />
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>

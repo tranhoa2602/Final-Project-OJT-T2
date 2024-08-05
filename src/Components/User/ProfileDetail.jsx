@@ -42,6 +42,7 @@ const ProfileDetail = () => {
 
           if (snapshot.exists()) {
             setUserData(snapshot.val());
+            fetchProjects(snapshot.val().projects || []);
           } else {
             message.error(t("User data not found"));
             navigate("/");
@@ -56,7 +57,7 @@ const ProfileDetail = () => {
       }
     };
 
-    const fetchProjects = async () => {
+    const fetchProjects = async (userProjectIds = []) => {
       const db = getDatabase();
       const projectsRef = ref(db, "projects");
       const snapshot = await get(projectsRef);
@@ -66,13 +67,18 @@ const ProfileDetail = () => {
           id: key,
           ...data[key],
         }));
-        setProjects(formattedData);
-        setAvailableProjects(formattedData);
+        setProjects(
+          formattedData.filter((project) => userProjectIds.includes(project.id))
+        );
+        setAvailableProjects(
+          formattedData.filter(
+            (project) => !userProjectIds.includes(project.id)
+          )
+        );
       }
     };
 
     fetchUserData();
-    fetchProjects();
   }, [navigate, t]);
 
   const handleJoinProject = async () => {
@@ -112,6 +118,14 @@ const ProfileDetail = () => {
         await update(projectRef, { employees: projectEmployees });
 
         setUserData({ ...userData, projects: userProjects });
+        setProjects((prevProjects) => [
+          ...prevProjects,
+          availableProjects.find((project) => project.id === selectedProject),
+        ]);
+        setAvailableProjects((prevProjects) =>
+          prevProjects.filter((project) => project.id !== selectedProject)
+        );
+
         message.success(t("Project joined successfully"));
       } else {
         message.error(t("Failed to fetch user or project data"));
@@ -141,7 +155,9 @@ const ProfileDetail = () => {
         const projectData = projectSnapshot.val();
 
         const userProjects = userData.projects || [];
-        const updatedUserProjects = userProjects.filter((id) => id !== projectId);
+        const updatedUserProjects = userProjects.filter(
+          (id) => id !== projectId
+        );
 
         const projectEmployees = projectData.employees || [];
         const updatedProjectEmployees = projectEmployees.filter(
@@ -152,6 +168,14 @@ const ProfileDetail = () => {
         await update(projectRef, { employees: updatedProjectEmployees });
 
         setUserData({ ...userData, projects: updatedUserProjects });
+        setProjects((prevProjects) =>
+          prevProjects.filter((project) => project.id !== projectId)
+        );
+        setAvailableProjects((prevProjects) => [
+          ...prevProjects,
+          projects.find((project) => project.id === projectId),
+        ]);
+
         message.success(t("Project removed successfully"));
       } else {
         message.error(t("Failed to fetch user or project data"));
@@ -229,45 +253,8 @@ const ProfileDetail = () => {
           <List
             bordered
             dataSource={userProjects}
-            renderItem={(project) => (
-              <List.Item
-                actions={[
-                  <Popconfirm
-                    title={t("Are you sure to remove this project?")}
-                    onConfirm={() => handleRemoveProject(project.id)}
-                  >
-                    <Button>{t("Remove")}</Button>
-                  </Popconfirm>,
-                ]}
-              >
-                {project.name}
-              </List.Item>
-            )}
+            renderItem={(project) => <List.Item>{project.name}</List.Item>}
           />
-        </div>
-
-        <div className={styles.joinProjectSection}>
-          <h3>{t("Join a Project")}</h3>
-          <Row gutter={16}>
-            <Col span={18}>
-              <Select
-                style={{ width: "100%" }}
-                placeholder={t("Select a project")}
-                onChange={(value) => setSelectedProject(value)}
-              >
-                {availableProjects.map((project) => (
-                  <Option key={project.id} value={project.id}>
-                    {project.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col span={6}>
-              <Button type="primary" onClick={handleJoinProject}>
-                {t("Join")}
-              </Button>
-            </Col>
-          </Row>
         </div>
       </Card>
     </div>

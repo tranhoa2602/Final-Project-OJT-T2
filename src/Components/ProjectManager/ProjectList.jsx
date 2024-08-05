@@ -60,7 +60,6 @@ const ListProject = () => {
       message.error(t("Failed to move project to bin!"));
     }
   };
-  
 
   const getStatusTag = (status) => {
     switch (status) {
@@ -124,8 +123,9 @@ const ListProject = () => {
             </Link>
           )}
 
-          {(user?.position === "Project Manager" && user?.name === record.projectManager) ||
-            user?.role === "Admin" ? (
+          {(user?.position === "Project Manager" &&
+            user?.name === record.projectManager) ||
+          user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>

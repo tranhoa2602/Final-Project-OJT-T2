@@ -10,7 +10,7 @@ import {
     Space,
     Spin,
 } from "antd";
-import { getDatabase, ref, set, get } from "firebase/database"; // Make sure you import `get`
+import { getDatabase, ref, set, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
@@ -29,79 +29,53 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
 
     useEffect(() => {
         const fetchTechnologies = async () => {
-            try {
-                const db = getDatabase();
-                const techRef = ref(db, "technologies");
-                const snapshot = await get(techRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const formattedData = Object.keys(data)
-                        .map((key) => ({
-                            id: key,
-                            ...data[key],
-                        }))
-                        .filter((tech) => tech.techstatus === "Active");
-                    setTechnologies(formattedData);
-                } else {
-                    console.log("No technologies data available");
-                }
-            } catch (error) {
-                console.error("Error fetching technologies:", error);
+            const db = getDatabase();
+            const techRef = ref(db, "technologies");
+            const snapshot = await get(techRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const formattedData = Object.keys(data).map((key) => ({
+                    id: key,
+                    ...data[key],
+                })).filter((tech) => tech.techstatus === "Active");
+                setTechnologies(formattedData);
+            } else {
+                console.log("No technologies data available");
             }
         };
 
         const fetchLanguages = async () => {
-            try {
-                const db = getDatabase();
-                const langRef = ref(db, "programmingLanguages");
-                const snapshot = await get(langRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const formattedData = Object.keys(data)
-                        .map((key) => ({
-                            id: key,
-                            ...data[key],
-                        }))
-                        .filter((lang) => lang.programingstatus === "Active");
-                    setLanguages(formattedData);
-                } else {
-                    console.log("No programming languages data available");
-                }
-            } catch (error) {
-                console.error("Error fetching programming languages:", error);
+            const db = getDatabase();
+            const langRef = ref(db, "programmingLanguages");
+            const snapshot = await get(langRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const formattedData = Object.keys(data).map((key) => ({
+                    id: key,
+                    ...data[key],
+                })).filter((lang) => lang.programingstatus === "Active");
+                setLanguages(formattedData);
+            } else {
+                console.log("No programming languages data available");
             }
         };
+
         const fetchProjectManagers = async () => {
-            try {
-                const db = getDatabase();
-                const empRef = ref(db, "employees");
-                const snapshot = await get(empRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    console.log("All employees data:", data); // Log dữ liệu thô từ Firebase
-                    const formattedData = Object.keys(data)
-                        .map((key) => ({
-                            id: key,
-                            ...data[key],
-                        }))
-                        .filter((emp) => {
-                            console.log("Employee:", emp); // Log từng nhân viên để kiểm tra giá trị
-                            return emp.positionName === "Project Manager" &&
-                                (emp.status === "Involved" || emp.status === "Available");
-                        });
-                    console.log("Filtered project managers:", formattedData); // Log danh sách project managers đã lọc
-                    setProjectManagers(formattedData);
-                } else {
-                    console.log("No employees data available");
-                }
-            } catch (error) {
-                console.error("Error fetching project managers:", error);
+            const db = getDatabase();
+            const empRef = ref(db, "employees");
+            const snapshot = await get(empRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const formattedData = Object.keys(data).map((key) => ({
+                    id: key,
+                    ...data[key],
+                })).filter((emp) => emp.positionName === "Project Manager" &&
+                    (emp.status === "Involved" || emp.status === "Available"));
+                setProjectManagers(formattedData);
+            } else {
+                console.log("No employees data available");
             }
         };
-
-
-
-
 
         fetchTechnologies();
         fetchLanguages();
@@ -109,15 +83,12 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
     }, []);
 
     const determineStatus = (startDate, endDate) => {
-        const today = moment().startOf('day');
-        const start = moment(startDate).startOf('day');
-        const end = moment(endDate).startOf('day');
-
-        if (today.isBefore(start)) {
+        const today = moment();
+        if (startDate.isAfter(today) && endDate.isAfter(today)) {
             return "Not Started";
-        } else if (today.isBetween(start, end, null, "[]")) {
+        } else if (startDate.isBefore(today) && endDate.isAfter(today)) {
             return "Ongoing";
-        } else if (today.isAfter(end)) {
+        } else if (startDate.isBefore(today) && endDate.isBefore(today)) {
             return "Completed";
         }
         return "Pending";
@@ -135,7 +106,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                 startDate: startDate.format("YYYY-MM-DD"),
                 endDate: endDate.format("YYYY-MM-DD"),
                 status: determineStatus(startDate, endDate),
-                dateRange: null,
+                dateRange: null, // Removing dateRange from the data to be stored
                 deletestatus: false,
             };
 
@@ -185,18 +156,14 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                         <Form.Item
                             name="description"
                             label={t("Description")}
-                            rules={[
-                                { required: true, message: t("Please input the description!") },
-                            ]}
+                            rules={[{ required: true, message: t("Please input the description!") }]}
                         >
                             <TextArea rows={4} />
                         </Form.Item>
                         <Form.Item
                             name="technology"
                             label={t("Technology")}
-                            rules={[
-                                { required: true, message: t("Please select the technologies!") },
-                            ]}
+                            rules={[{ required: true, message: t("Please select the technologies!") }]}
                         >
                             <Select
                                 mode="multiple"
@@ -212,12 +179,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                         <Form.Item
                             name="programmingLanguage"
                             label={t("Programming Language")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the programming languages!"),
-                                },
-                            ]}
+                            rules={[{ required: true, message: t("Please select the programming languages!") }]}
                         >
                             <Select
                                 mode="multiple"
@@ -233,12 +195,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                         <Form.Item
                             name="projectManager"
                             label={t("Project Manager")}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: t("Please select the project manager!"),
-                                },
-                            ]}
+                            rules={[{ required: true, message: t("Please select the project manager!") }]}
                         >
                             <Select placeholder={t("Please select the project manager!")}>
                                 {projectManagers.map((manager) => (
@@ -251,9 +208,7 @@ const CreateProject = ({ visible, onCancel, onSave }) => {
                         <Form.Item
                             name="dateRange"
                             label={t("Date Range")}
-                            rules={[
-                                { required: true, message: t("Please select the date range!") },
-                            ]}
+                            rules={[{ required: true, message: t("Please select the date range!") }]}
                         >
                             <RangePicker
                                 format="YYYY-MM-DD"

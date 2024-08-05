@@ -1,3 +1,3 @@
-export const EMAILJS_SERVICE_ID = "service_kd15yr5";
-export const EMAILJS_TEMPLATE_ID = "template_bv8j6xd";
-export const EMAILJS_USER_ID = "ORWrLvyLXRoxL0Q-f";
+export const EMAILJS_SERVICE_ID = "service_npsa81b";
+export const EMAILJS_TEMPLATE_ID = "template_psmweiu";
+export const EMAILJS_USER_ID = "Tj4lqdQXNHyDVUreX";

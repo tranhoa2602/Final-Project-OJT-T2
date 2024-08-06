@@ -19,6 +19,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const defaultAvatarUrl =
@@ -159,6 +160,7 @@ function Admin() {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
         await update(userRef, { profilePicture: downloadURL });
+        setUser((prevUser) => ({ ...prevUser, profilePicture: downloadURL })); // Update user state with new profile picture URL
         message.success(t("Profile picture updated successfully"));
       } else {
         message.error(t("User not authenticated"));
@@ -171,6 +173,12 @@ function Admin() {
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditModalOpen(false);
+    setTempProfilePicture(null);
+    setProfilePicture(user.profilePicture || defaultAvatarUrl);
+  };
+
   return (
     <div className={styles["profile-detail-page"]}>
       {user && (
@@ -179,14 +187,13 @@ function Admin() {
           <div className={styles["profile-header"]}>
             <Avatar
               src={profilePicture || defaultAvatarUrl}
-              size={250}
+              size={280}
               className={styles["profile-avatar"]}
             />
             <div className={styles["profile-info"]}>
               <h2 className={styles["profile-name"]}>{user.name}</h2>
               <p className={styles["profile-email"]}>{user.email}</p>
               <Button
-                type="primary"
                 onClick={() => setEditModalOpen(true)}
                 icon={<EditOutlined />}
                 className={styles["edit-button"]}
@@ -206,10 +213,42 @@ function Admin() {
               <strong>{t("Status")}:</strong> {user.status}
             </p>
           </div>
+          <div className={styles["profile-social-media"]}>
+            <a
+              href="https://www.facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaFacebook
+                size={32}
+                style={{ margin: "10px", color: "#4267B2" }}
+              />
+            </a>
+            <a
+              href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram
+                size={32}
+                style={{ margin: "10px", color: "#E1306C" }}
+              />
+            </a>
+            <a
+              href="https://www.twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTwitter
+                size={32}
+                style={{ margin: "10px", color: "#1DA1F2" }}
+              />
+            </a>
+          </div>
           <Modal
             title={t("Edit Profile")}
             open={editModalOpen}
-            onCancel={() => setEditModalOpen(false)}
+            onCancel={handleCancelEdit}
             footer={null}
             destroyOnClose={true}
           >
@@ -267,6 +306,13 @@ function Admin() {
                     </Button>
                   </Upload>
                   {tempProfilePicture && (
+                    <Avatar
+                      src={profilePicture}
+                      size={100}
+                      style={{ marginTop: "10px" }}
+                    />
+                  )}
+                  {tempProfilePicture && (
                     <Button
                       type="primary"
                       onClick={handleProfilePictureUpload}
@@ -275,13 +321,6 @@ function Admin() {
                     >
                       {t("Confirm Upload")}
                     </Button>
-                  )}
-                  {profilePicture && (
-                    <Avatar
-                      src={profilePicture}
-                      size={100}
-                      style={{ marginTop: "10px" }}
-                    />
                   )}
                 </Form.Item>
 

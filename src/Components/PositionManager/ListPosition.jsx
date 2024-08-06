@@ -17,6 +17,8 @@ import {
   DeleteOutlined,
   SearchOutlined,
   RollbackOutlined,
+  PlusOutlined,
+
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/layouts/ListPosition.module.scss"; // Import the SCSS module
@@ -235,6 +237,7 @@ const ListPosition = () => {
             <>
               <Button
                 icon={<EditOutlined />}
+                type="primary"
                 onClick={() => handleEdit(record)}
                 className={styles["edit-button"]}
               >
@@ -243,6 +246,7 @@ const ListPosition = () => {
               <Button
                 icon={<DeleteOutlined />}
                 onClick={() => handleMoveToBin(record.id)}
+                type="danger"
                 className={styles["delete-button"]}
                 disabled={record.status === "active"}
               >
@@ -260,6 +264,7 @@ const ListPosition = () => {
       <Space className={styles["actions-container"]}>
         <Button
           type="primary"
+          icon={<PlusOutlined></PlusOutlined>}
           onClick={() => {
             form.setFieldsValue({ status: true });
             setModalVisible(true);
@@ -270,6 +275,7 @@ const ListPosition = () => {
         </Button>
         <Button
           type="default"
+          icon={<DeleteOutlined></DeleteOutlined>}
           onClick={handleViewBin}
           className={styles["view-bin-button"]}
         >

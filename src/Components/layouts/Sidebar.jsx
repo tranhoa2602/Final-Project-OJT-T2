@@ -9,8 +9,6 @@ import {
   DeploymentUnitOutlined,
   LogoutOutlined,
   TeamOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Switch, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -29,6 +27,7 @@ const siderStyle = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
+  backgroundColor: "#000", // Set sidebar background to black
 };
 
 const layoutStyle = {
@@ -153,6 +152,11 @@ const Sidebar = () => {
                 borderRadius: "100px",
               }}
             />
+            {!collapsed && (
+              <h2 style={{ marginTop: "10px", color: "#fff" }}>
+                Creative Technology
+              </h2>
+            )}
           </div>
           <Menu
             defaultSelectedKeys={["1"]}
@@ -162,6 +166,7 @@ const Sidebar = () => {
             items={items}
             openKeys={openKeys}
             onOpenChange={onOpenChange}
+            style={{ backgroundColor: "#000" }} // Set menu background to black
           />
         </div>
         <div>

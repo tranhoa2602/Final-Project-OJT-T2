@@ -43,154 +43,154 @@ const columns = (
   projects,
   t
 ) => [
-  {
-    title: t("Profile Picture"),
-    dataIndex: "profilePicture",
-    key: "profilePicture",
-    render: (text, record) => (
-      <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
-    ),
-  },
-  {
-    title: t("Name"),
-    dataIndex: "name",
-    key: "name",
-    render: (text, record) => (
-      <a onClick={() => navigate("/details", { state: { employee: record } })}>
-        {text}
-      </a>
-    ),
-  },
-  {
-    title: t("Email"),
-    dataIndex: "email",
-    key: "email",
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          placeholder={`Search ${t("Email")}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => confirm()}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() => confirm()}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            {t("Search")}
-          </Button>
-          <Button
-            onClick={() => clearFilters()}
-            size="small"
-            style={{ width: 90 }}
-          >
-            {t("Reset")}
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      record.email.toLowerCase().includes(value.toLowerCase()),
-  },
-  {
-    title: t("Position"),
-    dataIndex: "positionName",
-    key: "positionName",
-    filters: Object.values(positions).map((position) => ({
-      text: position.name,
-      value: position.name,
-    })),
-    onFilter: (value, record) => record.positionName === value,
-  },
-  {
-    title: t("Status"),
-    key: "status",
-    dataIndex: "status",
-    filters: [
-      { text: t("Involved"), value: "Involved" },
-      { text: t("Available"), value: "Available" },
-      { text: t("Inactive"), value: "Inactive" },
-    ],
-    onFilter: (value, record) => record.status === value,
-    render: (_, { status }) => {
-      const statusArray = Array.isArray(status) ? status : [status];
-      return (
-        <>
-          {statusArray.map((stat) => {
-            let color =
-              stat === "Inactive"
-                ? "#f50" // Bright red for Inactive
-                : stat === "Available"
-                ? "#87d068" // Light green for Available
-                : "#2db7f5"; // Bright blue for Involved
-            return (
-              <Tag color={color} key={stat}>
-                {t(stat)}
-              </Tag>
-            );
-          })}
-        </>
-      );
+    {
+      title: t("Profile Picture"),
+      dataIndex: "profilePicture",
+      key: "profilePicture",
+      render: (text, record) => (
+        <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
+      ),
     },
-  },
-  {
-    title: t("Actions"),
-    key: "actions",
-    align: "center",
-    render: (_, record) => (
-      <div className={styles["actions-container"]}>
-        <Button
-          onClick={() => navigate("/edit", { state: { employee: record } })}
-          type="primary"
-          icon={<EditOutlined />}
-          className={styles["edit-button"]}
-        >
-          {t("Edit")}
-        </Button>
-        <Button
-          type="default"
-          onClick={() => navigate("/details", { state: { employee: record } })}
-          icon={<InfoCircleOutlined />}
-          className={styles["detail-button"]}
-        >
-          {t("Detail")}
-        </Button>
-        <Tooltip
-                  title={
-                    record.status !== "Inactive"
-                      ? t("Cannot delete this user while not in inactive state.")
-                      : ""
-                  }
-                >
-                  <Button
-                    type="danger"
-                    onClick={() => handleDelete(record)}
-                    icon={<DeleteOutlined />}
-                    className={styles["delete-button"]}
-                    disabled={record.status !== "Inactive"}
-                  >
-                    {t("Delete")}
-                  </Button>
-                </Tooltip>
-      </div>
-    ),
-  },
-];
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <a onClick={() => navigate("/details", { state: { employee: record } })}>
+          {text}
+        </a>
+      ),
+    },
+    {
+      title: t("Email"),
+      dataIndex: "email",
+      key: "email",
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${t("Email")}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              {t("Search")}
+            </Button>
+            <Button
+              onClick={() => clearFilters()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              {t("Reset")}
+            </Button>
+          </Space>
+        </div>
+      ),
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      ),
+      onFilter: (value, record) =>
+        record.email.toLowerCase().includes(value.toLowerCase()),
+    },
+    {
+      title: t("Position"),
+      dataIndex: "positionName",
+      key: "positionName",
+      filters: Object.values(positions).map((position) => ({
+        text: position.name,
+        value: position.name,
+      })),
+      onFilter: (value, record) => record.positionName === value,
+    },
+    {
+      title: t("Status"),
+      key: "status",
+      dataIndex: "status",
+      filters: [
+        { text: t("Involved"), value: "Involved" },
+        { text: t("Available"), value: "Available" },
+        { text: t("Inactive"), value: "Inactive" },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: (_, { status }) => {
+        const statusArray = Array.isArray(status) ? status : [status];
+        return (
+          <>
+            {statusArray.map((stat) => {
+              let color =
+                stat === "Inactive"
+                  ? "#f50" // Bright red for Inactive
+                  : stat === "Available"
+                    ? "#87d068" // Light green for Available
+                    : "#2db7f5"; // Bright blue for Involved
+              return (
+                <Tag color={color} key={stat}>
+                  {t(stat)}
+                </Tag>
+              );
+            })}
+          </>
+        );
+      },
+    },
+    {
+      title: t("Actions"),
+      key: "actions",
+      align: "center",
+      render: (_, record) => (
+        <div className={styles["actions-container"]}>
+          <Button
+            onClick={() => navigate("/edit", { state: { employee: record } })}
+            type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
+          >
+            {t("Edit")}
+          </Button>
+          <Button
+            type="default"
+            onClick={() => navigate("/details", { state: { employee: record } })}
+            icon={<InfoCircleOutlined />}
+            className={styles["detail-button"]}
+          >
+            {t("Detail")}
+          </Button>
+          <Tooltip
+            title={
+              record.status !== "Inactive"
+                ? t("Cannot delete this user while not in inactive state.")
+                : ""
+            }
+          >
+            <Button
+              type="danger"
+              onClick={() => handleDelete(record)}
+              icon={<DeleteOutlined />}
+              className={styles["delete-button"]}
+              disabled={record.status !== "Inactive"}
+            >
+              {t("Delete")}
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
 
 const fetchData = async () => {
   const db = getDatabase();
@@ -280,37 +280,37 @@ const EmployeeList = () => {
       return;
     }
     Modal.confirm({
-      title: "Confirm Delete",
-      content: "Are you sure you want to delete this employee?",
+      title: t("Confirm Delete"),
+      content: t("Are you sure you want to delete this employee?"),
       onOk: async () => {
-         try {
+        try {
           const db = getDatabase();
           const employeeRef = ref(db, `employees/${employee.key}`);
           await update(employeeRef, { deleteStatus: true });
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
-          message.success("Employee status updated to deleted successfully");
+          message.success(t("Employee status updated to deleted successfully"));
         } catch (error) {
-          console.error("Error updating employee status:", error);
-          message.error("Failed to update employee status");
-        } 
+          console.error(t("Error updating employee status:"), error);
+          message.error(t("Failed to update employee status"));
+        }
       }
     });
-  
 
-  /*  try {
-      const db = getDatabase();
-      const employeeRef = ref(db, `employees/${employee.key}`);
-      await update(employeeRef, { deleteStatus: true });
-      const { employees } = await fetchData();
-      setEmployees(employees);
-      applyFilters(searchText, selectedPosition, employees);
-      message.success("Employee status updated to deleted successfully");
-    } catch (error) {
-      console.error("Error updating employee status:", error);
-      message.error("Failed to update employee status");
-    } */
+
+    /*  try {
+        const db = getDatabase();
+        const employeeRef = ref(db, `employees/${employee.key}`);
+        await update(employeeRef, { deleteStatus: true });
+        const { employees } = await fetchData();
+        setEmployees(employees);
+        applyFilters(searchText, selectedPosition, employees);
+        message.success("Employee status updated to deleted successfully");
+      } catch (error) {
+        console.error("Error updating employee status:", error);
+        message.error("Failed to update employee status");
+      } */
   };
 
   const exportToExcel = async () => {
@@ -318,14 +318,14 @@ const EmployeeList = () => {
     const worksheet = workbook.addWorksheet("Employees");
 
     worksheet.columns = [
-      { header: "ID", key: "id", width: 10 },
-      { header: "Name", key: "name", width: 30 },
-      { header: "Email", key: "email", width: 30 },
-      { header: "Phone", key: "phone", width: 15 },
-      { header: "Status", key: "status", width: 15 },
-      { header: "Position", key: "positionName", width: 15 },
-      { header: "Description", key: "description", width: 50 },
-      { header: "CV File", key: "cv_file", width: 50 },
+      { header: t("ID"), key: "id", width: 10 },
+      { header: t("Name"), key: "name", width: 30 },
+      { header: t("Email"), key: "email", width: 30 },
+      { header: t("Phone"), key: "phone", width: 15 },
+      { header: t("Status"), key: "status", width: 15 },
+      { header: t("Position"), key: "positionName", width: 15 },
+      { header: t("Description"), key: "description", width: 50 },
+      { header: t("CV File"), key: "cv_file", width: 50 },
     ];
 
     filteredEmployees.forEach((employee) => {
@@ -445,12 +445,12 @@ const EmployeeList = () => {
     <div className={styles["employee-list"]}>
       <Space className={styles["actions-container"]}>
         <Input
-          placeholder={t("Search by Email")}
+          placeholder={t("Export to Excel filter by Email")}
           onChange={handleSearch}
           className={styles["search-input"]}
         />
         <Select
-          placeholder={t("Filter by Position")}
+          placeholder={t("Export to Excel filter by Position")}
           onChange={handlePositionChange}
           className={styles["position-select"]}
           allowClear

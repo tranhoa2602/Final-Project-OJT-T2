@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Button, Upload, message, Spin } from "antd";
+import { Form, Input, Select, Button, Upload, message, Spin, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
@@ -90,6 +90,22 @@ const EditEmployee = () => {
     }
   };
 
+
+  const handleConfirmSubmit = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        Modal.confirm({
+          title: t("Confirm Edit"),
+          content: t("Are you sure you want to edit this employee?"),
+          onOk: () => handleSubmit(values),
+        });
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  };
+
   const handleCvUpload = ({ file }) => {
     setCvFile(file);
     return false; // Prevents the default behavior of uploading the file
@@ -114,7 +130,7 @@ const EditEmployee = () => {
       ) : (
         <Form
           form={form}
-          onFinish={handleSubmit}
+          onFinish={handleConfirmSubmit}
           style={{ maxWidth: "600px", margin: "auto" }}
           initialValues={{
             name: employee.name,

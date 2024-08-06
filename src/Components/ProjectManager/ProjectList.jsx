@@ -59,7 +59,22 @@ const ListProject = () => {
     setLoading(false); // Set loading to false after data is fetched
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (["Ongoing"].includes(status)) {
+      message.error(t("Project is in Ongoing status and cannot be deleted."));
+      return;
+    }
+    if (["Pending"].includes(status)) {
+      message.error(t("Project is in Pending status and cannot be deleted."));
+      return;
+    }
+    if (["Not Started"].includes(status)) {
+      message.error(
+        t("Project is in Not Started status and cannot be deleted.")
+      );
+      return;
+    }
+
     try {
       const db = getDatabase();
       await update(ref(db, `projects/${id}`), { deletestatus: true });
@@ -148,11 +163,8 @@ const ListProject = () => {
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id)}
+                onClick={() => handleDelete(record.id, record.status)}
                 style={{ marginLeft: 8 }}
-                disabled={
-                  record.status === "Ongoing" || record.status === "Pending"
-                } // Disable button if status is "Ongoing" or "Pending"
               >
                 {t("Delete")}
               </Button>

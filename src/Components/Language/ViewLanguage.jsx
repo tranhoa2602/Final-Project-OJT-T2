@@ -8,6 +8,7 @@ import {
   Input,
   Select,
   Skeleton,
+  Modal,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -95,27 +96,36 @@ const ViewLanguage = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id, status) => {
+  const handleDelete = (id, status) => {
     if (status === "Active") {
-      message.error(t("Can't delete status active"));
+      message.error(t("Language is in Active status and cannot be deleted."));
       return;
     }
-    try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
-        { deletestatus: true }
-      );
-      message.success(t("Programming Language moved to bin successfully!"));
-      setData(
-        data.map((item) =>
-          item.id === id ? { ...item, deletestatus: true } : item
-        )
-      );
-      setFilteredData(filteredData.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Error updating deletestatus: ", error);
-      message.error(t("Failed to move Programming Language to bin."));
-    }
+    Modal.confirm({
+      title: t("Are you sure you want to delete this programming language?"),
+      content: t("This action cannot be undone."),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          await axios.patch(
+            `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
+            { deletestatus: true }
+          );
+          message.success(t("Programming Language moved to bin successfully!"));
+          setData(
+            data.map((item) =>
+              item.id === id ? { ...item, deletestatus: true } : item
+            )
+          );
+          setFilteredData(filteredData.filter((item) => item.id !== id));
+        } catch (error) {
+          console.error("Error updating deletestatus: ", error);
+          message.error(t("Failed to move Programming Language to bin."));
+        }
+      },
+    });
   };
 
   const handleRestore = async (id) => {
@@ -260,7 +270,6 @@ const ViewLanguage = () => {
           <Button
             type="primary"
             danger
-            disabled={record.programingstatus === "Active"}
             onClick={() => handleDelete(record.id, record.programingstatus)}
           >
             <DeleteOutlined /> {t("Move to Bin")}

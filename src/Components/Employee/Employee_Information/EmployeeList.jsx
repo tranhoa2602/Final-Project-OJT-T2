@@ -203,7 +203,6 @@ const columns = (
               onClick={() => handleDelete(record)}
               icon={<DeleteOutlined />}
               className={styles["delete-button"]}
-              disabled={record.status !== "Inactive"}
             >
               {t("Delete")}
             </Button>
@@ -303,10 +302,20 @@ const EmployeeList = () => {
   }, []);
 
   const handleDelete = async (employee) => {
-    if (employee.status !== "Inactive") {
-      message.error("Only Inactive employees can be deleted");
+    if (employee.status === "Involved") {
+      message.error("Employees in Involved status cannot be deleted.");
       return;
     }
+    if (employee.status === "Available") {
+      message.error("Employees in Available status cannot be deleted.");
+      return;
+    }
+
+    if (employee.status !== "Inactive") {
+      message.error("Only 'Inactive' employees can be deleted.");
+      return;
+    }
+
     Modal.confirm({
       title: t("Confirm Delete"),
       content: t("Are you sure you want to delete this employee?"),

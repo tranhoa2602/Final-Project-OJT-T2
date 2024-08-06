@@ -107,7 +107,12 @@ const ListPosition = () => {
     setModalVisible(true);
   };
 
-  const handleMoveToBin = async (id) => {
+  const handleMoveToBin = async (id, status) => {
+    if (status === "active") {
+      message.error(t("Technology đang ở trạng thái Active không thể xóa"));
+      return;
+    }
+
     const db = getDatabase();
     const positionRef = ref(db, `positions/${id}`);
     await update(positionRef, { deleteStatus: true });
@@ -253,10 +258,9 @@ const ListPosition = () => {
               </Button>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleMoveToBin(record.id)}
+                onClick={() => handleMoveToBin(record.id, record.status)}
                 type="danger"
                 className={styles["delete-button"]}
-                disabled={record.status === "active"}
               >
                 {t("Move to Bin")}
               </Button>
@@ -278,7 +282,7 @@ const ListPosition = () => {
         <Space className={styles["actions-container"]}>
           <Button
             type="primary"
-            icon={<PlusOutlined></PlusOutlined>}
+            icon={<PlusOutlined />}
             onClick={() => {
               form.setFieldsValue({ status: true });
               setModalVisible(true);
@@ -289,7 +293,7 @@ const ListPosition = () => {
           </Button>
           <Button
             type="default"
-            icon={<DeleteOutlined></DeleteOutlined>}
+            icon={<DeleteOutlined />}
             onClick={handleViewBin}
             className={styles["view-bin-button"]}
           >

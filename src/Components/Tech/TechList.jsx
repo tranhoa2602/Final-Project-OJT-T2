@@ -94,7 +94,12 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (status === "Active") {
+      message.error(t("Technology is in Active status and cannot be deleted."));
+      return;
+    }
+
     try {
       await axios.patch(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`,
@@ -247,8 +252,7 @@ const TechList = () => {
           <Button
             type="primary"
             danger
-            disabled={record.techstatus === "Active"}
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record.id, record.techstatus)} // Truyền status vào đây
           >
             <DeleteOutlined /> {t("Move to Bin")}
           </Button>

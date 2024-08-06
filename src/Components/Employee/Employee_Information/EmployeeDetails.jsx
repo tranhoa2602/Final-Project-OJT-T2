@@ -38,7 +38,22 @@ const EmployeeDetails = () => {
   };
 
   const handleExportCV = () => {
-    exportEmployeeCV(employee, projects);
+    // Xác định biến translations
+    const translations = {
+      addressLabel: t("Address"),
+      emailLabel: t("Email"),
+      workingExperience: t("WORKING EXPERIENCE"),
+      typicalProjects: t("TYPICAL PROJECTS"),
+      projectName: t("Project Name"),
+      roleLabel: t("Role"),
+      descriptionLabel: t("Description"),
+      specificationLabel: t("Specification"),
+      languagesFrameworkLabel: t("Languages and Framework"),
+      technologiesLabel: t("Technologies"),
+    };
+
+    // Gọi hàm exportEmployeeCV với tất cả các tham số cần thiết
+    exportEmployeeCV(employee, projects, translations);
   };
 
   return (

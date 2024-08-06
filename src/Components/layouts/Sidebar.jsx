@@ -170,7 +170,7 @@ const Sidebar = () => {
           />
         </div>
         <div>
-          <div style={{ textAlign: "center", padding: "10px 0" }}>
+          <div style={{ textAlign: "center", padding: "10px" }}>
             <Switch
               checkedChildren={
                 <>
@@ -186,6 +186,7 @@ const Sidebar = () => {
               }
               onChange={changeLanguage}
               checked={language === "vi"}
+              style={{ width: collapsed ? "50%" : "50%" }}
             />
           </div>
           <div style={{ textAlign: "center", padding: "5px" }}>
@@ -196,11 +197,11 @@ const Sidebar = () => {
               style={{
                 color: "#000",
                 backgroundImage: "linear-gradient(to right, #ffffff, #87CEEB)",
-                width: "80%",
+                width: collapsed ? "40px" : "80%",
                 margin: "10px auto",
               }}
             >
-              {t("Logout")}
+              {!collapsed && t("Logout")}
             </Button>
           </div>
         </div>

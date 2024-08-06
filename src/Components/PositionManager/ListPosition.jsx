@@ -21,7 +21,8 @@ import {
 
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import styles from "../../styles/layouts/ListPosition.module.scss"; // Import the SCSS module
+import styles from "../../styles/layouts/ListPosition.module.scss";
+import "../../styles/layouts/tablestyles.css" // Import the SCSS module
 
 const { TextArea } = Input;
 
@@ -194,6 +195,7 @@ const ListPosition = () => {
       title: t("Description"),
       dataIndex: "description",
       key: "description",
+      className: 'truncate-text', // Add this line to apply truncation
     },
     {
       title: t("Status"),
@@ -246,7 +248,7 @@ const ListPosition = () => {
               <Button
                 icon={<DeleteOutlined />}
                 onClick={() => handleMoveToBin(record.id)}
-                type="danger"
+                danger
                 className={styles["delete-button"]}
                 disabled={record.status === "active"}
               >
@@ -274,7 +276,7 @@ const ListPosition = () => {
           {t("Add Position")}
         </Button>
         <Button
-          type="default"
+          type="primary"
           icon={<DeleteOutlined></DeleteOutlined>}
           onClick={handleViewBin}
           className={styles["view-bin-button"]}
@@ -282,12 +284,24 @@ const ListPosition = () => {
           {showBin ? t("Back to List") : t("View Bin")}
         </Button>
       </Space>
+
+      <div className="title">List of Positions</div>
+      
       <Table
         columns={columns}
         dataSource={positions}
         rowKey="id"
         pagination={{ pageSize: 6 }}
         className={styles["position-table"]}
+        components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }}
       />
       <Modal
         title={editingPosition ? t("Edit Position") : t("Add Position")}

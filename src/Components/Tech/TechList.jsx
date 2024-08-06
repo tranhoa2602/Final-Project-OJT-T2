@@ -9,6 +9,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import "../../styles/layouts/tablestyles.css" 
 
 const { Option } = Select;
 
@@ -183,6 +184,7 @@ const TechList = () => {
       title: t("Description"),
       dataIndex: "techdescription",
       key: "techdescription",
+      className: "truncate-text"
     },
     {
       title: t("Images"),
@@ -253,12 +255,23 @@ const TechList = () => {
       >
         {t("View Bin")}
       </Button>
+
+      <div className="title">List of Technologies</div>
       <Table
         columns={columns}
         dataSource={filteredData}
         rowKey="id"
         pagination={{ current: currentPage, pageSize: 3 }} 
         onChange={handleTableChange}
+        components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }}
       />
     </>
   );

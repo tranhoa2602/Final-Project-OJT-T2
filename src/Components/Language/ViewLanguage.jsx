@@ -10,6 +10,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import styles from "../../styles/layouts/ViewLanguage.module.scss"; // Import the SCSS module
+import "../../styles/layouts/tablestyles.css"
 
 const { Option } = Select;
 
@@ -220,6 +221,7 @@ const ViewLanguage = () => {
       title: t("Description"),
       dataIndex: "programingdescription",
       key: "programingdescription",
+      className: "truncate-text"
     },
     {
       title: t("Actions"),
@@ -265,12 +267,24 @@ const ViewLanguage = () => {
         {t("View Bin")}
       </Button>
       </div>
+
+      <div className="title">List of Programming Languages</div>
+
       <Table
         columns={columns}
         dataSource={filteredData}
         rowKey="id"
         pagination={{ current: currentPage, pageSize: 5 }}
         onChange={handleTableChange}
+        components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }}
       />
     </div>
   );

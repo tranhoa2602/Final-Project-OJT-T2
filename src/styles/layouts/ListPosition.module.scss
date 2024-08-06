@@ -4,6 +4,13 @@
   font-family: "Roboto", sans-serif;
   padding: 20px;
 
+  .truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px; /* Adjust the width as needed */
+  }
+
   .actions-container {
     display: flex;
     align-items: center;

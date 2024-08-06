@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import "../../styles/layouts/tablestyles.css"     
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -136,7 +137,7 @@ const ListProject = () => {
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                
+                danger
                 onClick={() => handleDelete(record.id)}
                 style={{ marginLeft: 8 }}
                 disabled={record.status === "Ongoing" || record.status === "Pending"} // Disable button if status is "Ongoing" or "Pending"
@@ -241,11 +242,23 @@ const ListProject = () => {
           </Button>
         )}
       </Space>
+
+      <div className="title">List of Projects</div>
+
       <Table
         columns={columns}
         dataSource={filteredProjects}
         rowKey="id"
         pagination={{ pageSize: 6 }}
+        components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }}
       />
       <CreateProject
         visible={isModalVisible}

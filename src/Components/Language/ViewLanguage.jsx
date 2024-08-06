@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import styles from "../../styles/layouts/ViewLanguage.module.scss";
 import LanguageSkeleton from "../Loading/ListProgram"; // Import the skeleton component
+import "../../styles/layouts/tablestyles.css"
 
 const { Option } = Select;
 
@@ -254,6 +255,7 @@ const ViewLanguage = () => {
       title: t("Description"),
       dataIndex: "programingdescription",
       key: "programingdescription",
+      className: "truncate-text"
     },
     {
       title: t("Actions"),
@@ -300,14 +302,14 @@ const ViewLanguage = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{ marginBottom: 16 }}
+            style={{backgroundColor: 'green', color: 'white', marginRight:'890px'}}
             onClick={() => navigate("/LanguageBin")}
           >
             {t("View Bin")}
           </Button>
         </div>
       )}
-      <h1>LIST OF PROGRAMMING LANGUAGES</h1>
+      <h1 className="title">LIST OF PROGRAMMING LANGUAGES</h1>
       {loading ? (
         <LanguageSkeleton />
       ) : (
@@ -317,6 +319,15 @@ const ViewLanguage = () => {
           rowKey="id"
           pagination={{ current: currentPage, pageSize }}
           onChange={handleTableChange}
+          components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
         />
       )}
     </div>

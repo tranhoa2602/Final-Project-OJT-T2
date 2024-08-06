@@ -26,6 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 import ListSkeleton from "../../Loading/ListSkeleton"; // Ensure the correct path
+import "../../../styles/layouts/tablestyles.css"     
 
 const { Option } = Select;
 
@@ -513,7 +514,7 @@ const EmployeeList = () => {
           </Button>
         </Space>
       )}
-      <h1>LIST OF EMPLOYEES</h1>
+      <h1 className="title">LIST OF EMPLOYEES</h1>
       {loading ? (
         <ListSkeleton />
       ) : (
@@ -531,6 +532,15 @@ const EmployeeList = () => {
           rowKey="key"
           pagination={{ pageSize: 6 }}
           className={styles["employee-table"]}
+          components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
         />
       )}
     </div>

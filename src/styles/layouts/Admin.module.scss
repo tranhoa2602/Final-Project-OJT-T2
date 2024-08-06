@@ -3,7 +3,7 @@
 .profile-detail-page {
   font-family: "Roboto", sans-serif;
   padding: 50px;
-  background-color: #b19e9660;
+  background-color: #c5957d9e;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin: 100px;
@@ -54,8 +54,8 @@
         padding: 8px 16px;
 
         &:hover {
-          background-color: #40a9ff;
-          border-color: #40a9ff;
+          background-color: #ca1c1c;
+          border-color: #eb1616;
         }
       }
     }
@@ -64,17 +64,16 @@
   .profile-details {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     max-width: 600px;
-    margin: 0 auto;
-    text-align: left;
+    margin: 0;
 
     p {
-      font-size: 18px;
+      font-size: 20px;
       margin-bottom: 10px;
 
       strong {
-        font-weight: 500;
+        font-weight: 5000;
       }
     }
   }

@@ -43,7 +43,22 @@ const EmployeeDetails = () => {
 
   return (
     <>
-      <Descriptions title={t("Employee Details")} bordered column={1}>
+      <div style={{ position: "absolute", top: "20px", left: "20px" }}>
+        <Button
+          type="primary"
+          onClick={returnToPrevious}
+          style={{ background: "gray" }}
+        >
+          {t("Return")}
+        </Button>
+      </div>
+
+      <Descriptions
+        title={t("Employee Details")}
+        bordered
+        column={1}
+        style={{ marginTop: "60px" }}
+      >
         <Descriptions.Item label="Employee Name">
           {employee.name}
         </Descriptions.Item>
@@ -91,7 +106,7 @@ const EmployeeDetails = () => {
                 </p>
                 <p>
                   <strong>{t("Technologies")}: </strong>
-                  {project.technology.join(", ")}                
+                  {project.technology.join(", ")}
                 </p>
               </Card>
             ))
@@ -104,14 +119,6 @@ const EmployeeDetails = () => {
         style={{ background: "blue", marginTop: "20px" }}
       >
         {t("Export CV")}
-      </Button>
-
-      <Button
-        type="primary"
-        onClick={returnToPrevious}
-        style={{ background: "gray", marginTop: "20px" }}
-      >
-        {t("Return")}
       </Button>
     </>
   );

@@ -159,6 +159,7 @@ function Admin() {
         const db = getDatabase();
         const userRef = ref(db, `users/${storedUser.key}`);
         await update(userRef, { profilePicture: downloadURL });
+        setUser((prevUser) => ({ ...prevUser, profilePicture: downloadURL })); // Update user state with new profile picture URL
         message.success(t("Profile picture updated successfully"));
       } else {
         message.error(t("User not authenticated"));
@@ -171,6 +172,12 @@ function Admin() {
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditModalOpen(false);
+    setTempProfilePicture(null);
+    setProfilePicture(user.profilePicture || defaultAvatarUrl);
+  };
+
   return (
     <div className={styles["profile-detail-page"]}>
       {user && (
@@ -179,7 +186,7 @@ function Admin() {
           <div className={styles["profile-header"]}>
             <Avatar
               src={profilePicture || defaultAvatarUrl}
-              size={250}
+              size={280}
               className={styles["profile-avatar"]}
             />
             <div className={styles["profile-info"]}>
@@ -209,7 +216,7 @@ function Admin() {
           <Modal
             title={t("Edit Profile")}
             open={editModalOpen}
-            onCancel={() => setEditModalOpen(false)}
+            onCancel={handleCancelEdit}
             footer={null}
             destroyOnClose={true}
           >
@@ -267,6 +274,13 @@ function Admin() {
                     </Button>
                   </Upload>
                   {tempProfilePicture && (
+                    <Avatar
+                      src={profilePicture}
+                      size={100}
+                      style={{ marginTop: "10px" }}
+                    />
+                  )}
+                  {tempProfilePicture && (
                     <Button
                       type="primary"
                       onClick={handleProfilePictureUpload}
@@ -275,13 +289,6 @@ function Admin() {
                     >
                       {t("Confirm Upload")}
                     </Button>
-                  )}
-                  {profilePicture && (
-                    <Avatar
-                      src={profilePicture}
-                      size={100}
-                      style={{ marginTop: "10px" }}
-                    />
                   )}
                 </Form.Item>
 

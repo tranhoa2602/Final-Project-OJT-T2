@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, Tag, message, Input, Select } from "antd";
+import {
+  Space,
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Select,
+  Skeleton,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import styles from "../../styles/layouts/ViewLanguage.module.scss"; // Import the SCSS module
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import styles from "../../styles/layouts/ViewLanguage.module.scss";
+import LanguageSkeleton from "../Loading/ListProgram"; // Import the skeleton component
 
 const { Option } = Select;
 
@@ -20,6 +26,7 @@ const ViewLanguage = () => {
   const [searchName, setSearchName] = useState("");
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
+  const [loading, setLoading] = useState(true); // Loading state
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -38,19 +45,28 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(languages.filter(item => item.deletestatus === false));
+        setFilteredData(
+          languages.filter((item) => item.deletestatus === false)
+        );
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
+      } finally {
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000); // Set timeout for 2 seconds
       }
     };
 
     fetchData();
+
+    // Cleanup the timer if the component unmounts
+    return () => clearTimeout(fetchData);
   }, [t]);
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data.filter(item => item.deletestatus === false);
+      let filtered = data.filter((item) => item.deletestatus === false);
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -90,8 +106,12 @@ const ViewLanguage = () => {
         { deletestatus: true }
       );
       message.success(t("Programming Language moved to bin successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(
+        data.map((item) =>
+          item.id === id ? { ...item, deletestatus: true } : item
+        )
+      );
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error updating deletestatus: ", error);
       message.error(t("Failed to move Programming Language to bin."));
@@ -105,8 +125,12 @@ const ViewLanguage = () => {
         { deletestatus: false }
       );
       message.success(t("Programming Language restored successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: false } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(
+        data.map((item) =>
+          item.id === id ? { ...item, deletestatus: false } : item
+        )
+      );
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error restoring Programming Language: ", error);
       message.error(t("Failed to restore Programming Language."));
@@ -119,8 +143,8 @@ const ViewLanguage = () => {
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
       );
       message.success(t("Programming Language deleted permanently!"));
-      setData(data.filter(item => item.id !== id));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(data.filter((item) => item.id !== id));
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting Programming Language: ", error);
       message.error(t("Failed to delete Programming Language."));
@@ -248,30 +272,44 @@ const ViewLanguage = () => {
 
   return (
     <div className={styles["language-list"]}>
-      <div className={styles["actions-container"]}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => navigate("/AddLanguage")}
-        >
-          {t("Add Programming Language")}
-        </Button>
-        <Button
-        type="primary"
-        icon={<DeleteOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/LanguageBin")}
-      >
-        {t("View Bin")}
-      </Button>
-      </div>
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        rowKey="id"
-        pagination={{ current: currentPage, pageSize: 5 }}
-        onChange={handleTableChange}
-      />
+      {loading ? (
+        <Space className={styles["actions-container"]}>
+          <Skeleton.Input style={{ width: 200 }} active />
+          <Skeleton.Input style={{ width: 200 }} active />
+          <Skeleton.Button style={{ width: 120 }} active />
+          <Skeleton.Button style={{ width: 120 }} active />
+        </Space>
+      ) : (
+        <div className={styles["actions-container"]}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate("/AddLanguage")}
+          >
+            {t("Add Programming Language")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<DeleteOutlined />}
+            style={{ marginBottom: 16 }}
+            onClick={() => navigate("/LanguageBin")}
+          >
+            {t("View Bin")}
+          </Button>
+        </div>
+      )}
+      <h1>LIST OF PROGRAMMING LANGUAGES</h1>
+      {loading ? (
+        <LanguageSkeleton />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey="id"
+          pagination={{ current: currentPage, pageSize }}
+          onChange={handleTableChange}
+        />
+      )}
     </div>
   );
 };

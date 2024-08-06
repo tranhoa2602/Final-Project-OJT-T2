@@ -19,6 +19,7 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const defaultAvatarUrl =
@@ -193,7 +194,6 @@ function Admin() {
               <h2 className={styles["profile-name"]}>{user.name}</h2>
               <p className={styles["profile-email"]}>{user.email}</p>
               <Button
-                type="primary"
                 onClick={() => setEditModalOpen(true)}
                 icon={<EditOutlined />}
                 className={styles["edit-button"]}
@@ -212,6 +212,38 @@ function Admin() {
             <p>
               <strong>{t("Status")}:</strong> {user.status}
             </p>
+          </div>
+          <div className={styles["profile-social-media"]}>
+            <a
+              href="https://www.facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaFacebook
+                size={32}
+                style={{ margin: "10px", color: "#4267B2" }}
+              />
+            </a>
+            <a
+              href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram
+                size={32}
+                style={{ margin: "10px", color: "#E1306C" }}
+              />
+            </a>
+            <a
+              href="https://www.twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTwitter
+                size={32}
+                style={{ margin: "10px", color: "#1DA1F2" }}
+              />
+            </a>
           </div>
           <Modal
             title={t("Edit Profile")}

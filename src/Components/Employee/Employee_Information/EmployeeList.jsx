@@ -9,13 +9,10 @@ import {
   message,
   Select,
   Tooltip,
-  Modal
+  Modal,
+  Skeleton,
 } from "antd";
-import {
-  UserAddOutlined,
-  TeamOutlined,
-  ExportOutlined,
-} from "@ant-design/icons";
+import { UserAddOutlined, ExportOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import ExcelJS from "exceljs";
@@ -24,11 +21,11 @@ import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
-  FileExcelOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
+import ListSkeleton from "../../Loading/ListSkeleton"; // Ensure the correct path
 
 const { Option } = Select;
 
@@ -41,36 +38,46 @@ const columns = (
   navigate,
   positions,
   projects,
-  t
+  t,
+  loading
 ) => [
-    {
-      title: t("Profile Picture"),
-      dataIndex: "profilePicture",
-      key: "profilePicture",
-      render: (text, record) => (
+  {
+    title: t("Profile Picture"),
+    dataIndex: "profilePicture",
+    key: "profilePicture",
+    render: (text, record) =>
+      loading ? (
+        <Skeleton.Avatar active size={64} shape="circle" />
+      ) : (
         <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
       ),
-    },
-    {
-      title: t("Name"),
-      dataIndex: "name",
-      key: "name",
-      render: (text, record) => (
-        <a onClick={() => navigate("/details", { state: { employee: record } })}>
+  },
+  {
+    title: t("Name"),
+    dataIndex: "name",
+    key: "name",
+    render: (text, record) =>
+      loading ? (
+        <Skeleton.Input active size="default" style={{ width: 120 }} />
+      ) : (
+        <a
+          onClick={() => navigate("/details", { state: { employee: record } })}
+        >
           {text}
         </a>
       ),
-    },
-    {
-      title: t("Email"),
-      dataIndex: "email",
-      key: "email",
-      filterDropdown: ({
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
-        clearFilters,
-      }) => (
+  },
+  {
+    title: t("Email"),
+    dataIndex: "email",
+    key: "email",
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) =>
+      loading ? null : (
         <div style={{ padding: 8 }}>
           <Input
             placeholder={`Search ${t("Email")}`}
@@ -101,58 +108,70 @@ const columns = (
           </Space>
         </div>
       ),
-      filterIcon: (filtered) => (
+    filterIcon: (filtered) =>
+      loading ? null : (
         <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
       ),
-      onFilter: (value, record) =>
-        record.email.toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: t("Position"),
-      dataIndex: "positionName",
-      key: "positionName",
-      filters: Object.values(positions).map((position) => ({
-        text: position.name,
-        value: position.name,
-      })),
-      onFilter: (value, record) => record.positionName === value,
-    },
-    {
-      title: t("Status"),
-      key: "status",
-      dataIndex: "status",
-      filters: [
-        { text: t("Involved"), value: "Involved" },
-        { text: t("Available"), value: "Available" },
-        { text: t("Inactive"), value: "Inactive" },
-      ],
-      onFilter: (value, record) => record.status === value,
-      render: (_, { status }) => {
-        const statusArray = Array.isArray(status) ? status : [status];
-        return (
-          <>
-            {statusArray.map((stat) => {
-              let color =
-                stat === "Inactive"
-                  ? "#f50" // Bright red for Inactive
-                  : stat === "Available"
-                    ? "#87d068" // Light green for Available
-                    : "#2db7f5"; // Bright blue for Involved
-              return (
-                <Tag color={color} key={stat}>
-                  {t(stat)}
-                </Tag>
-              );
-            })}
-          </>
-        );
-      },
-    },
-    {
-      title: t("Actions"),
-      key: "actions",
-      align: "center",
-      render: (_, record) => (
+    onFilter: (value, record) =>
+      record.email.toLowerCase().includes(value.toLowerCase()),
+  },
+  {
+    title: t("Position"),
+    dataIndex: "positionName",
+    key: "positionName",
+    filters: loading
+      ? []
+      : Object.values(positions).map((position) => ({
+          text: position.name,
+          value: position.name,
+        })),
+    onFilter: (value, record) => record.positionName === value,
+  },
+  {
+    title: t("Status"),
+    key: "status",
+    dataIndex: "status",
+    filters: loading
+      ? []
+      : [
+          { text: t("Involved"), value: "Involved" },
+          { text: t("Available"), value: "Available" },
+          { text: t("Inactive"), value: "Inactive" },
+        ],
+    onFilter: (value, record) => record.status === value,
+    render: (_, { status }) =>
+      loading ? (
+        <Skeleton.Input active size="default" style={{ width: 100 }} />
+      ) : (
+        <>
+          {(Array.isArray(status) ? status : [status]).map((stat) => {
+            let color =
+              stat === "Inactive"
+                ? "#f50" // Bright red for Inactive
+                : stat === "Available"
+                ? "#87d068" // Light green for Available
+                : "#2db7f5"; // Bright blue for Involved
+            return (
+              <Tag color={color} key={stat}>
+                {t(stat)}
+              </Tag>
+            );
+          })}
+        </>
+      ),
+  },
+  {
+    title: t("Actions"),
+    key: "actions",
+    align: "center",
+    render: (_, record) =>
+      loading ? (
+        <Space>
+          <Skeleton.Button active size="small" shape="round" />
+          <Skeleton.Button active size="small" shape="round" />
+          <Skeleton.Button active size="small" shape="round" />
+        </Space>
+      ) : (
         <div className={styles["actions-container"]}>
           <Button
             onClick={() => navigate("/edit", { state: { employee: record } })}
@@ -164,7 +183,9 @@ const columns = (
           </Button>
           <Button
             type="default"
-            onClick={() => navigate("/details", { state: { employee: record } })}
+            onClick={() =>
+              navigate("/details", { state: { employee: record } })
+            }
             icon={<InfoCircleOutlined />}
             className={styles["detail-button"]}
           >
@@ -189,8 +210,8 @@ const columns = (
           </Tooltip>
         </div>
       ),
-    },
-  ];
+  },
+];
 
 const fetchData = async () => {
   const db = getDatabase();
@@ -260,6 +281,7 @@ const EmployeeList = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedPosition, setSelectedPosition] = useState("");
   const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [loading, setLoading] = useState(true); // Set loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -269,9 +291,15 @@ const EmployeeList = () => {
       setPositions(positions);
       setProjects(projects);
       setFilteredEmployees(employees);
+      setLoading(false); // Set loading to false after data is fetched
     };
 
-    fetchDataAndSetState();
+    // Simulate a delay to show the skeleton
+    const timer = setTimeout(() => {
+      fetchDataAndSetState();
+    }, 2000); // Adjust the delay as needed
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleDelete = async (employee) => {
@@ -295,22 +323,8 @@ const EmployeeList = () => {
           console.error(t("Error updating employee status:"), error);
           message.error(t("Failed to update employee status"));
         }
-      }
+      },
     });
-
-
-    /*  try {
-        const db = getDatabase();
-        const employeeRef = ref(db, `employees/${employee.key}`);
-        await update(employeeRef, { deleteStatus: true });
-        const { employees } = await fetchData();
-        setEmployees(employees);
-        applyFilters(searchText, selectedPosition, employees);
-        message.success("Employee status updated to deleted successfully");
-      } catch (error) {
-        console.error("Error updating employee status:", error);
-        message.error("Failed to update employee status");
-      } */
   };
 
   const exportToExcel = async () => {
@@ -443,62 +457,78 @@ const EmployeeList = () => {
 
   return (
     <div className={styles["employee-list"]}>
-      <Space className={styles["actions-container"]}>
-        <Input
-          placeholder={t("Export to Excel filter by Email")}
-          onChange={handleSearch}
-          className={styles["search-input"]}
+      {loading ? (
+        <Space className={styles["actions-container"]}>
+          <Skeleton.Input style={{ width: 200 }} active />
+          <Skeleton.Input style={{ width: 200 }} active />
+          <Skeleton.Button style={{ width: 120 }} active />
+          <Skeleton.Button style={{ width: 120 }} active />
+          <Skeleton.Button style={{ width: 100 }} active />
+        </Space>
+      ) : (
+        <Space className={styles["actions-container"]}>
+          <Input
+            placeholder={t("Export to Excel filter by Email")}
+            onChange={handleSearch}
+            className={styles["search-input"]}
+          />
+          <Select
+            placeholder={t("Export to Excel filter by Position")}
+            onChange={handlePositionChange}
+            className={styles["position-select"]}
+            allowClear
+          >
+            {Object.values(positions).map((position) => (
+              <Option key={position.name} value={position.name}>
+                {position.name}
+              </Option>
+            ))}
+          </Select>
+          <Button
+            type="primary"
+            icon={<UserAddOutlined />}
+            onClick={() => navigate("/create")}
+            className={styles["add-button"]}
+          >
+            {t("Add Employee")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<ExportOutlined />}
+            onClick={exportToExcel}
+            className={styles["export-button"]}
+          >
+            {t("Export to Excel")}
+          </Button>
+          <Button
+            type="default"
+            onClick={() => navigate("/EmployeeBin")}
+            className={styles["view-bin-button"]}
+          >
+            {t("View Bin")}
+          </Button>
+        </Space>
+      )}
+      <h1>LIST OF EMPLOYEES</h1>
+      {loading ? (
+        <ListSkeleton />
+      ) : (
+        <Table
+          columns={columns(
+            null,
+            handleDelete,
+            navigate,
+            positions,
+            projects,
+            t,
+            loading
+          )}
+          dataSource={filteredEmployees}
+          rowKey="key"
+          pagination={{ pageSize: 6 }}
+          className={styles["employee-table"]}
         />
-        <Select
-          placeholder={t("Export to Excel filter by Position")}
-          onChange={handlePositionChange}
-          className={styles["position-select"]}
-          allowClear
-        >
-          {Object.values(positions).map((position) => (
-            <Option key={position.name} value={position.name}>
-              {position.name}
-            </Option>
-          ))}
-        </Select>
-        <Button
-          type="primary"
-          icon={<UserAddOutlined></UserAddOutlined>}
-          onClick={() => navigate("/create")}
-          className={styles["add-button"]}
-        >
-          {t("Add Employee")}
-        </Button>
-        <Button
-          type="primary"
-          icon={<ExportOutlined />}
-          onClick={exportToExcel}
-          className={styles["export-button"]}
-        >
-          {t("Export to Excel")}
-        </Button>
-        <Button
-          type="default"
-          onClick={() => navigate("/EmployeeBin")}
-          className={styles["view-bin-button"]}
-        >
-          {t("View Bin")}
-        </Button>
-      </Space>
-      <Table
-        columns={columns(
-          null,
-          handleDelete,
-          navigate,
-          positions,
-          projects,
-          t
-        )}
-        dataSource={filteredEmployees}
-        rowKey="key"
-        pagination={{ pageSize: 6 }}
-        className={styles["employee-table"]}
-      />
+      )}
     </div>
   );
 };

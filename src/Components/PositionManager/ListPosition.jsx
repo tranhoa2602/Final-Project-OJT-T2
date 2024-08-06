@@ -22,7 +22,8 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/layouts/ListPosition.module.scss";
-import PositionSkeleton from "../Loading/positionSkeleton"; // Import the PositionSkeleton component
+import PositionSkeleton from "../Loading/positionSkeleton";
+import "../../styles/layouts/tablestyles.css" // Import the PositionSkeleton component
 
 const { TextArea } = Input;
 
@@ -207,6 +208,7 @@ const ListPosition = () => {
       title: t("Description"),
       dataIndex: "description",
       key: "description",
+      className: 'truncate-text', // Add this line to apply truncation
     },
     {
       title: t("Status"),
@@ -259,8 +261,10 @@ const ListPosition = () => {
               <Button
                 icon={<DeleteOutlined />}
                 onClick={() => handleMoveToBin(record.id, record.status)}
-                type="danger"
+                type="primary"
+                danger
                 className={styles["delete-button"]}
+                style={{marginLeft: "8px"}}
               >
                 {t("Move to Bin")}
               </Button>
@@ -279,7 +283,7 @@ const ListPosition = () => {
           <Skeleton.Button style={{ width: 100 }} active />
         </Space>
       ) : (
-        <Space className={styles["actions-container"]}>
+        <Space className={styles["actions-container"]}   style={{marginTop: '20px' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -294,14 +298,16 @@ const ListPosition = () => {
           <Button
             type="default"
             icon={<DeleteOutlined />}
+            style={{backgroundColor: 'green', color: 'white'}}
             onClick={handleViewBin}
             className={styles["view-bin-button"]}
+        
           >
             {showBin ? t("Back to List") : t("View Bin")}
           </Button>
         </Space>
       )}
-      <h1>LIST OF POSITION</h1>
+      <h1 className="title">LIST OF POSITION</h1>
       {loading ? (
         <PositionSkeleton />
       ) : (
@@ -311,6 +317,15 @@ const ListPosition = () => {
           rowKey="id"
           pagination={{ pageSize: 6 }}
           className={styles["position-table"]}
+          components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
         />
       )}
       <Modal

@@ -14,6 +14,8 @@ import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
+import "../../styles/layouts/tablestyles.css"     
+import { Alignment } from "docx";
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -140,6 +142,8 @@ const ListProject = () => {
     {
       title: t("Actions"),
       key: "actions",
+      align: "center",
+      class: '.table-header',
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -164,6 +168,8 @@ const ListProject = () => {
               <Button
                 icon={<DeleteOutlined />}
                 onClick={() => handleDelete(record.id, record.status)}
+                type="primary"
+                danger
                 style={{ marginLeft: 8 }}
               >
                 {t("Delete")}
@@ -287,18 +293,28 @@ const ListProject = () => {
               <Button
                 type="default"
                 icon={<DeleteOutlined />}
+                style={{backgroundColor: 'green', color: 'white'}}
                 onClick={() => navigate("/ProjectBin")}
               >
                 {t("Project Bin")}
               </Button>
             )}
           </Space>
-          <h1>LIST OF PROJECTS</h1>
+          <h1 className="title">LIST OF PROJECTS</h1>
           <Table
             columns={columns}
             dataSource={filteredProjects}
             rowKey="id"
             pagination={{ pageSize: 6 }}
+            components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
           />
           <CreateProject
             visible={isModalVisible}

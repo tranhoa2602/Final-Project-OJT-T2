@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, Tag, message, Input, Select } from "antd";
+import {
+  Space,
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Select,
+  Skeleton,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import TechListSkeleton from "../Loading/ListTech"; // Import the TechListSkeleton component
 import "../../styles/layouts/tablestyles.css" 
 
 const { Option } = Select;
@@ -22,6 +32,7 @@ const TechList = () => {
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,19 +48,26 @@ const TechList = () => {
         }
 
         setData(techList);
-        setFilteredData(techList.filter(item => item.deletestatus === false));
+        setFilteredData(techList.filter((item) => item.deletestatus === false));
+        setLoading(false); // Set loading to false after data is fetched
       } catch (error) {
         console.error("Error fetching technologies: ", error);
         message.error(t("Failed to fetch technologies."));
+        setLoading(false); // Set loading to false even if there's an error
       }
     };
 
-    fetchData();
+    // Simulate a delay to show the skeleton
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 2000); // Adjust the delay as needed
+
+    return () => clearTimeout(timer);
   }, [t]);
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data.filter(item => item.deletestatus === false);
+      let filtered = data.filter((item) => item.deletestatus === false);
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -77,15 +95,24 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (status === "Active") {
+      message.error(t("Technology is in Active status and cannot be deleted."));
+      return;
+    }
+
     try {
       await axios.patch(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`,
         { deletestatus: true }
       );
       message.success(t("Technology moved to bin successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(
+        data.map((item) =>
+          item.id === id ? { ...item, deletestatus: true } : item
+        )
+      );
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error updating deletestatus: ", error);
       message.error(t("Failed to move technology to bin."));
@@ -227,8 +254,7 @@ const TechList = () => {
           <Button
             type="primary"
             danger
-            disabled={record.techstatus === "Active"}
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record.id, record.techstatus)} // Truyền status vào đây
           >
             <DeleteOutlined /> {t("Move to Bin")}
           </Button>
@@ -239,40 +265,42 @@ const TechList = () => {
 
   return (
     <>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/AddTech")}
-      >
-        {t("Add Technology")}
-      </Button>
-      <Button
-        type="primary"
-        icon={<DeleteOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/TechBin")}
-      >
-        {t("View Bin")}
-      </Button>
-
-      <div className="title">List of Technologies</div>
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        rowKey="id"
-        pagination={{ current: currentPage, pageSize: 3 }} 
-        onChange={handleTableChange}
-        components={{
-          header: {
-            cell: (props) => (
-              <th {...props} className={`table-header ${props.className}`}>
-                {props.children}
-              </th>
-            ),
-          },
-        }}
-      />
+      {loading ? (
+        <>
+          <Space style={{ marginBottom: 16 }}>
+            <Skeleton.Button active size="large" style={{ width: 200 }} />
+            <Skeleton.Button active size="large" style={{ width: 200 }} />
+          </Space>
+          <TechListSkeleton />
+        </>
+      ) : (
+        <>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{ marginBottom: 16 }}
+            onClick={() => navigate("/AddTech")}
+          >
+            {t("Add Technology")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<DeleteOutlined />}
+            style={{ marginBottom: 16 }}
+            onClick={() => navigate("/TechBin")}
+          >
+            {t("View Bin")}
+          </Button>
+          <h1>LIST OF TECHNOLOGY</h1>
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            rowKey="id"
+            pagination={{ current: currentPage, pageSize: 3 }}
+            onChange={handleTableChange}
+          />
+        </>
+      )}
     </>
   );
 };

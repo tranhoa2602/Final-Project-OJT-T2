@@ -302,14 +302,14 @@ const ViewLanguage = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{ marginBottom: 16 }}
+            style={{backgroundColor: 'green', color: 'white', marginRight:'890px'}}
             onClick={() => navigate("/LanguageBin")}
           >
             {t("View Bin")}
           </Button>
         </div>
       )}
-      <h1>LIST OF PROGRAMMING LANGUAGES</h1>
+      <h1 className="title">LIST OF PROGRAMMING LANGUAGES</h1>
       {loading ? (
         <LanguageSkeleton />
       ) : (
@@ -319,6 +319,15 @@ const ViewLanguage = () => {
           rowKey="id"
           pagination={{ current: currentPage, pageSize }}
           onChange={handleTableChange}
+          components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
         />
       )}
     </div>

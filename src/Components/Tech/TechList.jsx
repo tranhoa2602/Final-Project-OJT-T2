@@ -274,7 +274,7 @@ const TechList = () => {
           <TechListSkeleton />
         </>
       ) : (
-        <>
+        <div style={{marginTop: '20px' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -286,20 +286,29 @@ const TechList = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{ marginBottom: 16 }}
+            style={{backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px'}}
             onClick={() => navigate("/TechBin")}
           >
             {t("View Bin")}
           </Button>
-          <h1>LIST OF TECHNOLOGY</h1>
+          <h1 className="title">LIST OF TECHNOLOGY</h1>
           <Table
             columns={columns}
             dataSource={filteredData}
             rowKey="id"
             pagination={{ current: currentPage, pageSize: 3 }}
             onChange={handleTableChange}
+            components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
           />
-        </>
+        </div>
       )}
     </>
   );

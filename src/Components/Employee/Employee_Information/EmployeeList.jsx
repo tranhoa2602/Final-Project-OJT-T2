@@ -519,7 +519,7 @@ const EmployeeList = () => {
           </Button>
         </Space>
       )}
-      <h1>LIST OF EMPLOYEES</h1>
+      <h1 className="title">LIST OF EMPLOYEES</h1>
       {loading ? (
         <ListSkeleton />
       ) : (
@@ -537,6 +537,15 @@ const EmployeeList = () => {
           rowKey="key"
           pagination={{ pageSize: 6 }}
           className={styles["employee-table"]}
+          components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
         />
       )}
     </div>

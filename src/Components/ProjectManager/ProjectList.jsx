@@ -5,6 +5,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
+  PlusOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -128,12 +130,13 @@ const ListProject = () => {
             user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
-                <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
+                <Button icon={<EditOutlined />} type="primary" style={{ marginLeft: 8 }}>
                   {t("Edit")}
                 </Button>
               </Link>
               <Button
                 icon={<DeleteOutlined />}
+                
                 onClick={() => handleDelete(record.id)}
                 style={{ marginLeft: 8 }}
                 disabled={record.status === "Ongoing" || record.status === "Pending"} // Disable button if status is "Ongoing" or "Pending"
@@ -223,17 +226,17 @@ const ListProject = () => {
         />
 
         {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="primary" onClick={showModal}>
+          <Button type="primary" icon={<PlusOutlined></PlusOutlined>} onClick={showModal}>
             {t("Create new project")}
           </Button>
         )}
         {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="primary" onClick={exportToExcel}>
+          <Button type="primary" icon={<ExportOutlined></ExportOutlined>} onClick={exportToExcel}>
             {t("Export to Excel")}
           </Button>
         )}
         {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="default" onClick={() => navigate("/ProjectBin")}>
+          <Button type="default" icon={<DeleteOutlined></DeleteOutlined>} onClick={() => navigate("/ProjectBin")}>
             {t("Project Bin")}
           </Button>
         )}

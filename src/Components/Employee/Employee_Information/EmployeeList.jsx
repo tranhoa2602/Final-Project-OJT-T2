@@ -304,16 +304,11 @@ const EmployeeList = () => {
 
   const handleDelete = async (employee) => {
     if (employee.status === "Involved") {
-      message.error("Employees in Involved status cannot be deleted.");
+      message.error(t("Employees in Involved status cannot be deleted."));
       return;
     }
     if (employee.status === "Available") {
-      message.error("Employees in Available status cannot be deleted.");
-      return;
-    }
-
-    if (employee.status !== "Inactive") {
-      message.error("Only 'Inactive' employees can be deleted.");
+      message.error(t("Employees in Available status cannot be deleted."));
       return;
     }
 

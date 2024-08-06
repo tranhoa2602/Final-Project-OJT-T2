@@ -8,6 +8,7 @@ import {
   Input,
   Select,
   Skeleton,
+  Modal,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -95,28 +96,48 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id, status) => {
+  const handleDelete = (id, status) => {
+    const getDeleteMessage = () => {
+      switch (status) {
+        case "Active":
+          return t("Technology is in Active status and cannot be deleted.");
+        case "Inactive":
+          return t("Technology is in Inactive status and cannot be deleted.");
+        default:
+          return t("Technology cannot be deleted.");
+      }
+    };
+
     if (status === "Active") {
-      message.error(t("Technology is in Active status and cannot be deleted."));
+      message.error(getDeleteMessage());
       return;
     }
 
-    try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/technologies/${id}.json`,
-        { deletestatus: true }
-      );
-      message.success(t("Technology moved to bin successfully!"));
-      setData(
-        data.map((item) =>
-          item.id === id ? { ...item, deletestatus: true } : item
-        )
-      );
-      setFilteredData(filteredData.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Error updating deletestatus: ", error);
-      message.error(t("Failed to move technology to bin."));
-    }
+    Modal.confirm({
+      title: t("Confirm Deletion"),
+      content: t("Are you sure you want to move this technology to the bin?"),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          await axios.patch(
+            `${firebaseConfig.databaseURL}/technologies/${id}.json`,
+            { deletestatus: true }
+          );
+          message.success(t("Technology moved to bin successfully!"));
+          setData(
+            data.map((item) =>
+              item.id === id ? { ...item, deletestatus: true } : item
+            )
+          );
+          setFilteredData(filteredData.filter((item) => item.id !== id));
+        } catch (error) {
+          console.error("Error updating deletestatus: ", error);
+          message.error(t("Failed to move technology to bin."));
+        }
+      },
+    });
   };
 
   const handleNameFilter = (value) => {

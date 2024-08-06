@@ -63,16 +63,20 @@ const ListProject = () => {
 
   const handleDelete = async (id, status) => {
     if (["Ongoing"].includes(status)) {
-      message.error(t("Project is in Ongoing status and cannot be deleted."));
+      message.error(
+        t("The project is in Ongoing status and cannot be deleted.")
+      );
       return;
     }
     if (["Pending"].includes(status)) {
-      message.error(t("Project is in Pending status and cannot be deleted."));
+      message.error(
+        t("The project is in Pending status and cannot be deleted.")
+      );
       return;
     }
     if (["Not Started"].includes(status)) {
       message.error(
-        t("Project is in Not Started status and cannot be deleted.")
+        t("The project is in Not Started status and cannot be deleted.")
       );
       return;
     }

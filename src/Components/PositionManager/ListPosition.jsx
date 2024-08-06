@@ -110,7 +110,9 @@ const ListPosition = () => {
 
   const handleMoveToBin = async (id, status) => {
     if (status === "active") {
-      message.error(t("Technology đang ở trạng thái Active không thể xóa"));
+      message.error(
+        t("The position is in Active status and cannot be deleted.")
+      );
       return;
     }
 

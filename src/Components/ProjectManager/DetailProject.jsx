@@ -11,13 +11,12 @@ import {
   Modal,
   Form,
   Select,
-  DatePicker,
-  Checkbox,
 } from "antd";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
 import emailjs from "emailjs-com";
 import BackButton from "../layouts/BackButton";
+import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -31,7 +30,8 @@ const DetailProject = () => {
   const [allEmployees, setAllEmployees] = useState([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [assignForm] = Form.useForm();
+  const [unassignForm] = Form.useForm();
   const [noEndDate, setNoEndDate] = useState(false);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const DetailProject = () => {
         setProject(projectData);
         setNoEndDate(!projectData.endDate);
         fetchEmployees(projectData.assignedEmployees || []);
-        form.setFieldsValue({
+        assignForm.setFieldsValue({
           ...projectData,
           startDate: moment(projectData.startDate),
           endDate: projectData.endDate ? moment(projectData.endDate) : null,
@@ -76,7 +76,7 @@ const DetailProject = () => {
     };
 
     fetchProject();
-  }, [id, t, form]);
+  }, [id, t, assignForm]);
 
   const updateEmployeeStatus = async (employeeId) => {
     const db = getDatabase();
@@ -124,7 +124,7 @@ const DetailProject = () => {
       console.log("Emails sent successfully");
     } catch (error) {
       console.error("Error sending emails", error);
-      if (error.status === 426) {
+      if (error.response && error.response.status === 426) {
         // Handle rate limit error
         message.error("Rate limit reached. Please try again later.");
       } else {
@@ -150,7 +150,7 @@ const DetailProject = () => {
         t("Selected employees are already assigned to this project!")
       );
       setIsAssignModalOpen(false);
-      form.resetFields();
+      assignForm.resetFields();
       return;
     }
 
@@ -159,7 +159,8 @@ const DetailProject = () => {
       assignedEmployees: [...new Set([...employeeList, ...newEmployees])],
     };
 
-    await update(projectRef, updatedProject);
+    const updates = {};
+    updates[`projects/${id}`] = updatedProject;
 
     const updatedEmails = [];
     for (const employeeId of newEmployees) {
@@ -171,16 +172,21 @@ const DetailProject = () => {
         ...employeeData,
         projects: [...new Set([...employeeProjects, id])],
       };
-      await update(employeeRef, updatedEmployee);
-      await updateEmployeeStatus(employeeId);
+      updates[`employees/${employeeId}`] = updatedEmployee;
       updatedEmails.push(employeeData.email);
+    }
+
+    await update(ref(db), updates);
+
+    for (const employeeId of newEmployees) {
+      await updateEmployeeStatus(employeeId);
     }
 
     sendEmail(updatedEmails, projectData.name, "added");
 
     message.success(t("Employees assigned successfully!"));
     setIsAssignModalOpen(false);
-    form.resetFields();
+    assignForm.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) => [
       ...prevEmployees,
@@ -204,7 +210,8 @@ const DetailProject = () => {
       assignedEmployees: updatedEmployees,
     };
 
-    await update(projectRef, updatedProject);
+    const updates = {};
+    updates[`projects/${id}`] = updatedProject;
 
     const updatedEmails = [];
     for (const employeeId of values.employees) {
@@ -219,16 +226,21 @@ const DetailProject = () => {
         ...employeeData,
         projects: updatedEmployeeProjects,
       };
-      await update(employeeRef, updatedEmployee);
-      await updateEmployeeStatus(employeeId);
+      updates[`employees/${employeeId}`] = updatedEmployee;
       updatedEmails.push(employeeData.email);
+    }
+
+    await update(ref(db), updates);
+
+    for (const employeeId of values.employees) {
+      await updateEmployeeStatus(employeeId);
     }
 
     sendEmail(updatedEmails, projectData.name, "fired");
 
     message.success(t("Employees unassigned successfully!"));
     setIsUnassignModalOpen(false);
-    form.resetFields();
+    unassignForm.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) =>
       prevEmployees.filter((emp) => !values.employees.includes(emp.id))
@@ -313,14 +325,25 @@ const DetailProject = () => {
             </Descriptions>
             <Button
               type="primary"
-              onClick={() => setIsAssignModalOpen(true)}
-              style={{ marginTop: 20 }}
+              onClick={() => {
+                assignForm.resetFields(); // Reset form fields before showing Modal
+                setIsAssignModalOpen(true);
+              }}
+              style={{
+                marginTop: 20,
+                backgroundColor: "#52c41a",
+                borderColor: "#52c41a",
+              }}
+              icon={<PlusOutlined />}
             >
               {t("Assign Employees")}
             </Button>
             <Button
               type="danger"
-              onClick={() => setIsUnassignModalOpen(true)}
+              onClick={() => {
+                unassignForm.resetFields(); // Reset form fields before showing Modal
+                setIsUnassignModalOpen(true);
+              }}
               style={{
                 marginTop: 20,
                 marginLeft: 10,
@@ -330,6 +353,7 @@ const DetailProject = () => {
                 cursor: employees.length === 0 ? "not-allowed" : "pointer",
               }}
               disabled={employees.length === 0}
+              icon={<MinusOutlined />}
             >
               {t("Unassign Employees")}
             </Button>
@@ -339,7 +363,7 @@ const DetailProject = () => {
               onCancel={() => setIsAssignModalOpen(false)}
               footer={null}
             >
-              <Form form={form} onFinish={handleAssign} layout="vertical">
+              <Form form={assignForm} onFinish={handleAssign} layout="vertical">
                 <Form.Item
                   name="employees"
                   label={t("Employees")}
@@ -359,8 +383,15 @@ const DetailProject = () => {
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      backgroundColor: "#52c41a",
+                      borderColor: "#52c41a",
+                    }}
+                  >
                     {t("Assign")}
                   </Button>
                 </Form.Item>
@@ -372,7 +403,11 @@ const DetailProject = () => {
               onCancel={() => setIsUnassignModalOpen(false)}
               footer={null}
             >
-              <Form form={form} onFinish={handleUnassign} layout="vertical">
+              <Form
+                form={unassignForm}
+                onFinish={handleUnassign}
+                layout="vertical"
+              >
                 <Form.Item
                   name="employees"
                   label={t("Employees")}
@@ -392,8 +427,15 @@ const DetailProject = () => {
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      backgroundColor: "#a83c42",
+                      borderColor: "#a83c42",
+                    }}
+                  >
                     {t("Unassign")}
                   </Button>
                 </Form.Item>

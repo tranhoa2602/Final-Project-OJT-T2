@@ -356,6 +356,7 @@ i18n.use(initReactI18next).init({
                     "Are you sure you want to move this technology to the bin?",
                 'Unassign Employees from Project': 'Unassign Employees from Project',
                 'Unassign Employees': 'Unassign Employees',
+                'Please input your phone number!': 'Please input your phone number!',
 
             },
         },
@@ -713,6 +714,7 @@ i18n.use(initReactI18next).init({
                     "Bạn có chắc chắn muốn chuyển công nghệ này vào thùng rác không?",
                 'Unassign Employees from Project': 'Bỏ phân công nhân viên khỏi dự án',
                 'Unassign Employees': 'Bỏ phân công nhân viên',
+                'Please input your phone number!': 'Vui lòng nhập số điện thoại của bạn!',
             },
         },
     },

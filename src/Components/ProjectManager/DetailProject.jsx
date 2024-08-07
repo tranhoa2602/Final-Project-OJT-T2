@@ -11,13 +11,12 @@ import {
   Modal,
   Form,
   Select,
-  DatePicker,
-  Checkbox,
 } from "antd";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
 import emailjs from "emailjs-com";
 import BackButton from "../layouts/BackButton";
+import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -45,6 +44,11 @@ const DetailProject = () => {
         setProject(projectData);
         setNoEndDate(!projectData.endDate);
         fetchEmployees(projectData.assignedEmployees || []);
+        assignForm.setFieldsValue({
+          ...projectData,
+          startDate: moment(projectData.startDate),
+          endDate: projectData.endDate ? moment(projectData.endDate) : null,
+        });
       } else {
         message.error(t("Project not found"));
       }
@@ -72,7 +76,7 @@ const DetailProject = () => {
     };
 
     fetchProject();
-  }, [id, t]);
+  }, [id, t, assignForm]);
 
   const updateEmployeeStatus = async (employeeId) => {
     const db = getDatabase();
@@ -120,7 +124,7 @@ const DetailProject = () => {
       console.log("Emails sent successfully");
     } catch (error) {
       console.error("Error sending emails", error);
-      if (error.status === 426) {
+      if (error.response && error.response.status === 426) {
         // Handle rate limit error
         message.error("Rate limit reached. Please try again later.");
       } else {
@@ -155,7 +159,8 @@ const DetailProject = () => {
       assignedEmployees: [...new Set([...employeeList, ...newEmployees])],
     };
 
-    await update(projectRef, updatedProject);
+    const updates = {};
+    updates[`projects/${id}`] = updatedProject;
 
     const updatedEmails = [];
     for (const employeeId of newEmployees) {
@@ -167,9 +172,14 @@ const DetailProject = () => {
         ...employeeData,
         projects: [...new Set([...employeeProjects, id])],
       };
-      await update(employeeRef, updatedEmployee);
-      await updateEmployeeStatus(employeeId);
+      updates[`employees/${employeeId}`] = updatedEmployee;
       updatedEmails.push(employeeData.email);
+    }
+
+    await update(ref(db), updates);
+
+    for (const employeeId of newEmployees) {
+      await updateEmployeeStatus(employeeId);
     }
 
     sendEmail(updatedEmails, projectData.name, "added");
@@ -200,7 +210,8 @@ const DetailProject = () => {
       assignedEmployees: updatedEmployees,
     };
 
-    await update(projectRef, updatedProject);
+    const updates = {};
+    updates[`projects/${id}`] = updatedProject;
 
     const updatedEmails = [];
     for (const employeeId of values.employees) {
@@ -215,9 +226,14 @@ const DetailProject = () => {
         ...employeeData,
         projects: updatedEmployeeProjects,
       };
-      await update(employeeRef, updatedEmployee);
-      await updateEmployeeStatus(employeeId);
+      updates[`employees/${employeeId}`] = updatedEmployee;
       updatedEmails.push(employeeData.email);
+    }
+
+    await update(ref(db), updates);
+
+    for (const employeeId of values.employees) {
+      await updateEmployeeStatus(employeeId);
     }
 
     sendEmail(updatedEmails, projectData.name, "fired");
@@ -310,28 +326,34 @@ const DetailProject = () => {
             <Button
               type="primary"
               onClick={() => {
+                assignForm.resetFields(); // Reset form fields before showing Modal
                 setIsAssignModalOpen(true);
-                assignForm.resetFields();
               }}
-              style={{ marginTop: 20 }}
+              style={{
+                marginTop: 20,
+                backgroundColor: "green",
+                borderColor: "green",
+              }}
+              icon={<PlusOutlined />}
             >
               {t("Assign Employees")}
             </Button>
             <Button
               type="danger"
               onClick={() => {
+                unassignForm.resetFields(); // Reset form fields before showing Modal
                 setIsUnassignModalOpen(true);
-                unassignForm.resetFields();
               }}
               style={{
                 marginTop: 20,
                 marginLeft: 10,
-                backgroundColor: employees.length === 0 ? "gray" : "#a83c42",
+                backgroundColor: employees.length === 0 ? "gray" : "#ff4d4f",
                 color: "white",
-                borderColor: employees.length === 0 ? "gray" : "#a83c42",
+                borderColor: employees.length === 0 ? "gray" : "#ff4d4f",
                 cursor: employees.length === 0 ? "not-allowed" : "pointer",
               }}
               disabled={employees.length === 0}
+              icon={<MinusOutlined />}
             >
               {t("Unassign Employees")}
             </Button>
@@ -361,8 +383,15 @@ const DetailProject = () => {
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      backgroundColor: "green",
+                      borderColor: "green",
+                    }}
+                  >
                     {t("Assign")}
                   </Button>
                 </Form.Item>
@@ -398,8 +427,15 @@ const DetailProject = () => {
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      backgroundColor: "#ff4d4f",
+                      borderColor: "#ff4d4f",
+                    }}
+                  >
                     {t("Unassign")}
                   </Button>
                 </Form.Item>

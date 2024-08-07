@@ -6,6 +6,7 @@ import {
   Button,
   Upload,
   message,
+  Typography,
   Spin,
   Modal,
 } from "antd";
@@ -32,6 +33,7 @@ const EditEmployee = () => {
   const [positions, setPositions] = useState([]);
   const [cvFile, setCvFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [employeeName, setEmployeeName] = useState(employee?.name || "");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,10 +51,11 @@ const EditEmployee = () => {
       } else {
         setPositions([]);
       }
+      setEmployeeName(employee.name);
     };
 
     fetchData();
-  }, []);
+  }, [employee.projects, employee.name]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -125,8 +128,11 @@ const EditEmployee = () => {
   };
 
   return (
-    <div style={{ height: "100vh", marginTop: "20px" }}>
+    <div style={{ height: "100vh", marginTop: "30px" }}>
       <BackButton />
+      <Typography.Title style={{ textAlign: "center", fontSize: "20px" }}>
+        {t("Edit")} : {employeeName}
+      </Typography.Title>
       {loading ? (
         <Spin
           size="large"

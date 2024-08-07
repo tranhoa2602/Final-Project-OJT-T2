@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+.profilePage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: "Roboto", sans-serif;
+
+  .profileCard {
+    width: 100%;
+    max-width: 800px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: left;
+
+    .profileHeader {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+
+      .ant-avatar {
+        margin-right: 20px;
+      }
+
+      .changePictureButton {
+        margin-left: 10px;
+      }
+
+      .confirmUploadButton {
+        margin-left: 10px;
+        background-color: #28a745; // Green
+        border-color: #28a745; // Green
+      }
+    }
+
+    .ant-form-item {
+      margin-bottom: 16px;
+    }
+
+    .buttonsContainer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+
+      .updateButton {
+        background-color: #1890ff; // Blue
+        border-color: #1890ff; // Blue
+      }
+
+      .backButton {
+        background-color: #ff4d4f; // Red
+        border-color: #ff4d4f; // Red
+      }
+    }
+  }
+}

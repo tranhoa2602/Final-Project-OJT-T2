@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+
+  /* Table header styles */
+.table-header {
+    background-color: #1890ff !important;
+    font-weight: bold;
+    text-align: center !important;
+    color: #e6f7ff !important;
+  }
+  
+.title {
+    text-align: center;
+    margin: 20px;
+    font-size: 32px;
+    font-family: url;
+  }
+
+.truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* Adjust the width as needed */
+    max-height: 200px;
+  }
+
+  .action-table {
+    display: flex !important;
+    align-items: center !important;
+  }
+  

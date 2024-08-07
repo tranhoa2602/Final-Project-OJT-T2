@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert } from "antd";
-import { getDatabase, ref, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  query,
+  orderByChild,
+  equalTo,
+  get,
+  update,
+} from "firebase/database";
+import bcrypt from "bcryptjs";
 import styles from "../styles/layouts/ResetPassword.module.scss";
 
 const { Title } = Typography;
@@ -30,12 +39,50 @@ const ResetPassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${email.replace(".", ",")}`);
-      await update(userRef, { password: newPassword });
-      setMessage(
-        "Password reset successfully! You can now log in with your new password."
+
+      // Check in the 'users' reference
+      let userRef = query(
+        ref(db, "users"),
+        orderByChild("email"),
+        equalTo(email)
       );
-      setError("");
+      let snapshot = await get(userRef);
+
+      // If not found, check in the 'employees' reference
+      if (!snapshot.exists()) {
+        userRef = query(
+          ref(db, "employees"),
+          orderByChild("email"),
+          equalTo(email)
+        );
+        snapshot = await get(userRef);
+      }
+
+      const userData = snapshot.val();
+      if (userData) {
+        const userKey = Object.keys(userData)[0];
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Determine the correct reference path ('users' or 'employees')
+        const path = snapshot.ref._path.pieces_.includes("users")
+          ? "users"
+          : "employees";
+
+        await update(ref(db, `${path}/${userKey}`), {
+          password: hashedPassword,
+        });
+
+        setMessage(
+          "Password reset successfully! You can now log in with your new password."
+        );
+        setError("");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000); // Redirect to login page after 2 seconds
+      } else {
+        setError("User not found.");
+        setMessage("");
+      }
     } catch (error) {
       console.error("Error updating password: ", error);
       setError("Failed to reset password. Please try again.");
@@ -89,14 +136,6 @@ const ResetPassword = () => {
             </Button>
           </Form.Item>
         </Form>
-        <Button
-          type="link"
-          className={styles["link-button"]}
-          onClick={() => navigate("/")}
-          block
-        >
-          Back to Login
-        </Button>
       </div>
     </div>
   );

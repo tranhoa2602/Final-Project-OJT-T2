@@ -3,7 +3,7 @@ import { Form, Input, Button, message, Alert } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import bcrypt from "bcryptjs";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import styles from "../styles/layouts/ChangePassword.module.scss";
 
 const ChangePassword = () => {
@@ -23,9 +23,21 @@ const ChangePassword = () => {
 
     try {
       const db = getDatabase();
-      const userRef = ref(db, `users/${user.id}`);
+      let userRef;
+
+      if (user.role === "Admin") {
+        userRef = ref(db, `users/${user.key}`);
+      } else {
+        userRef = ref(db, `employees/${user.key}`);
+      }
+
       const snapshot = await get(userRef);
       const userData = snapshot.val();
+
+      if (!userData || !userData.password) {
+        setError(t("User data not found."));
+        return;
+      }
 
       const isPasswordCorrect = await bcrypt.compare(
         currentPassword,
@@ -79,7 +91,10 @@ const ChangePassword = () => {
           <Form.Item
             name="confirmPassword"
             rules={[
-              { required: true, message: t("Please confirm your new password!") },
+              {
+                required: true,
+                message: t("Please confirm your new password!"),
+              },
             ]}
           >
             <Input.Password placeholder={t("Confirm New Password")} />

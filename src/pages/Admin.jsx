@@ -5,177 +5,114 @@ import {
   Input,
   message,
   Modal,
-  Select,
-  Pagination,
-  Table,
-  Tag,
+  Avatar,
+  Upload,
+  Spin,
 } from "antd";
-import { get, getDatabase, ref, remove, set, update } from "firebase/database";
+import { EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { get, getDatabase, ref, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
-import * as XLSX from "xlsx";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
-const { Option } = Select;
+const defaultAvatarUrl =
+  "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
 
 function Admin() {
-  const { t, i18n } = useTranslation();
-  const [form] = Form.useForm();
-  const [users, setUsers] = useState([]);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [editMode, setEditMode] = useState(false);
-  const [editUserKey, setEditUserKey] = useState(""); // Changed to editUserKey
-  const [modalVisible, setModalVisible] = useState(false); // For modal visibility
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(6);
-  const [searchTerm, setSearchTerm] = useState("");
+  const { t } = useTranslation();
+  const [form] = Form.useForm(); // Create form instance
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [tempProfilePicture, setTempProfilePicture] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUser = async () => {
       try {
-        const db = getDatabase();
-        const userRef = ref(db, "users");
-        const snapshot = await get(userRef);
-        const userData = snapshot.val();
-        if (userData) {
-          setUsers(
-            Object.entries(userData).map(([key, user]) => ({ ...user, key }))
-          );
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (storedUser && storedUser.key) {
+          const db = getDatabase();
+          const userRef = ref(db, `users/${storedUser.key}`);
+          const snapshot = await get(userRef);
+          const userData = snapshot.val();
+          if (userData) {
+            setUser(userData);
+            form.setFieldsValue(userData);
+            setProfilePicture(userData.profilePicture || defaultAvatarUrl);
+
+            // Lưu chỉ key và role vào localStorage
+            const userStorageData = {
+              key: storedUser.key,
+              role: userData.role,
+            };
+            localStorage.setItem("user", JSON.stringify(userStorageData));
+          }
+        } else {
+          message.error(t("User not authenticated"));
+          navigate("/");
         }
       } catch (error) {
-        message.error(t("Error fetching users"));
+        message.error(t("Error fetching user data"));
+        console.error("Error fetching user data: ", error);
       }
     };
 
-    fetchUsers();
-  }, [t]);
+    fetchUser();
+  }, [form, navigate, t]);
 
-  const handleAddOrUpdateUser = async (values) => {
-    const { email, role, status } = values; // Remove password from the required fields
-
-    if (!email || !role || !status) {
-      message.error(t("Please fill in all fields"));
-      return;
-    }
-
+  const handleUpdateUser = async (values) => {
     try {
       const db = getDatabase();
-      const userKey = editMode ? editUserKey : uuidv4(); // Generate new key if not in edit mode
+      const userKey = user.id;
       const userRef = ref(db, `users/${userKey}`);
-      let userData = {
-        id: userKey,
-        email,
-        contact: "",
-        cv_list: [
-          {
-            title: "",
-            description: "",
-            file: "",
-            updatedAt: new Date().toISOString(),
-          },
-        ],
-        role,
-        status, // Add status
-        createdAt: new Date().toISOString(),
-        projetcIds: "",
-        skill: "",
+      const userDataToUpdate = {
+        ...user,
+        ...values,
+        updatedAt: new Date().toISOString(),
       };
 
-      if (editMode) {
-        await update(userRef, userData);
-        message.success(t("User updated successfully!"));
-      } else {
-        const snapshot = await get(ref(db, "users"));
-        const usersData = snapshot.val();
-        const adminUsers = Object.values(usersData).filter(
-          (user) => user.role === "admin"
+      if (tempProfilePicture) {
+        setLoading(true);
+        const storage = getStorage();
+        const storageReference = storageRef(
+          storage,
+          `profilePictures/${tempProfilePicture.name}`
         );
-
-        if (role === "admin" && adminUsers.length === 0) {
-          userData.isAdmin = true;
-        }
-
-        await set(userRef, userData);
-        message.success(t("User added successfully!"));
+        const snapshot = await uploadBytes(
+          storageReference,
+          tempProfilePicture
+        );
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        userDataToUpdate.profilePicture = downloadURL;
+        setProfilePicture(downloadURL);
+        setTempProfilePicture(null);
+        setLoading(false);
       }
 
-      form.resetFields();
-      setEditMode(false);
-      setEditUserKey("");
+      await update(userRef, userDataToUpdate);
+      message.success(t("Profile updated successfully!"));
 
-      const updatedSnapshot = await get(ref(db, "users"));
-      const updatedUserData = updatedSnapshot.val();
-      if (updatedUserData) {
-        setUsers(
-          Object.entries(updatedUserData).map(([key, user]) => ({
-            ...user,
-            key,
-          }))
-        );
-      }
+      setUser(userDataToUpdate);
+      // Lưu chỉ key và role vào localStorage
+      const userStorageData = {
+        key: userKey,
+        role: userDataToUpdate.role,
+      };
+      localStorage.setItem("user", JSON.stringify(userStorageData));
+      setEditModalOpen(false);
     } catch (error) {
-      message.error(t("Error adding or updating user"));
-      console.error("Error adding or updating user: ", error);
+      message.error(t("Error updating profile"));
+      console.error("Error updating profile: ", error);
     }
-  };
-
-  const handleDeleteUser = async (userKey) => {
-    try {
-      const db = getDatabase();
-      const userRef = ref(db, `users/${userKey}`);
-      const snapshot = await get(userRef);
-      const userData = snapshot.val();
-
-      const adminUsers = users.filter((user) => user.isAdmin);
-
-      if (userData.isAdmin && adminUsers.length === 1) {
-        message.error(t("Cannot delete the only admin user"));
-        return;
-      }
-
-      if (userData.isAdmin) {
-        message.error(t("Cannot delete an admin user"));
-        return;
-      }
-
-      await remove(userRef);
-      message.success(t("User deleted successfully!"));
-
-      const updatedSnapshot = await get(ref(db, "users"));
-      const updatedUserData = updatedSnapshot.val();
-      if (updatedUserData) {
-        setUsers(
-          Object.entries(updatedUserData).map(([key, user]) => ({
-            ...user,
-            key,
-          }))
-        );
-      } else {
-        setUsers([]);
-      }
-    } catch (error) {
-      message.error(t("Error deleting user"));
-    }
-  };
-
-  const handleEditUser = (user) => {
-    form.setFieldsValue({
-      email: user.email,
-      role: user.role,
-      status: user.status,
-    });
-    setEditMode(true);
-    setEditUserKey(user.key); // Update to setEditUserKey
-    setModalVisible(true); // Open modal for editing
-  };
-
-  const handleModalCancel = () => {
-    form.resetFields();
-    setModalVisible(false);
-    setEditMode(false);
   };
 
   const validateEmail = (email) => {
@@ -183,183 +120,224 @@ function Admin() {
     return re.test(String(email).toLowerCase());
   };
 
-  const handleExportExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      users.map((user) => ({
-        Email: user.email,
-        Role: user.role,
-        CreatedAt: user.createdAt,
-        Contact: user.contact,
-        Skills: user.skill,
-        Status: user.status,
-      }))
-    );
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-    XLSX.writeFile(workbook, "users.xlsx");
+  const handleProfilePictureChange = ({ file }) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error(t("You can only upload JPG/PNG files!"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setTempProfilePicture(file);
+      setProfilePicture(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const handleProfilePictureUpload = async () => {
+    try {
+      if (!tempProfilePicture) {
+        message.warning(t("No picture to upload"));
+        return;
+      }
+
+      setLoading(true);
+
+      const storageReference = storageRef(
+        getStorage(),
+        `profilePictures/${tempProfilePicture.name}`
+      );
+      const snapshot = await uploadBytes(storageReference, tempProfilePicture);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("File uploaded, download URL:", downloadURL);
+      setProfilePicture(downloadURL);
+      setTempProfilePicture(null);
+
+      // Update profile picture URL in Firebase Realtime Database
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser && storedUser.key) {
+        const db = getDatabase();
+        const userRef = ref(db, `users/${storedUser.key}`);
+        await update(userRef, { profilePicture: downloadURL });
+        setUser((prevUser) => ({ ...prevUser, profilePicture: downloadURL })); // Update user state with new profile picture URL
+        message.success(t("Profile picture updated successfully"));
+      } else {
+        message.error(t("User not authenticated"));
+      }
+    } catch (error) {
+      console.error(t("Error uploading profile picture: "), error);
+      message.error(t("Error uploading profile picture"));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
-
-  const columns = [
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      sorter: (a, b) => a.email.localeCompare(b.email),
-    },
-    {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
-      filters: [
-        { text: "Admin", value: "Admin" },
-        { text: "Employee", value: "Employee" },
-      ],
-      onFilter: (value, record) => record.role?.includes(value),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      filters: [
-        { text: "Active", value: "active" },
-        { text: "Inactive", value: "inactive" },
-      ],
-      onFilter: (value, record) => record.status?.includes(value),
-      render: (status) =>
-        status ? (
-          <Tag color={status === "active" ? "green" : "red"}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Tag>
-        ) : null,
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, user) => (
-        <span className={styles["actions"]}>
-          <Button
-            onClick={() => handleEditUser(user)}
-            key="edit"
-            type="primary"
-          >
-            Edit
-          </Button>
-          {!user.isAdmin && (
-            <Button
-              type="danger"
-              onClick={() => handleDeleteUser(user.key)}
-              key="delete"
-            >
-              Delete
-            </Button>
-          )}
-        </span>
-      ),
-    },
-  ];
+  const handleCancelEdit = () => {
+    setEditModalOpen(false);
+    setTempProfilePicture(null);
+    setProfilePicture(user.profilePicture || defaultAvatarUrl);
+  };
 
   return (
-    <div className={styles["admin-page"]}>
-      <h1>{t("Admin Page")}</h1>
-      <Button
-        type="primary"
-        onClick={() => setModalVisible(true)}
-        className={styles["add-user-button"]}
-      >
-        {t("Add User")}
-      </Button>
-      <Button
-        type="primary"
-        onClick={handleExportExcel}
-        className={styles["export-button"]}
-      >
-        {t("Export to Excel")}
-      </Button>
-      <h2>Current Users</h2>
-      <Input
-        className={styles["search-input"]}
-        placeholder="Search by email"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <Table columns={columns} dataSource={paginatedUsers} pagination={false} />
-      <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={filteredUsers.length}
-        onChange={handlePageChange}
-        className={styles["pagination"]}
-      />
-      <Modal
-        title={editMode ? "Edit User" : "Add User"}
-        open={modalVisible}
-        onCancel={handleModalCancel}
-        footer={null}
-        className={styles["modal"]}
-      >
-        <Form
-          form={form}
-          onFinish={handleAddOrUpdateUser}
-          initialValues={{
-            email: "",
-            role: "Employee",
-            status: "active",
-          }}
-          layout="vertical"
-        >
-          <Form.Item
-            label={t("Email")}
-            name="email"
-            rules={[{ required: true, message: t("Please input your email!") }]}
+    <div className={styles["profile-detail-page"]}>
+      {user && (
+        <>
+          <h1 className={styles["page-title"]}>{t("Admin Profile")}</h1>
+          <div className={styles["profile-header"]}>
+            <Avatar
+              src={profilePicture || defaultAvatarUrl}
+              size={280}
+              className={styles["profile-avatar"]}
+            />
+            <div className={styles["profile-info"]}>
+              <h2 className={styles["profile-name"]}>{user.name}</h2>
+              <p className={styles["profile-email"]}>{user.email}</p>
+              <Button
+                onClick={() => setEditModalOpen(true)}
+                icon={<EditOutlined />}
+                className={styles["edit-button"]}
+              >
+                {t("Edit Profile")}
+              </Button>
+            </div>
+          </div>
+          <div className={styles["profile-details"]}>
+            <p>
+              <strong>{t("Phone")}:</strong> {user.phone}
+            </p>
+            <p>
+              <strong>{t("Role")}:</strong> {t(user.role)}
+            </p>
+            <p>
+              <strong>{t("Status")}:</strong> {user.status}
+            </p>
+          </div>
+          <div className={styles["profile-social-media"]}>
+            <a
+              href="https://www.facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaFacebook
+                size={32}
+                style={{ margin: "10px", color: "#4267B2" }}
+              />
+            </a>
+            <a
+              href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram
+                size={32}
+                style={{ margin: "10px", color: "#E1306C" }}
+              />
+            </a>
+            <a
+              href="https://www.twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTwitter
+                size={32}
+                style={{ margin: "10px", color: "#1DA1F2" }}
+              />
+            </a>
+          </div>
+          <Modal
+            title={t("Edit Profile")}
+            open={editModalOpen}
+            onCancel={handleCancelEdit}
+            footer={null}
+            destroyOnClose={true}
           >
-            <Input />
-          </Form.Item>
+            <Spin spinning={loading}>
+              <Form form={form} onFinish={handleUpdateUser} layout="vertical">
+                <Form.Item
+                  name="email"
+                  label={t("Email")}
+                  rules={[
+                    { required: true, message: t("Please input your email!") },
+                    {
+                      validator: (_, value) =>
+                        value && validateEmail(value)
+                          ? Promise.resolve()
+                          : Promise.reject(
+                              t("Please enter a valid email address")
+                            ),
+                    },
+                  ]}
+                >
+                  <Input disabled />
+                </Form.Item>
 
-          <Form.Item
-            label={t("Role")}
-            name="role"
-            rules={[{ required: true, message: t("Please select a role!") }]}
-          >
-            <Select>
-              <Option value="Employee">Employee</Option>
-              <Option value="Admin">Admin</Option>
-            </Select>
-          </Form.Item>
+                <Form.Item
+                  name="name"
+                  label={t("Name")}
+                  rules={[
+                    { required: true, message: t("Please input your name!") },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
 
-          <Form.Item
-            label={t("Status")}
-            name="status"
-            rules={[{ required: true, message: t("Please select a status!") }]}
-          >
-            <Select>
-              <Option value="active">{t("Active")}</Option>
-              <Option value="inactive">{t("Inactive")}</Option>
-            </Select>
-          </Form.Item>
+                <Form.Item
+                  name="phone"
+                  label={t("Phone")}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("Please input your phone number!"),
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+                <Form.Item label={t("Profile Picture")} valuePropName="file">
+                  <Upload
+                    showUploadList={false}
+                    beforeUpload={() => false}
+                    onChange={handleProfilePictureChange}
+                  >
+                    <Button icon={<UploadOutlined />}>
+                      {t("Change Profile Picture")}
+                    </Button>
+                  </Upload>
+                  {tempProfilePicture && (
+                    <Avatar
+                      src={profilePicture}
+                      size={100}
+                      style={{ marginTop: "10px" }}
+                    />
+                  )}
+                  {tempProfilePicture && (
+                    <Button
+                      type="primary"
+                      onClick={handleProfilePictureUpload}
+                      className={styles.confirmUploadButton}
+                      style={{ marginTop: "10px" }}
+                    >
+                      {t("Confirm Upload")}
+                    </Button>
+                  )}
+                </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              {editMode ? t("Update User") : t("Add User")}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{ width: "100%" }}
+                  >
+                    {t("Update Profile")}
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Spin>
+          </Modal>
+        </>
+      )}
     </div>
   );
 }

@@ -1,29 +1,33 @@
 import React, { useState, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
-import i18n from '../../i18n'; // Đảm bảo đường dẫn này đúng
-import "../../styles/layouts/Sidebar.scss";
+import { useTranslation } from "react-i18next";
+import i18n from "../../i18n";
 import {
-  AppstoreOutlined,
-  ContainerOutlined,
-  DesktopOutlined,
-  LogoutOutlined,
-  TeamOutlined,
   UserOutlined,
   FundProjectionScreenOutlined,
   GlobalOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+  LogoutOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button } from "antd";
+import { Layout, Menu, Switch, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import { FaFlagUsa, FaFlag } from "react-icons/fa";
+import logo from "../../assets/logo.png"; // Đường dẫn tới logo của bạn
 
 const { Sider } = Layout;
 
 const siderStyle = {
   textAlign: "left",
   color: "#fff",
+  height: "100vh", // Ensure full height
+  position: "fixed",
+  left: 0,
+  top: 0,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  backgroundColor: "#000", // Set sidebar background to black
 };
 
 const layoutStyle = {
@@ -34,18 +38,12 @@ const layoutStyle = {
   maxWidth: "calc(100% - 8px)",
 };
 
-const buttonStyle = {
-  position: "absolute",
-  bottom: 16,
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "90%",
-};
-
 const Sidebar = () => {
   const { t } = useTranslation();
-  const [collapsed, setCollapsed] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [openKeys, setOpenKeys] = useState([]);
+  const [language, setLanguage] = useState(i18n.language); // Quản lý ngôn ngữ hiện tại
+  const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,107 +58,78 @@ const Sidebar = () => {
     navigate("/");
   };
 
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
+  const changeLanguage = () => {
+    const newLanguage = language === "en" ? "vi" : "en";
+    i18n.changeLanguage(newLanguage);
+    setLanguage(newLanguage);
   };
 
-  const changeLanguage = (language) => {
-    i18n.changeLanguage(language);
+  const onOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+  };
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
   };
 
   const items = [
     userRole === "Admin" && {
       key: "sub1",
       icon: <UserOutlined />,
-      label: t('Manage Accounts'),
+      label: t("Manage Accounts"),
       children: [
         {
           key: "1",
-          label: <Link to="/admin">{t('Account Info')}</Link>,
+          label: <Link to="/admin">{t("Account Info")}</Link>,
         },
         {
           key: "2",
-          label: <Link to="/change-password">{t('Reset Password')}</Link>,
+          label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
-    {
+    userRole === "Employee" && {
       key: "sub2",
-      icon: <FundProjectionScreenOutlined />,
-      label: t('Manage Projects'),
+      icon: <UserOutlined />,
+      label: <Link to="/profile">{t("Profile")}</Link>,
       children: [
         {
-          key: "3",
-          label: <Link to="/../Employee/EmployeeList">{t('Project Info')}</Link>,
-        },
-        {
-          key: "4",
-          label: <Link to="/../Employee/EmployeeList">{t('Assign Employees')}</Link>,
-        },
-        {
-          key: "5",
-          label: <Link to="/../Employee/EmployeeList">{t('Project Tracking')}</Link>,
+          key: "change-password",
+          label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     {
       key: "sub3",
-      icon: <DeploymentUnitOutlined />,
-      label: t('Technology'),
+      icon: <FundProjectionScreenOutlined />,
+      label: t("Manage Projects"),
       children: [
         {
-          key: "6",
-          label: <Link to="/TechList">{t('Technology Info')}</Link>,
-        },
-      ],
-    },
-    {
-      key: "sub4",
-      label: t('Employee'),
-      icon: <TeamOutlined />,
-      children: [
-        {
-          key: "7",
-          label: <Link to="create-user">{t('Employee Profile')}</Link>,
-        },
-        {
-          key: "8",
-          label: <Link to="/../Employee/EmployeeList">{t('Assign Project')}</Link>,
-        },
-      ],
-    },
-    {
-      key: "sub5",
-      label: t('Languages'),
-      icon: <GlobalOutlined />,
-      children: [
-        {
-          key: "9",
-          label: <Link to="/ViewLanguage">{t('Programming Language Info')}</Link>,
+          key: "3",
+          label: <Link to="/projects">{t("Projects list")}</Link>,
         },
       ],
     },
     {
       key: "10",
       icon: <SolutionOutlined />,
-      label: <Link to="/../Employee/EmployeeList">{t('CV')}</Link>,
+      label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
     {
-      key: "11",
-      icon: <LogoutOutlined />,
-      label: (
-        <button
-          onClick={handleLogout}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
-          {t('Logout')}
-        </button>
-      ),
+      key: "sub4",
+      icon: <DeploymentUnitOutlined />,
+      label: <Link to="/TechList">{t("Technology")}</Link>,
+    },
+    userRole === "Admin" && {
+      key: "sub5",
+      label: <Link to="/list">{t("Employee List")}</Link>,
+      icon: <TeamOutlined />,
+    },
+    {
+      key: "sub6",
+      label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
+      icon: <GlobalOutlined />,
     },
   ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
@@ -173,23 +142,67 @@ const Sidebar = () => {
         collapsed={collapsed}
         onCollapse={toggleCollapse}
       >
-        <Menu
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
-          mode="inline"
-          theme="dark"
-          items={items}
-        />
-        <Button type="primary" onClick={toggleCollapse} style={buttonStyle}>
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-        </Button>
-        <div style={{ textAlign: "center", padding: "10px 0" }}>
-          <Button onClick={() => changeLanguage('vi')} style={{ marginRight: 10 }}>
-            {t('Vietnamese')}
-          </Button>
-          <Button onClick={() => changeLanguage('en')}>
-            {t('English')}
-          </Button>
+        <div>
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
+            <img
+              src={logo}
+              alt="Logo"
+              style={{
+                width: collapsed ? "50%" : "60%",
+              }}
+            />
+            {!collapsed && (
+              <h2 style={{ marginTop: "10px", color: "#fff" }}>
+                Creative Technology
+              </h2>
+            )}
+          </div>
+          <Menu
+            defaultSelectedKeys={["1"]}
+            defaultOpenKeys={["sub1"]}
+            mode="inline"
+            theme="dark"
+            items={items}
+            openKeys={openKeys}
+            onOpenChange={onOpenChange}
+            style={{ backgroundColor: "#000" }} // Set menu background to black
+          />
+        </div>
+        <div>
+          <div style={{ textAlign: "center", padding: "10px" }}>
+            <Switch
+              checkedChildren={
+                <>
+                  <FaFlag style={{ marginRight: 5 }} />
+                  {t("Vietnamese")}
+                </>
+              }
+              unCheckedChildren={
+                <>
+                  <FaFlagUsa style={{ marginRight: 5 }} />
+                  {t("English")}
+                </>
+              }
+              onChange={changeLanguage}
+              checked={language === "vi"}
+              style={{ width: collapsed ? "50%" : "50%" }}
+            />
+          </div>
+          <div style={{ textAlign: "center", padding: "5px" }}>
+            <Button
+              type="primary"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              style={{
+                color: "#000",
+                backgroundImage: "linear-gradient(to right, #ffffff, #87CEEB)",
+                width: collapsed ? "40px" : "80%",
+                margin: "10px auto",
+              }}
+            >
+              {!collapsed && t("Logout")}
+            </Button>
+          </div>
         </div>
       </Sider>
     </Layout>

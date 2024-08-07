@@ -1,107 +1,112 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { Form, Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Typography, Alert } from "antd";
-import { loginUser } from "../service/authService.js";
+import { getDatabase, ref, get } from "firebase/database";
+import bcrypt from "bcryptjs";
 import styles from "../styles/layouts/Login.module.scss";
 
-const { Title } = Typography;
-
-function Login({ setUser }) {
-  const [error, setError] = useState("");
+const Login = ({ setUser }) => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    try {
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        setUser(user);
-        navigate(
-          user.email === "admin1@gmail.com"
-            ? "/admin/account-info"
-            : "/employee"
-        );
-      }
-    } catch (e) {
-      console.error("Invalid user data in localStorage:", e);
-      localStorage.removeItem("user"); // Remove invalid data
-    }
-  }, [setUser, navigate]);
-
-  const handleSubmit = async (values) => {
+  const handleLogin = async (values) => {
     const { email, password } = values;
-    const { user, error } = await loginUser(email, password);
-    if (user) {
-      setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate(
-        user.email === "admin1@gmail.com" ? "/admin/account-info" : "/employee"
-      );
-    } else {
-      setError(error);
+    setLoading(true);
+
+    try {
+      const db = getDatabase();
+
+      // First, try to find the user in the "users" reference
+      const userRef = ref(db, "users");
+      const userSnapshot = await get(userRef);
+      const userData = userSnapshot.val();
+      const user = userData
+        ? Object.values(userData).find((user) => user.email === email)
+        : null;
+
+      if (user) {
+        await processLogin(user, password);
+      } else {
+        // If not found in "users", try to find the user in the "employees" reference
+        const employeeRef = ref(db, "employees");
+        const employeeSnapshot = await get(employeeRef);
+        const employeeData = employeeSnapshot.val();
+        const employee = employeeData
+          ? Object.values(employeeData).find(
+              (employee) => employee.email === email
+            )
+          : null;
+
+        if (employee) {
+          await processLogin(employee, password, true);
+        } else {
+          message.error("Invalid email or password.");
+        }
+      }
+    } catch (error) {
+      console.error("Error during login: ", error);
+      message.error("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const forgetPassword = () => {
-    navigate("/forget-password");
+  const processLogin = async (user, password, isEmployee = false) => {
+    if (user.status === "inactive") {
+      message.error("Your account is inactive. Please contact the admin.");
+    } else if (await bcrypt.compare(password, user.password)) {
+      const storedUser = {
+        key: user.id, // Ensure the user ID is stored correctly
+        role: isEmployee ? "Employee" : user.role,
+        position: isEmployee ? user.positionName : null,
+      };
+      localStorage.setItem("user", JSON.stringify(storedUser));
+      setUser(storedUser);
+
+      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/profile";
+      navigate(userRolePath);
+      message.success("Login successful!");
+    } else {
+      message.error("Invalid email or password.");
+    }
   };
 
   return (
     <div className={styles["login-container"]}>
       <div className={styles["login-form"]}>
         <div className={styles["header-form"]}>
-          <Title level={2} className={styles["title"]}>
-            Login
-          </Title>
+          <h2 className={styles["title"]}>Login</h2>
         </div>
-        <Form onFinish={handleSubmit}>
+        <Form onFinish={handleLogin}>
           <Form.Item
             name="email"
             rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input type="email" placeholder="Input your email" />
+            <Input placeholder="Email" />
           </Form.Item>
           <Form.Item
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password placeholder="Input your password" />
+            <Input.Password placeholder="Password" />
           </Form.Item>
-          {error && <Alert message={error} type="error" showIcon />}
           <Form.Item>
             <Button
-              className={styles["btn-login"]}
               type="primary"
               htmlType="submit"
-              block
+              loading={loading}
+              className={styles["btn-login"]}
             >
               Login
             </Button>
-            <Button
-              type="link"
-              onClick={forgetPassword}
-              className={styles["link-forget"]}
-            >
-              Forgot Password?
-            </Button>
           </Form.Item>
         </Form>
-        <Button
-          type="link"
-          className={styles["link-button"]}
-          onClick={() => navigate("/register")}
-          block
-        >
-          Need an account? Sign Up
-        </Button>
+        <a href="/forget-password" className={styles["link-forget"]}>
+          Forgot password?
+        </a>
       </div>
     </div>
   );
-}
-
-Login.propTypes = {
-  setUser: PropTypes.func.isRequired,
 };
 
 export default Login;

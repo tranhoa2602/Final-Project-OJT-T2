@@ -8,7 +8,7 @@ import {
   EMAILJS_SERVICE_ID,
   EMAILJS_TEMPLATE_ID,
   EMAILJS_USER_ID,
-} from "../../emailConfig"; // Import cấu hình email
+} from "../../emailConfig"; // Import email configuration
 
 const { Title } = Typography;
 
@@ -23,13 +23,11 @@ const ForgetPassword = () => {
     const fetchEmployees = async () => {
       try {
         const db = getDatabase();
-        const userRef = ref(db, "users");
-        const snapshot = await get(userRef);
-        const userData = snapshot.val();
-        if (userData) {
-          const employeesData = Object.values(userData).filter(
-            (user) => user.role === "Employee"
-          );
+        const employeeRef = ref(db, "employees");
+        const snapshot = await get(employeeRef);
+        const employeeData = snapshot.val();
+        if (employeeData) {
+          const employeesData = Object.values(employeeData);
           setEmployees(employeesData);
         }
       } catch (error) {

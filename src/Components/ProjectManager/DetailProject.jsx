@@ -267,7 +267,7 @@ const DetailProject = () => {
   };
 
   return (
-    <Card title={t("Project Details")} style={{ margin: 20 }}>
+    <Card title={project ? project.name : t("Project Details")} style={{ margin: 20 }}>
       {project ? (
         <>
           <Descriptions bordered column={1}>

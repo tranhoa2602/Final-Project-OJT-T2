@@ -178,6 +178,8 @@ const TechList = () => {
       title: t("Type"),
       dataIndex: "techtype",
       key: "techtype",
+      align: "center",
+      className: "type-tags",
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Input
@@ -208,6 +210,7 @@ const TechList = () => {
       title: t("Status"),
       dataIndex: "techstatus",
       key: "techstatus",
+      align: 'center',
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Select
@@ -264,6 +267,7 @@ const TechList = () => {
       title: t("Actions"),
       key: "action",
       align: "center",
+      className: "action-table",
       render: (_, record) => (
         <Space size="middle">
           <Button

@@ -15,6 +15,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
 import "../../styles/layouts/tablestyles.css"
+import styles from "../../styles/layouts/ProjectList.module.scss";
 import { Alignment } from "docx";
 
 const ListProject = () => {
@@ -125,6 +126,7 @@ const ListProject = () => {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
+      className: "name-projects"
     },
     {
       title: t("Project Manager"),
@@ -134,6 +136,8 @@ const ListProject = () => {
     {
       title: t("Status"),
       key: "status",
+      align: "center",
+      className: "type-tags",
       render: (text, record) => getStatusTag(record.status),
       filters: [
         { text: t("Pending"), value: "Pending" },
@@ -148,6 +152,7 @@ const ListProject = () => {
       key: "actions",
       align: "center",
       class: '.table-header',
+      className: 'action-table',
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -251,7 +256,7 @@ const ListProject = () => {
   };
 
   return (
-    <div>
+    <div className={styles["project-list"]}>
       {loading ? (
         <>
           <Space style={{ marginTop: 16 }}>
@@ -264,7 +269,7 @@ const ListProject = () => {
         </>
       ) : (
         <>
-          <Space style={{ marginTop: 16 }}>
+          <Space class={styles['actions-container']}>
             <Input
               placeholder={t("Search by Name")}
               value={searchText}
@@ -310,6 +315,7 @@ const ListProject = () => {
             dataSource={filteredProjects}
             rowKey="id"
             pagination={{ pageSize: 6 }}
+            style={{width: '1000px', margin: 'auto' }}
             components={{
               header: {
                 cell: (props) => (

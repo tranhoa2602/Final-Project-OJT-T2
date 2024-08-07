@@ -126,15 +126,16 @@ const columns = (
           text: position.name,
           value: position.name,
         })),
-    onFilter: (value, record) => record.positionName === value,
-  },
-  {
-    title: t("Status"),
-    key: "status",
-    dataIndex: "status",
-    filters: loading
-      ? []
-      : [
+      onFilter: (value, record) => record.positionName === value,
+    },
+    {
+      title: t("Status"),
+      key: "status",
+      dataIndex: "status",
+      align: "center",
+      filters: loading
+        ? []
+        : [
           { text: t("Involved"), value: "Involved" },
           { text: t("Available"), value: "Available" },
           { text: t("Inactive"), value: "Inactive" },
@@ -175,14 +176,6 @@ const columns = (
       ) : (
         <div className={styles["actions-container"]}>
           <Button
-            onClick={() => navigate("/edit", { state: { employee: record } })}
-            type="primary"
-            icon={<EditOutlined />}
-            className={styles["edit-button"]}
-          >
-            {t("Edit")}
-          </Button>
-          <Button
             type="default"
             onClick={() =>
               navigate("/details", { state: { employee: record } })
@@ -191,6 +184,14 @@ const columns = (
             className={styles["detail-button"]}
           >
             {t("Detail")}
+          </Button>
+          <Button
+            onClick={() => navigate("/edit", { state: { employee: record } })}
+            type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
+          >
+            {t("Edit")}
           </Button>
           <Tooltip
             title={
@@ -492,7 +493,7 @@ const EmployeeList = () => {
             type="primary"
             icon={<UserAddOutlined />}
             onClick={() => navigate("/create")}
-            className={styles["add-button"]}
+            style={{backgroundColor: 'green', color: 'white'}}
           >
             {t("Add Employee")}
           </Button>
@@ -500,14 +501,15 @@ const EmployeeList = () => {
             type="primary"
             icon={<ExportOutlined />}
             onClick={exportToExcel}
-            className={styles["export-button"]}
           >
             {t("Export to Excel")}
           </Button>
           <Button
             type="default"
+            icon={<DeleteOutlined />}
             onClick={() => navigate("/EmployeeBin")}
             className={styles["view-bin-button"]}
+            style={{backgroundColor: 'green', color: 'white'}}
           >
             {t("View Bin")}
           </Button>

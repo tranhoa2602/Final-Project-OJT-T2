@@ -331,8 +331,8 @@ const DetailProject = () => {
               }}
               style={{
                 marginTop: 20,
-                backgroundColor: "#52c41a",
-                borderColor: "#52c41a",
+                backgroundColor: "green",
+                borderColor: "green",
               }}
               icon={<PlusOutlined />}
             >
@@ -347,9 +347,9 @@ const DetailProject = () => {
               style={{
                 marginTop: 20,
                 marginLeft: 10,
-                backgroundColor: employees.length === 0 ? "gray" : "#a83c42",
+                backgroundColor: employees.length === 0 ? "gray" : "#ff4d4f",
                 color: "white",
-                borderColor: employees.length === 0 ? "gray" : "#a83c42",
+                borderColor: employees.length === 0 ? "gray" : "#ff4d4f",
                 cursor: employees.length === 0 ? "not-allowed" : "pointer",
               }}
               disabled={employees.length === 0}
@@ -388,8 +388,8 @@ const DetailProject = () => {
                     type="primary"
                     htmlType="submit"
                     style={{
-                      backgroundColor: "#52c41a",
-                      borderColor: "#52c41a",
+                      backgroundColor: "green",
+                      borderColor: "green",
                     }}
                   >
                     {t("Assign")}
@@ -432,8 +432,8 @@ const DetailProject = () => {
                     type="primary"
                     htmlType="submit"
                     style={{
-                      backgroundColor: "#a83c42",
-                      borderColor: "#a83c42",
+                      backgroundColor: "#ff4d4f",
+                      borderColor: "#ff4d4f",
                     }}
                   >
                     {t("Unassign")}

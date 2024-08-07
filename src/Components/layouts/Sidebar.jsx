@@ -151,11 +151,6 @@ const Sidebar = () => {
                 width: collapsed ? "50%" : "60%",
               }}
             />
-            {!collapsed && (
-              <h2 style={{ marginTop: "10px", color: "#fff" }}>
-                Creative Technology
-              </h2>
-            )}
           </div>
           <Menu
             defaultSelectedKeys={["1"]}

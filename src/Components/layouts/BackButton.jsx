@@ -18,7 +18,7 @@ const BackButton = () => {
       icon={<ArrowLeftOutlined />}
       className="back-button"
     >
-      Back
+      {t("Back")}
     </Button>
   );
 };

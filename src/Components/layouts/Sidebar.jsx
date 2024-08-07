@@ -34,8 +34,6 @@ const layoutStyle = {
   borderRadius: 8,
   overflow: "hidden",
   height: "100vh",
-  width: "calc(100% - 8px)",
-  maxWidth: "calc(100% - 8px)",
 };
 
 const Sidebar = () => {
@@ -75,59 +73,64 @@ const Sidebar = () => {
 
   const items = [
     userRole === "Admin" && {
-      key: "sub1",
+      key: "1",
+      icon: <UserOutlined />,
+      label: <Link to="/Dashboard">{t("Dashboard")}</Link>,
+    },
+    userRole === "Admin" && {
+      key: "sub1_manage",
       icon: <UserOutlined />,
       label: t("Manage Accounts"),
       children: [
         {
-          key: "1",
+          key: "2",
           label: <Link to="/admin">{t("Account Info")}</Link>,
         },
         {
-          key: "2",
+          key: "3",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     userRole === "Employee" && {
-      key: "sub2",
+      key: "sub2_profile",
       icon: <UserOutlined />,
       label: <Link to="/profile">{t("Profile")}</Link>,
       children: [
         {
-          key: "change-password",
+          key: "4",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     {
-      key: "sub3",
+      key: "sub3_projects",
       icon: <FundProjectionScreenOutlined />,
       label: t("Manage Projects"),
       children: [
         {
-          key: "3",
+          key: "5",
           label: <Link to="/projects">{t("Projects list")}</Link>,
         },
       ],
     },
     {
-      key: "10",
+      key: "6",
       icon: <SolutionOutlined />,
       label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
     {
-      key: "sub4",
+      key: "sub4_technology",
       icon: <DeploymentUnitOutlined />,
       label: <Link to="/TechList">{t("Technology")}</Link>,
     },
     userRole === "Admin" && {
-      key: "sub5",
+      key: "7",
       label: <Link to="/list">{t("Employee List")}</Link>,
       icon: <TeamOutlined />,
     },
     {
-      key: "sub6",
+      key: "8",
       label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
     },
@@ -151,15 +154,10 @@ const Sidebar = () => {
                 width: collapsed ? "50%" : "60%",
               }}
             />
-            {!collapsed && (
-              <h2 style={{ marginTop: "10px", color: "#fff" }}>
-                Creative Technology
-              </h2>
-            )}
           </div>
           <Menu
             defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
+            defaultOpenKeys={["sub1_manage"]}
             mode="inline"
             theme="dark"
             items={items}

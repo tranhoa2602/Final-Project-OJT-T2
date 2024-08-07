@@ -201,6 +201,7 @@ const ViewLanguage = () => {
       title: t("Type"),
       dataIndex: "programingtype",
       key: "programingtype",
+      align: "center",
       filterDropdown: () => (
         <div className={styles["filter-dropdown"]}>
           <Input
@@ -231,6 +232,8 @@ const ViewLanguage = () => {
       title: t("Status"),
       dataIndex: "programingstatus",
       key: "programingstatus",
+      align: "center",
+      className: "type-tags",
       filterDropdown: () => (
         <div className={styles["filter-dropdown"]}>
           <Select
@@ -261,6 +264,7 @@ const ViewLanguage = () => {
       title: t("Actions"),
       key: "action",
       align: "center",
+      className: "action-table",
       render: (_, record) => (
         <Space size="middle">
           <Button

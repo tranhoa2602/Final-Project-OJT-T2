@@ -170,6 +170,7 @@ const ListPosition = () => {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
+      className: "type-tags",
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -216,6 +217,8 @@ const ListPosition = () => {
       title: t("Status"),
       dataIndex: "status",
       key: "status",
+      align: "center",
+      className: "type-tags",
       filters: [
         { text: t("Active"), value: "active" },
         { text: t("Inactive"), value: "inactive" },
@@ -231,6 +234,7 @@ const ListPosition = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
+      className: "action-table",
       render: (text, record) => (
         <div className={styles["actions-container"]}>
           {showBin ? (

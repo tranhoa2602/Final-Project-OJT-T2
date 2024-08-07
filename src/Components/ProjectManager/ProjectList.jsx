@@ -14,7 +14,7 @@ import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
-import "../../styles/layouts/tablestyles.css"     
+import "../../styles/layouts/tablestyles.css"
 import { Alignment } from "docx";
 
 const ListProject = () => {
@@ -158,7 +158,7 @@ const ListProject = () => {
 
           {(user?.position === "Project Manager" &&
             user?.name === record.projectManager) ||
-          user?.role === "Admin" ? (
+            user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button
@@ -274,37 +274,37 @@ const ListProject = () => {
 
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={showModal}
-              >
-                {t("Create new project")}
-              </Button>
-            )}
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={showModal}
+                >
+                  {t("Create new project")}
+                </Button>
+              )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="primary"
-                icon={<ExportOutlined />}
-                onClick={exportToExcel}
-              >
-                {t("Export to Excel")}
-              </Button>
-            )}
+                <Button
+                  type="primary"
+                  icon={<ExportOutlined />}
+                  onClick={exportToExcel}
+                >
+                  {t("Export to Excel")}
+                </Button>
+              )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="default"
-                icon={<DeleteOutlined />}
-                style={{backgroundColor: 'green', color: 'white'}}
-                onClick={() => navigate("/ProjectBin")}
-              >
-                {t("Project Bin")}
-              </Button>
-            )}
+                <Button
+                  type="default"
+                  icon={<DeleteOutlined />}
+                  style={{ backgroundColor: 'green', color: 'white' }}
+                  onClick={() => navigate("/ProjectBin")}
+                >
+                  {t("Project Bin")}
+                </Button>
+              )}
           </Space>
-          <h1 className="title">LIST OF PROJECTS</h1>
+          <h1 className="title">{t("LIST OF PROJECTS")}</h1>
           <Table
             columns={columns}
             dataSource={filteredProjects}
@@ -314,7 +314,7 @@ const ListProject = () => {
               header: {
                 cell: (props) => (
                   <th {...props} className={`table-header ${props.className}`}>
-                  {props.children}
+                    {props.children}
                   </th>
                 ),
               },

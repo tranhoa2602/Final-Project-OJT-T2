@@ -5,15 +5,16 @@ import {
   UserOutlined,
   FundProjectionScreenOutlined,
   GlobalOutlined,
+  HomeOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
   LogoutOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Switch, Button } from "antd";
+import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { FaFlagUsa, FaFlag } from "react-icons/fa";
 import logo from "../../assets/logo.png"; // Đường dẫn tới logo của bạn
+import "../../styles/layouts/Sidebar.scss"; // Đảm bảo rằng đường dẫn tới tệp SCSS là chính xác
 
 const { Sider } = Layout;
 
@@ -34,8 +35,6 @@ const layoutStyle = {
   borderRadius: 8,
   overflow: "hidden",
   height: "100vh",
-  width: "calc(100% - 8px)",
-  maxWidth: "calc(100% - 8px)",
 };
 
 const Sidebar = () => {
@@ -75,69 +74,85 @@ const Sidebar = () => {
 
   const items = [
     userRole === "Admin" && {
-      key: "sub1",
+      key: "1",
+      icon: <HomeOutlined />,
+      label: <Link to="/Dashboard">{t("Dashboard")}</Link>,
+    },
+    userRole === "Admin" && {
+      key: "sub1_manage",
       icon: <UserOutlined />,
       label: t("Manage Accounts"),
       children: [
         {
-          key: "1",
+          key: "2",
           label: <Link to="/admin">{t("Account Info")}</Link>,
         },
         {
-          key: "2",
+          key: "3",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     userRole === "Employee" && {
-      key: "sub2",
+      key: "sub2_profile",
       icon: <UserOutlined />,
       label: <Link to="/profile">{t("Profile")}</Link>,
       children: [
         {
-          key: "change-password",
+          key: "4",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     {
-      key: "sub3",
+      key: "sub3_projects",
       icon: <FundProjectionScreenOutlined />,
       label: t("Manage Projects"),
       children: [
         {
-          key: "3",
+          key: "5",
           label: <Link to="/projects">{t("Projects list")}</Link>,
         },
       ],
     },
     {
-      key: "10",
+      key: "6",
       icon: <SolutionOutlined />,
       label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
     {
-      key: "sub4",
+      key: "sub4_technology",
       icon: <DeploymentUnitOutlined />,
       label: <Link to="/TechList">{t("Technology")}</Link>,
     },
     userRole === "Admin" && {
-      key: "sub5",
+      key: "7",
       label: <Link to="/list">{t("Employee List")}</Link>,
       icon: <TeamOutlined />,
     },
     {
-      key: "sub6",
+      key: "8",
       label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
     },
   ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
   return (
-    <Layout style={layoutStyle}>
+    <Layout style={{ height: "100vh", maxWidth: "100%" }}>
       <Sider
         width="15%"
-        style={siderStyle}
+        style={{
+          textAlign: "left",
+          color: "#fff",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          backgroundColor: "#000",
+        }}
         collapsible
         collapsed={collapsed}
         onCollapse={toggleCollapse}
@@ -159,34 +174,26 @@ const Sidebar = () => {
           </div>
           <Menu
             defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
+            defaultOpenKeys={["sub1_manage"]}
             mode="inline"
             theme="dark"
             items={items}
             openKeys={openKeys}
             onOpenChange={onOpenChange}
-            style={{ backgroundColor: "#000" }} // Set menu background to black
+            style={{ backgroundColor: "#000" }}
           />
         </div>
         <div>
           <div style={{ textAlign: "center", padding: "10px" }}>
-            <Switch
-              checkedChildren={
-                <>
-                  <FaFlag style={{ marginRight: 5 }} />
-                  {t("Vietnamese")}
-                </>
-              }
-              unCheckedChildren={
-                <>
-                  <FaFlagUsa style={{ marginRight: 5 }} />
-                  {t("English")}
-                </>
-              }
-              onChange={changeLanguage}
-              checked={language === "vi"}
-              style={{ width: collapsed ? "50%" : "50%" }}
-            />
+            <div className="flag-switch" data-first-lang="" data-second-lang="">
+              <input
+                type="checkbox"
+                id="check1"
+                checked={language === "vi"}
+                onChange={changeLanguage}
+              />
+              <label htmlFor="check1"></label>
+            </div>
           </div>
           <div style={{ textAlign: "center", padding: "5px" }}>
             <Button

@@ -5,6 +5,7 @@ import {
   UserOutlined,
   FundProjectionScreenOutlined,
   GlobalOutlined,
+  HomeOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
   LogoutOutlined,
@@ -16,6 +17,25 @@ import logo from "../../assets/logo.png"; // Đường dẫn tới logo của b�
 import "../../styles/layouts/Sidebar.scss"; // Đảm bảo rằng đường dẫn tới tệp SCSS là chính xác
 
 const { Sider } = Layout;
+
+const siderStyle = {
+  textAlign: "left",
+  color: "#fff",
+  height: "100vh", // Ensure full height
+  position: "fixed",
+  left: 0,
+  top: 0,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  backgroundColor: "#000", // Set sidebar background to black
+};
+
+const layoutStyle = {
+  borderRadius: 8,
+  overflow: "hidden",
+  height: "100vh",
+};
 
 const Sidebar = () => {
   const { t } = useTranslation();
@@ -54,53 +74,64 @@ const Sidebar = () => {
 
   const items = [
     userRole === "Admin" && {
-      key: "sub1",
+      key: "1",
+      icon: <HomeOutlined />,
+      label: <Link to="/Dashboard">{t("Dashboard")}</Link>,
+    },
+    userRole === "Admin" && {
+      key: "sub1_manage",
       icon: <UserOutlined />,
       label: t("Manage Accounts"),
       children: [
         {
-          key: "1",
+          key: "2",
           label: <Link to="/admin">{t("Account Info")}</Link>,
         },
         {
-          key: "2",
+          key: "3",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     userRole === "Employee" && {
-      key: "sub2",
+      key: "sub2_profile",
       icon: <UserOutlined />,
       label: <Link to="/profile">{t("Profile")}</Link>,
       children: [
         {
-          key: "change-password",
+          key: "4",
           label: <Link to="/change-password">{t("Change Password")}</Link>,
         },
       ],
     },
     {
-      key: "sub3",
+      key: "sub3_projects",
       icon: <FundProjectionScreenOutlined />,
-      label: <Link to="/projects">{t("Projects Management")}</Link>,
+      label: t("Manage Projects"),
+      children: [
+        {
+          key: "5",
+          label: <Link to="/projects">{t("Projects list")}</Link>,
+        },
+      ],
     },
     {
-      key: "10",
+      key: "6",
       icon: <SolutionOutlined />,
       label: <Link to="/ListPosition">{t("Position")}</Link>,
     },
     {
-      key: "sub4",
+      key: "sub4_technology",
       icon: <DeploymentUnitOutlined />,
       label: <Link to="/TechList">{t("Technology")}</Link>,
     },
     userRole === "Admin" && {
-      key: "sub5",
+      key: "7",
       label: <Link to="/list">{t("Employee List")}</Link>,
       icon: <TeamOutlined />,
     },
     {
-      key: "sub6",
+      key: "8",
       label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
     },
@@ -143,7 +174,7 @@ const Sidebar = () => {
           </div>
           <Menu
             defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
+            defaultOpenKeys={["sub1_manage"]}
             mode="inline"
             theme="dark"
             items={items}

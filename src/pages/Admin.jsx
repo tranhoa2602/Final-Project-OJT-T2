@@ -210,7 +210,7 @@ function Admin() {
               <strong>{t("Role")}:</strong> {t(user.role)}
             </p>
             <p>
-              <strong>{t("Status")}:</strong> {user.status}
+              <strong>{t("Status")}:</strong> {t(user.status)}
             </p>
           </div>
           <div className={styles["profile-social-media"]}>
@@ -264,8 +264,8 @@ function Admin() {
                         value && validateEmail(value)
                           ? Promise.resolve()
                           : Promise.reject(
-                              t("Please enter a valid email address")
-                            ),
+                            t("Please enter a valid email address")
+                          ),
                     },
                   ]}
                 >

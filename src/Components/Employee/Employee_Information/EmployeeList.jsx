@@ -26,7 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 import ListSkeleton from "../../Loading/ListSkeleton"; // Ensure the correct path
-import "../../../styles/layouts/tablestyles.css"     
+import "../../../styles/layouts/tablestyles.css"
 
 const { Option } = Select;
 
@@ -42,99 +42,99 @@ const columns = (
   t,
   loading
 ) => [
-  {
-    title: t("Profile Picture"),
-    dataIndex: "profilePicture",
-    key: "profilePicture",
-    render: (text, record) =>
-      loading ? (
-        <Skeleton.Avatar active size={64} shape="circle" />
-      ) : (
-        <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
-      ),
-  },
-  {
-    title: t("Name"),
-    dataIndex: "name",
-    key: "name",
-    render: (text, record) =>
-      loading ? (
-        <Skeleton.Input active size="default" style={{ width: 120 }} />
-      ) : (
-        <a
-          onClick={() => navigate("/details", { state: { employee: record } })}
-        >
-          {text}
-        </a>
-      ),
-  },
-  {
-    title: t("Email"),
-    dataIndex: "email",
-    key: "email",
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) =>
-      loading ? null : (
-        <div style={{ padding: 8 }}>
-          <Input
-            placeholder={`Search ${t("Email")}`}
-            value={selectedKeys[0]}
-            onChange={(e) =>
-              setSelectedKeys(e.target.value ? [e.target.value] : [])
-            }
-            onPressEnter={() => confirm()}
-            style={{ marginBottom: 8, display: "block" }}
-          />
-          <Space>
-            <Button
-              type="primary"
-              onClick={() => confirm()}
-              icon={<SearchOutlined />}
-              size="small"
-              style={{ width: 90 }}
-            >
-              {t("Search")}
-            </Button>
-            <Button
-              onClick={() => clearFilters()}
-              size="small"
-              style={{ width: 90 }}
-            >
-              {t("Reset")}
-            </Button>
-          </Space>
-        </div>
-      ),
-    filterIcon: (filtered) =>
-      loading ? null : (
-        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-      ),
-    onFilter: (value, record) =>
-      record.email.toLowerCase().includes(value.toLowerCase()),
-  },
-  {
-    title: t("Position"),
-    dataIndex: "positionName",
-    key: "positionName",
-    filters: loading
-      ? []
-      : Object.values(positions).map((position) => ({
+    {
+      title: t("Profile Picture"),
+      dataIndex: "profilePicture",
+      key: "profilePicture",
+      render: (text, record) =>
+        loading ? (
+          <Skeleton.Avatar active size={64} shape="circle" />
+        ) : (
+          <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
+        ),
+    },
+    {
+      title: t("Name"),
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) =>
+        loading ? (
+          <Skeleton.Input active size="default" style={{ width: 120 }} />
+        ) : (
+          <a
+            onClick={() => navigate("/details", { state: { employee: record } })}
+          >
+            {text}
+          </a>
+        ),
+    },
+    {
+      title: t("Email"),
+      dataIndex: "email",
+      key: "email",
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) =>
+        loading ? null : (
+          <div style={{ padding: 8 }}>
+            <Input
+              placeholder={`Search ${t("Email")}`}
+              value={selectedKeys[0]}
+              onChange={(e) =>
+                setSelectedKeys(e.target.value ? [e.target.value] : [])
+              }
+              onPressEnter={() => confirm()}
+              style={{ marginBottom: 8, display: "block" }}
+            />
+            <Space>
+              <Button
+                type="primary"
+                onClick={() => confirm()}
+                icon={<SearchOutlined />}
+                size="small"
+                style={{ width: 90 }}
+              >
+                {t("Search")}
+              </Button>
+              <Button
+                onClick={() => clearFilters()}
+                size="small"
+                style={{ width: 90 }}
+              >
+                {t("Reset")}
+              </Button>
+            </Space>
+          </div>
+        ),
+      filterIcon: (filtered) =>
+        loading ? null : (
+          <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+        ),
+      onFilter: (value, record) =>
+        record.email.toLowerCase().includes(value.toLowerCase()),
+    },
+    {
+      title: t("Position"),
+      dataIndex: "positionName",
+      key: "positionName",
+      filters: loading
+        ? []
+        : Object.values(positions).map((position) => ({
           text: position.name,
           value: position.name,
         })),
-    onFilter: (value, record) => record.positionName === value,
-  },
-  {
-    title: t("Status"),
-    key: "status",
-    dataIndex: "status",
-    filters: loading
-      ? []
-      : [
+      onFilter: (value, record) => record.positionName === value,
+    },
+    {
+      title: t("Status"),
+      key: "status",
+      dataIndex: "status",
+      filters: loading
+        ? []
+        : [
           { text: t("Involved"), value: "Involved" },
           { text: t("Available"), value: "Available" },
           { text: t("Inactive"), value: "Inactive" },
@@ -515,7 +515,7 @@ const EmployeeList = () => {
           </Button>
         </Space>
       )}
-      <h1 className="title">LIST OF EMPLOYEES</h1>
+      <h1 className="title">{t("LIST OF EMPLOYEES")}</h1>
       {loading ? (
         <ListSkeleton />
       ) : (
@@ -534,14 +534,14 @@ const EmployeeList = () => {
           pagination={{ pageSize: 6 }}
           className={styles["employee-table"]}
           components={{
-              header: {
-                cell: (props) => (
-                  <th {...props} className={`table-header ${props.className}`}>
+            header: {
+              cell: (props) => (
+                <th {...props} className={`table-header ${props.className}`}>
                   {props.children}
-                  </th>
-                ),
-              },
-            }}
+                </th>
+              ),
+            },
+          }}
         />
       )}
     </div>

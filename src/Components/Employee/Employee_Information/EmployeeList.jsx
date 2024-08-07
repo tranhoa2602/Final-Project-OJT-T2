@@ -132,6 +132,7 @@ const columns = (
       title: t("Status"),
       key: "status",
       dataIndex: "status",
+      align: "center",
       filters: loading
         ? []
         : [

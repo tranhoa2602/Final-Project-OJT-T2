@@ -10,12 +10,14 @@ import {
   ProjectOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 import app from "../../firebaseConfig"; // Ensure you have your firebase configuration
 import styles from "../styles/layouts/Dashboard.module.scss"; // Import the SCSS module
 
 const { Content } = Layout;
 
 const Dashboard = () => {
+  const { t } = useTranslation(); // Use useTranslation hook
   const [projectStatuses, setProjectStatuses] = useState({});
   const [employeeParticipation, setEmployeeParticipation] = useState({});
   const [employeeCounts, setEmployeeCounts] = useState({
@@ -26,6 +28,10 @@ const Dashboard = () => {
   });
   const [projectCount, setProjectCount] = useState(0);
   const [loading, setLoading] = useState(true); // Add loading state
+  const [monthlyAdditions, setMonthlyAdditions] = useState({
+    ProgramLanguages: {},
+    Technologies: {},
+  });
 
   useEffect(() => {
     // Fetch data from Firebase with a delay to simulate loading
@@ -34,14 +40,25 @@ const Dashboard = () => {
       const db = getDatabase(app);
       const projectsRef = ref(db, "projects");
       const employeesRef = ref(db, "employees");
+      const programLanguagesRef = ref(db, "programmingLanguages");
+      const technologiesRef = ref(db, "technologies");
 
-      const [projectsSnapshot, employeesSnapshot] = await Promise.all([
+      const [
+        projectsSnapshot,
+        employeesSnapshot,
+        programLanguagesSnapshot,
+        technologiesSnapshot,
+      ] = await Promise.all([
         get(projectsRef),
         get(employeesRef),
+        get(programLanguagesRef),
+        get(technologiesRef),
       ]);
 
       const projectsData = projectsSnapshot.val();
       const employeesData = employeesSnapshot.val();
+      const programLanguagesData = programLanguagesSnapshot.val();
+      const technologiesData = technologiesSnapshot.val();
 
       const { projectStatuses, employeeParticipation } =
         extractData(projectsData);
@@ -49,14 +66,20 @@ const Dashboard = () => {
       const { total, participating, notParticipating, terminated } =
         calculateEmployeeCounts(employeesData, projectsData);
 
+      const monthlyAdditions = calculateMonthlyAdditions(
+        programLanguagesData,
+        technologiesData
+      );
+
       setProjectStatuses(projectStatuses);
       setEmployeeParticipation(employeeParticipation);
       setEmployeeCounts({ total, participating, notParticipating, terminated });
       setProjectCount(Object.keys(projectsData).length);
+      setMonthlyAdditions(monthlyAdditions);
 
       setTimeout(() => {
-        setLoading(false); // Set loading to false after data fetch
-      }, 1500); // Set loading time to 1.5 seconds
+        setLoading(false);
+      }, 1500);
     };
 
     fetchData();
@@ -84,8 +107,25 @@ const Dashboard = () => {
     ],
   };
 
+  const combinedDataBar = {
+    labels: Object.keys(monthlyAdditions.ProgramLanguages),
+    datasets: [
+      {
+        label: "Program Languages",
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        data: Object.values(monthlyAdditions.ProgramLanguages),
+      },
+      {
+        label: "Technologies",
+        backgroundColor: "rgba(255, 206, 86, 0.6)",
+        data: Object.values(monthlyAdditions.Technologies),
+      },
+    ],
+  };
+
   return (
     <Layout className={styles.layout}>
+      <h1 className="title">{t("DASHBOARD")}</h1>
       <Content className={styles.content}>
         <Row gutter={16} className={styles.row}>
           <Col span={8}>
@@ -94,7 +134,7 @@ const Dashboard = () => {
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
                     <h2 className={styles.cardTitle}>
-                      Total Employees In Company
+                      {t("Total Employees In Company")}
                     </h2>
                     <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
                   </div>
@@ -109,7 +149,7 @@ const Dashboard = () => {
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
                     <h2 className={styles.cardTitle}>
-                      Employees Participating
+                      {t("Employees Participating")}
                     </h2>
                     <h1 className={styles.cardValue}>
                       {employeeCounts.participating}
@@ -126,7 +166,7 @@ const Dashboard = () => {
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
                     <h2 className={styles.cardTitle}>
-                      Employees Not Participating
+                      {t("Employees Not Participating")}
                     </h2>
                     <h1 className={styles.cardValue}>
                       {employeeCounts.notParticipating}
@@ -144,7 +184,9 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card4}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>Total Projects Created</h2>
+                    <h2 className={styles.cardTitle}>
+                      {t("Total Projects Created")}
+                    </h2>
                     <h1 className={styles.cardValue}>{projectCount}</h1>
                   </div>
                   <ProjectOutlined className={styles.cardIcon} />
@@ -157,7 +199,9 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card5}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>Terminated Employees</h2>
+                    <h2 className={styles.cardTitle}>
+                      {t("Terminated Employees")}
+                    </h2>
                     <h1 className={styles.cardValue}>
                       {employeeCounts.terminated}
                     </h1>
@@ -172,7 +216,7 @@ const Dashboard = () => {
           <Col span={12}>
             <Skeleton loading={loading} active>
               <Card
-                title="Project Status Distribution"
+                title={t("Project Status Distribution")}
                 className={styles.chartCard}
               >
                 <div className={styles.chartContainer}>
@@ -184,11 +228,25 @@ const Dashboard = () => {
           <Col span={12}>
             <Skeleton loading={loading} active>
               <Card
-                title="Employee Participation Over Time"
+                title={t("Employee Participation Over Time")}
                 className={styles.chartCard}
               >
                 <div className={styles.chartContainer}>
                   <Bar data={dataBar} />
+                </div>
+              </Card>
+            </Skeleton>
+          </Col>
+        </Row>
+        <Row gutter={16} className={styles.row}>
+          <Col span={24}>
+            <Skeleton loading={loading} active>
+              <Card
+                title={t("Additions: ProgramLanguages and Technologies")}
+                className={styles.chartCard}
+              >
+                <div className={styles.chartContainer}>
+                  <Bar data={combinedDataBar} />
                 </div>
               </Card>
             </Skeleton>
@@ -247,4 +305,26 @@ const calculateEmployeeCounts = (employeesData, projectsData) => {
     notParticipating,
     terminated,
   };
+};
+
+// Utility function to calculate monthly additions of ProgramLanguages and Technologies
+const calculateMonthlyAdditions = (programLanguagesData, technologiesData) => {
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getFullYear()}`;
+  };
+
+  const processAdditions = (data) =>
+    data
+      ? Object.values(data).reduce((acc, item) => {
+          const dateAdded = formatDate(item.dateAdded);
+          acc[dateAdded] = (acc[dateAdded] || 0) + 1;
+          return acc;
+        }, {})
+      : {};
+
+  const ProgramLanguages = processAdditions(programLanguagesData);
+  const Technologies = processAdditions(technologiesData);
+
+  return { ProgramLanguages, Technologies };
 };

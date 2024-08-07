@@ -81,11 +81,11 @@ const Sidebar = () => {
     userRole === "Admin" && {
       key: "sub1_manage",
       icon: <UserOutlined />,
-      label: t("Manage Accounts"),
+      label: t("Admin Page"),
       children: [
         {
           key: "2",
-          label: <Link to="/admin">{t("Account Info")}</Link>,
+          label: <Link to="/admin">{t("Admin Profile")}</Link>,
         },
         {
           key: "3",
@@ -166,11 +166,6 @@ const Sidebar = () => {
                 width: collapsed ? "50%" : "60%",
               }}
             />
-            {!collapsed && (
-              <h2 style={{ marginTop: "10px", color: "#fff" }}>
-                Creative Technology
-              </h2>
-            )}
           </div>
           <Menu
             defaultSelectedKeys={["1"]}

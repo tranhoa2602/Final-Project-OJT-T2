@@ -228,7 +228,9 @@ const TechList = () => {
       onFilter: (value, record) =>
         record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {t(status === "Active" ? "Active" : "Inactive")}
+        </Tag>
       ),
     },
     {

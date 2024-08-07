@@ -86,10 +86,10 @@ const TechBin = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-                <Tag color="blue" key={tag}>
-                  {tag}
-                </Tag>
-              ))
+              <Tag color="blue" key={tag}>
+                {tag}
+              </Tag>
+            ))
             : null}
         </>
       ),
@@ -99,7 +99,9 @@ const TechBin = () => {
       dataIndex: "techstatus",
       key: "techstatus",
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {t(status === "Active" ? "Active" : "Inactive")}
+        </Tag>
       ),
     },
     {

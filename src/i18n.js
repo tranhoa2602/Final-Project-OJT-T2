@@ -367,6 +367,17 @@ i18n.use(initReactI18next).init({
                 "Employee Participation Over Time": "Employee Participation Over Time",
                 "Additions: ProgramLanguages and Technologies":
                     "Additions: ProgramLanguages and Technologies",
+                'No images were uploaded.': 'No images were uploaded.',
+                'Upload Images': 'Upload Images',
+                'Select Images': 'Select Images',
+                'Back to Tech List': 'Back to Tech List',
+                'Technology restored successfully!': 'Technology restored successfully!',
+                'Technology permanently deleted!': 'Technology permanently deleted!',
+                'Technology moved to bin successfully!': 'Technology moved to bin successfully!',
+                'All': 'All',
+                'Programming Language added successfully!': 'Programming Language added successfully!',
+
+
             },
         },
         vi: {
@@ -735,6 +746,16 @@ i18n.use(initReactI18next).init({
                     "Sự tham gia của nhân viên theo thời gian",
                 "Additions: ProgramLanguages and Technologies":
                     "Bổ sung: Ngôn ngữ và công nghệ được sự dụng",
+                'No images were uploaded.': 'Không có hình ảnh nào được tải lên.',
+                'Upload Images': 'Tải ảnh lên',
+                'Select Images': 'Chọn ảnh',
+                'Back to Tech List': 'Quay lại danh sách công nghệ',
+                'Technology restored successfully!': 'Công nghệ đã được phục hồi thành công!',
+                'Technology permanently deleted!': 'Công nghệ đã bị xóa vĩnh viễn!',
+                'Technology moved to bin successfully!': 'Công nghệ đã được chuyển vào thùng rác thành công!',
+                'All': 'Tất cả',
+                'Programming Language added successfully!': 'Ngôn ngữ lập trình đã được thêm thành công!',
+
             },
         },
     },

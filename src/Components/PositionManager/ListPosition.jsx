@@ -266,7 +266,7 @@ const ListPosition = () => {
                 type="primary"
                 danger
                 className={styles["delete-button"]}
-                style={{marginLeft: "8px"}}
+                style={{ marginLeft: "8px" }}
               >
                 {t("Move to Bin")}
               </Button>
@@ -285,7 +285,7 @@ const ListPosition = () => {
           <Skeleton.Button style={{ width: 100 }} active />
         </Space>
       ) : (
-        <Space className={styles["actions-container"]}   style={{marginTop: '20px' }}>
+        <Space className={styles["actions-container"]} style={{ marginTop: '20px' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -300,16 +300,16 @@ const ListPosition = () => {
           <Button
             type="default"
             icon={<DeleteOutlined />}
-            style={{backgroundColor: 'green', color: 'white'}}
+            style={{ backgroundColor: 'green', color: 'white' }}
             onClick={handleViewBin}
             className={styles["view-bin-button"]}
-        
+
           >
             {showBin ? t("Back to List") : t("View Bin")}
           </Button>
         </Space>
       )}
-      <h1 className="title">LIST OF POSITION</h1>
+      <h1 className="title">{t("LIST OF POSITION")}</h1>
       {loading ? (
         <PositionSkeleton />
       ) : (
@@ -320,14 +320,14 @@ const ListPosition = () => {
           pagination={{ pageSize: 6 }}
           className={styles["position-table"]}
           components={{
-              header: {
-                cell: (props) => (
-                  <th {...props} className={`table-header ${props.className}`}>
+            header: {
+              cell: (props) => (
+                <th {...props} className={`table-header ${props.className}`}>
                   {props.children}
-                  </th>
-                ),
-              },
-            }}
+                </th>
+              ),
+            },
+          }}
         />
       )}
       <Modal

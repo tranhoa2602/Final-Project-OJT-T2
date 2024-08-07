@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Descriptions, Button, Tag, Card } from "antd";
+import { Descriptions, Button, Tag, Card, Spin } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getDatabase, ref, get } from "firebase/database";
 import exportEmployeeCV from "../Employee_Information/EmployeeCV";
+import BackButton from "../../layouts/BackButton";
 
 const EmployeeDetails = () => {
   const { t } = useTranslation();
@@ -58,33 +59,30 @@ const EmployeeDetails = () => {
 
   return (
     <>
-      <div style={{ position: "absolute", top: "20px", left: "20px" }}>
-        <Button
-          type="primary"
-          onClick={returnToPrevious}
-          style={{ background: "gray" }}
-        >
-          {t("Return")}
-        </Button>
-      </div>
-
+      <BackButton />
       <Descriptions
         title={t("Employee Details")}
         bordered
         column={1}
         style={{ marginTop: "60px" }}
       >
-        <Descriptions.Item label="Employee Name">
+        <Descriptions.Item label={t("Employee Name")}>
           {employee.name}
         </Descriptions.Item>
-        <Descriptions.Item label="Email">{employee.email}</Descriptions.Item>
-        <Descriptions.Item label="Phone">{employee.phone}</Descriptions.Item>
-        <Descriptions.Item label="Role">{employee.role}</Descriptions.Item>
-        <Descriptions.Item label="Status">{employee.status}</Descriptions.Item>
-        <Descriptions.Item label="Position">
+        <Descriptions.Item label={t("Email")}>
+          {employee.email}
+        </Descriptions.Item>
+        <Descriptions.Item label={t("Phone")}>
+          {employee.phone}
+        </Descriptions.Item>
+        <Descriptions.Item label={t("Role")}>{employee.role}</Descriptions.Item>
+        <Descriptions.Item label={t("Status")}>
+          {employee.status}
+        </Descriptions.Item>
+        <Descriptions.Item label={t("Position")}>
           {employee.positionName}
         </Descriptions.Item>
-        <Descriptions.Item label="Projects">
+        <Descriptions.Item label={t("Projects")}>
           {projects.length > 0
             ? projects.map((project) => (
                 <Tag key={project.id} color="blue">

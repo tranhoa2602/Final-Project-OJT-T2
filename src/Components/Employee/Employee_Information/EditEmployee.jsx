@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Button, Upload, message, Spin, Modal } from "antd";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  Upload,
+  message,
+  Spin,
+  Modal,
+} from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
@@ -10,6 +19,7 @@ import {
 } from "firebase/storage";
 import { useTranslation } from "react-i18next";
 import TextArea from "antd/es/input/TextArea";
+import BackButton from "../../layouts/BackButton";
 
 const { Option } = Select;
 
@@ -90,7 +100,6 @@ const EditEmployee = () => {
     }
   };
 
-
   const handleConfirmSubmit = () => {
     form
       .validateFields()
@@ -117,6 +126,7 @@ const EditEmployee = () => {
 
   return (
     <div style={{ height: "100vh", marginTop: "20px" }}>
+      <BackButton />
       {loading ? (
         <Spin
           size="large"
@@ -212,11 +222,6 @@ const EditEmployee = () => {
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {t("Submit")}
-            </Button>
-          </Form.Item>
-          <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-            <Button type="primary" onClick={gotoEmployeeList}>
-              {t("Back")}
             </Button>
           </Form.Item>
         </Form>

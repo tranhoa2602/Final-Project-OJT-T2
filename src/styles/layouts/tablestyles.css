@@ -25,7 +25,14 @@
   }
 
   .action-table {
-    display: flex !important;
-    align-items: center !important;
+    width: 350px;
+  }
+
+  .type-tags {
+    width: 100px;
+  }
+
+  .name-projects {
+    width: 300px;
   }
   

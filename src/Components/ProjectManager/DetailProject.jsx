@@ -11,13 +11,12 @@ import {
   Modal,
   Form,
   Select,
-  DatePicker,
-  Checkbox,
 } from "antd";
 import { useTranslation } from "react-i18next";
 import moment from "moment";
 import emailjs from "emailjs-com";
-import axios from "axios"; // Add this if you decide to use an alternative email service like SendGrid
+import BackButton from "../layouts/BackButton";
+import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -31,7 +30,8 @@ const DetailProject = () => {
   const [allEmployees, setAllEmployees] = useState([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [assignForm] = Form.useForm();
+  const [unassignForm] = Form.useForm();
   const [noEndDate, setNoEndDate] = useState(false);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const DetailProject = () => {
         setProject(projectData);
         setNoEndDate(!projectData.endDate);
         fetchEmployees(projectData.assignedEmployees || []);
-        form.setFieldsValue({
+        assignForm.setFieldsValue({
           ...projectData,
           startDate: moment(projectData.startDate),
           endDate: projectData.endDate ? moment(projectData.endDate) : null,
@@ -76,7 +76,7 @@ const DetailProject = () => {
     };
 
     fetchProject();
-  }, [id, t, form]);
+  }, [id, t, assignForm]);
 
   const updateEmployeeStatus = async (employeeId) => {
     const db = getDatabase();
@@ -124,7 +124,7 @@ const DetailProject = () => {
       console.log("Emails sent successfully");
     } catch (error) {
       console.error("Error sending emails", error);
-      if (error.status === 426) {
+      if (error.response && error.response.status === 426) {
         // Handle rate limit error
         message.error("Rate limit reached. Please try again later.");
       } else {
@@ -150,7 +150,7 @@ const DetailProject = () => {
         t("Selected employees are already assigned to this project!")
       );
       setIsAssignModalOpen(false);
-      form.resetFields();
+      assignForm.resetFields();
       return;
     }
 
@@ -159,7 +159,8 @@ const DetailProject = () => {
       assignedEmployees: [...new Set([...employeeList, ...newEmployees])],
     };
 
-    await update(projectRef, updatedProject);
+    const updates = {};
+    updates[`projects/${id}`] = updatedProject;
 
     const updatedEmails = [];
     for (const employeeId of newEmployees) {
@@ -171,16 +172,21 @@ const DetailProject = () => {
         ...employeeData,
         projects: [...new Set([...employeeProjects, id])],
       };
-      await update(employeeRef, updatedEmployee);
-      await updateEmployeeStatus(employeeId);
+      updates[`employees/${employeeId}`] = updatedEmployee;
       updatedEmails.push(employeeData.email);
+    }
+
+    await update(ref(db), updates);
+
+    for (const employeeId of newEmployees) {
+      await updateEmployeeStatus(employeeId);
     }
 
     sendEmail(updatedEmails, projectData.name, "added");
 
     message.success(t("Employees assigned successfully!"));
     setIsAssignModalOpen(false);
-    form.resetFields();
+    assignForm.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) => [
       ...prevEmployees,
@@ -204,7 +210,8 @@ const DetailProject = () => {
       assignedEmployees: updatedEmployees,
     };
 
-    await update(projectRef, updatedProject);
+    const updates = {};
+    updates[`projects/${id}`] = updatedProject;
 
     const updatedEmails = [];
     for (const employeeId of values.employees) {
@@ -219,16 +226,21 @@ const DetailProject = () => {
         ...employeeData,
         projects: updatedEmployeeProjects,
       };
-      await update(employeeRef, updatedEmployee);
-      await updateEmployeeStatus(employeeId);
+      updates[`employees/${employeeId}`] = updatedEmployee;
       updatedEmails.push(employeeData.email);
+    }
+
+    await update(ref(db), updates);
+
+    for (const employeeId of values.employees) {
+      await updateEmployeeStatus(employeeId);
     }
 
     sendEmail(updatedEmails, projectData.name, "fired");
 
     message.success(t("Employees unassigned successfully!"));
     setIsUnassignModalOpen(false);
-    form.resetFields();
+    unassignForm.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) =>
       prevEmployees.filter((emp) => !values.employees.includes(emp.id))
@@ -267,145 +279,174 @@ const DetailProject = () => {
   };
 
   return (
-    <Card title={t("Project Details")} style={{ margin: 20 }}>
-      {project ? (
-        <>
-          <Descriptions bordered column={1}>
-            <Descriptions.Item label={t("Name")} style={{ width: 50 }}>
-              {project.name}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("Description")}>
-              {project.description}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("Technology")}>
-              {renderTags(project.technology)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("Programming Language")}>
-              {renderTags(project.programmingLanguage)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("Start Date")}>
-              {moment(project.startDate).format("YYYY-MM-DD")}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("End Date")}>
-              {project.endDate
-                ? moment(project.endDate).format("YYYY-MM-DD")
-                : t("No end date yet")}
-            </Descriptions.Item>
-            <Descriptions.Item label={t("Status")}>
-              <Tag color={getStatusTagColor(project.status)}>
-                {t(project.status)}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label={t("Assigned Employees")}>
-              {employees.length > 0
-                ? employees.map((employee) => (
-                    <Tag key={employee.id} color="purple">
-                      {employee.name}
-                    </Tag>
-                  ))
-                : t("No employees assigned")}
-            </Descriptions.Item>
-          </Descriptions>
-          <Button
-            type="primary"
-            onClick={() => setIsAssignModalOpen(true)}
-            style={{ marginTop: 20 }}
-          >
-            {t("Assign Employees")}
-          </Button>
-          <Button
-            type="danger"
-            onClick={() => setIsUnassignModalOpen(true)}
-            style={{
-              marginTop: 20,
-              marginLeft: 10,
-              backgroundColor: employees.length === 0 ? "gray" : "#a83c42",
-              color: "white",
-              borderColor: employees.length === 0 ? "gray" : "#a83c42",
-              cursor: employees.length === 0 ? "not-allowed" : "pointer",
-            }}
-            disabled={employees.length === 0}
-          >
-            {t("Unassign Employees")}
-          </Button>
-          <Button
-            type="default"
-            onClick={() => navigate("/projects")}
-            style={{ marginTop: 20, marginLeft: 10 }}
-          >
-            {t("Back to Project List")}
-          </Button>
-          <Modal
-            title={t("Assign Employees to Project")}
-            open={isAssignModalOpen}
-            onCancel={() => setIsAssignModalOpen(false)}
-            footer={null}
-          >
-            <Form form={form} onFinish={handleAssign} layout="vertical">
-              <Form.Item
-                name="employees"
-                label={t("Employees")}
-                rules={[
-                  { required: true, message: t("Please select employees!") },
-                ]}
-              >
-                <Select
-                  mode="multiple"
-                  placeholder={t("Select employees")}
-                  optionFilterProp="children"
+    <>
+      <BackButton />
+      <Card
+        title={project ? project.name : t("Project Details")}
+        style={{ margin: 60 }}
+      >
+        {project ? (
+          <>
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label={t("Name")} style={{ width: 50 }}>
+                {project.name}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("Description")}>
+                {project.description}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("Technology")}>
+                {renderTags(project.technology)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("Programming Language")}>
+                {renderTags(project.programmingLanguage)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("Start Date")}>
+                {moment(project.startDate).format("YYYY-MM-DD")}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("End Date")}>
+                {project.endDate
+                  ? moment(project.endDate).format("YYYY-MM-DD")
+                  : t("No end date yet")}
+              </Descriptions.Item>
+              <Descriptions.Item label={t("Status")}>
+                <Tag color={getStatusTagColor(project.status)}>
+                  {t(project.status)}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label={t("Assigned Employees")}>
+                {employees.length > 0
+                  ? employees.map((employee) => (
+                      <Tag key={employee.id} color="purple">
+                        {employee.name}
+                      </Tag>
+                    ))
+                  : t("No employees assigned")}
+              </Descriptions.Item>
+            </Descriptions>
+            <Button
+              type="primary"
+              onClick={() => {
+                assignForm.resetFields(); // Reset form fields before showing Modal
+                setIsAssignModalOpen(true);
+              }}
+              style={{
+                marginTop: 20,
+                backgroundColor: "green",
+                borderColor: "green",
+              }}
+              icon={<PlusOutlined />}
+            >
+              {t("Assign Employees")}
+            </Button>
+            <Button
+              type="danger"
+              onClick={() => {
+                unassignForm.resetFields(); // Reset form fields before showing Modal
+                setIsUnassignModalOpen(true);
+              }}
+              style={{
+                marginTop: 20,
+                marginLeft: 10,
+                backgroundColor: employees.length === 0 ? "gray" : "#ff4d4f",
+                color: "white",
+                borderColor: employees.length === 0 ? "gray" : "#ff4d4f",
+                cursor: employees.length === 0 ? "not-allowed" : "pointer",
+              }}
+              disabled={employees.length === 0}
+              icon={<MinusOutlined />}
+            >
+              {t("Unassign Employees")}
+            </Button>
+            <Modal
+              title={t("Assign Employees to Project")}
+              open={isAssignModalOpen}
+              onCancel={() => setIsAssignModalOpen(false)}
+              footer={null}
+            >
+              <Form form={assignForm} onFinish={handleAssign} layout="vertical">
+                <Form.Item
+                  name="employees"
+                  label={t("Employees")}
+                  rules={[
+                    { required: true, message: t("Please select employees!") },
+                  ]}
                 >
-                  {allEmployees.map((employee) => (
-                    <Option key={employee.id} value={employee.id}>
-                      {employee.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  {t("Assign")}
-                </Button>
-              </Form.Item>
-            </Form>
-          </Modal>
-          <Modal
-            title={t("Unassign Employees from Project")}
-            open={isUnassignModalOpen}
-            onCancel={() => setIsUnassignModalOpen(false)}
-            footer={null}
-          >
-            <Form form={form} onFinish={handleUnassign} layout="vertical">
-              <Form.Item
-                name="employees"
-                label={t("Employees")}
-                rules={[
-                  { required: true, message: t("Please select employees!") },
-                ]}
+                  <Select
+                    mode="multiple"
+                    placeholder={t("Select employees")}
+                    optionFilterProp="children"
+                  >
+                    {allEmployees.map((employee) => (
+                      <Option key={employee.id} value={employee.id}>
+                        {employee.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      backgroundColor: "green",
+                      borderColor: "green",
+                    }}
+                  >
+                    {t("Assign")}
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Modal>
+            <Modal
+              title={t("Unassign Employees from Project")}
+              open={isUnassignModalOpen}
+              onCancel={() => setIsUnassignModalOpen(false)}
+              footer={null}
+            >
+              <Form
+                form={unassignForm}
+                onFinish={handleUnassign}
+                layout="vertical"
               >
-                <Select
-                  mode="multiple"
-                  placeholder={t("Select employees")}
-                  optionFilterProp="children"
+                <Form.Item
+                  name="employees"
+                  label={t("Employees")}
+                  rules={[
+                    { required: true, message: t("Please select employees!") },
+                  ]}
                 >
-                  {employees.map((employee) => (
-                    <Option key={employee.id} value={employee.id}>
-                      {employee.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  {t("Unassign")}
-                </Button>
-              </Form.Item>
-            </Form>
-          </Modal>
-        </>
-      ) : (
-        <p>{t("Project not found")}</p>
-      )}
-    </Card>
+                  <Select
+                    mode="multiple"
+                    placeholder={t("Select employees")}
+                    optionFilterProp="children"
+                  >
+                    {employees.map((employee) => (
+                      <Option key={employee.id} value={employee.id}>
+                        {employee.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{
+                      backgroundColor: "#ff4d4f",
+                      borderColor: "#ff4d4f",
+                    }}
+                  >
+                    {t("Unassign")}
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Modal>
+          </>
+        ) : (
+          <p>{t("Project not found")}</p>
+        )}
+      </Card>
+    </>
   );
 };
 

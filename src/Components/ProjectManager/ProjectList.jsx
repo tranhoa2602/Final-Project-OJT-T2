@@ -14,7 +14,8 @@ import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
-import "../../styles/layouts/tablestyles.css"     
+import "../../styles/layouts/tablestyles.css"
+import styles from "../../styles/layouts/ProjectList.module.scss";
 import { Alignment } from "docx";
 
 const ListProject = () => {
@@ -125,6 +126,7 @@ const ListProject = () => {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
+      className: "name-projects"
     },
     {
       title: t("Project Manager"),
@@ -134,6 +136,8 @@ const ListProject = () => {
     {
       title: t("Status"),
       key: "status",
+      align: "center",
+      className: "type-tags",
       render: (text, record) => getStatusTag(record.status),
       filters: [
         { text: t("Pending"), value: "Pending" },
@@ -148,6 +152,7 @@ const ListProject = () => {
       key: "actions",
       align: "center",
       class: '.table-header',
+      className: 'action-table',
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -158,7 +163,7 @@ const ListProject = () => {
 
           {(user?.position === "Project Manager" &&
             user?.name === record.projectManager) ||
-          user?.role === "Admin" ? (
+            user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button
@@ -251,7 +256,7 @@ const ListProject = () => {
   };
 
   return (
-    <div>
+    <div className={styles["project-list"]}>
       {loading ? (
         <>
           <Space style={{ marginTop: 16 }}>
@@ -264,7 +269,7 @@ const ListProject = () => {
         </>
       ) : (
         <>
-          <Space style={{ marginTop: 16 }}>
+          <Space class={styles['actions-container']}>
             <Input
               placeholder={t("Search by Name")}
               value={searchText}
@@ -274,47 +279,48 @@ const ListProject = () => {
 
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={showModal}
-              >
-                {t("Create new project")}
-              </Button>
-            )}
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={showModal}
+                >
+                  {t("Create new project")}
+                </Button>
+              )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="primary"
-                icon={<ExportOutlined />}
-                onClick={exportToExcel}
-              >
-                {t("Export to Excel")}
-              </Button>
-            )}
+                <Button
+                  type="primary"
+                  icon={<ExportOutlined />}
+                  onClick={exportToExcel}
+                >
+                  {t("Export to Excel")}
+                </Button>
+              )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="default"
-                icon={<DeleteOutlined />}
-                style={{backgroundColor: 'green', color: 'white'}}
-                onClick={() => navigate("/ProjectBin")}
-              >
-                {t("Project Bin")}
-              </Button>
-            )}
+                <Button
+                  type="default"
+                  icon={<DeleteOutlined />}
+                  style={{ backgroundColor: 'green', color: 'white' }}
+                  onClick={() => navigate("/ProjectBin")}
+                >
+                  {t("Project Bin")}
+                </Button>
+              )}
           </Space>
-          <h1 className="title">LIST OF PROJECTS</h1>
+          <h1 className="title">{t("LIST OF PROJECTS")}</h1>
           <Table
             columns={columns}
             dataSource={filteredProjects}
             rowKey="id"
             pagination={{ pageSize: 6 }}
+            style={{width: '1000px', margin: 'auto' }}
             components={{
               header: {
                 cell: (props) => (
                   <th {...props} className={`table-header ${props.className}`}>
-                  {props.children}
+                    {props.children}
                   </th>
                 ),
               },

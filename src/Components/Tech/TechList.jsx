@@ -20,7 +20,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import TechListSkeleton from "../Loading/ListTech"; // Import the TechListSkeleton component
-import "../../styles/layouts/tablestyles.css" 
+import "../../styles/layouts/tablestyles.css"
 
 const { Option } = Select;
 
@@ -178,6 +178,8 @@ const TechList = () => {
       title: t("Type"),
       dataIndex: "techtype",
       key: "techtype",
+      align: "center",
+      className: "type-tags",
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Input
@@ -196,10 +198,10 @@ const TechList = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-                <Tag color="blue" key={tag}>
-                  {tag}
-                </Tag>
-              ))
+              <Tag color="blue" key={tag}>
+                {tag}
+              </Tag>
+            ))
             : null}
         </>
       ),
@@ -208,6 +210,7 @@ const TechList = () => {
       title: t("Status"),
       dataIndex: "techstatus",
       key: "techstatus",
+      align: 'center',
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Select
@@ -225,7 +228,9 @@ const TechList = () => {
       onFilter: (value, record) =>
         record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {t(status === "Active" ? "Active" : "Inactive")}
+        </Tag>
       ),
     },
     {
@@ -264,6 +269,7 @@ const TechList = () => {
       title: t("Actions"),
       key: "action",
       align: "center",
+      className: "action-table",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -295,7 +301,7 @@ const TechList = () => {
           <TechListSkeleton />
         </>
       ) : (
-        <div style={{marginTop: '20px' }}>
+        <div style={{ marginTop: '20px' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -307,12 +313,12 @@ const TechList = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px'}}
+            style={{ backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px' }}
             onClick={() => navigate("/TechBin")}
           >
             {t("View Bin")}
           </Button>
-          <h1 className="title">LIST OF TECHNOLOGY</h1>
+          <h1 className="title">{t("LIST OF TECHNOLOGY")}</h1>
           <Table
             columns={columns}
             dataSource={filteredData}
@@ -323,7 +329,7 @@ const TechList = () => {
               header: {
                 cell: (props) => (
                   <th {...props} className={`table-header ${props.className}`}>
-                  {props.children}
+                    {props.children}
                   </th>
                 ),
               },

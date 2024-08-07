@@ -82,13 +82,7 @@ const Sidebar = () => {
     {
       key: "sub3",
       icon: <FundProjectionScreenOutlined />,
-      label: t("Manage Projects"),
-      children: [
-        {
-          key: "3",
-          label: <Link to="/projects">{t("Projects list")}</Link>,
-        },
-      ],
+      label: <Link to="/projects">{t("Projects Management")}</Link>,
     },
     {
       key: "10",

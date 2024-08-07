@@ -31,7 +31,8 @@ const DetailProject = () => {
   const [allEmployees, setAllEmployees] = useState([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isUnassignModalOpen, setIsUnassignModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [assignForm] = Form.useForm();
+  const [unassignForm] = Form.useForm();
   const [noEndDate, setNoEndDate] = useState(false);
 
   useEffect(() => {
@@ -44,11 +45,6 @@ const DetailProject = () => {
         setProject(projectData);
         setNoEndDate(!projectData.endDate);
         fetchEmployees(projectData.assignedEmployees || []);
-        form.setFieldsValue({
-          ...projectData,
-          startDate: moment(projectData.startDate),
-          endDate: projectData.endDate ? moment(projectData.endDate) : null,
-        });
       } else {
         message.error(t("Project not found"));
       }
@@ -76,7 +72,7 @@ const DetailProject = () => {
     };
 
     fetchProject();
-  }, [id, t, form]);
+  }, [id, t]);
 
   const updateEmployeeStatus = async (employeeId) => {
     const db = getDatabase();
@@ -150,7 +146,7 @@ const DetailProject = () => {
         t("Selected employees are already assigned to this project!")
       );
       setIsAssignModalOpen(false);
-      form.resetFields();
+      assignForm.resetFields();
       return;
     }
 
@@ -180,7 +176,7 @@ const DetailProject = () => {
 
     message.success(t("Employees assigned successfully!"));
     setIsAssignModalOpen(false);
-    form.resetFields();
+    assignForm.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) => [
       ...prevEmployees,
@@ -228,7 +224,7 @@ const DetailProject = () => {
 
     message.success(t("Employees unassigned successfully!"));
     setIsUnassignModalOpen(false);
-    form.resetFields();
+    unassignForm.resetFields();
     setProject(updatedProject);
     setEmployees((prevEmployees) =>
       prevEmployees.filter((emp) => !values.employees.includes(emp.id))
@@ -313,14 +309,20 @@ const DetailProject = () => {
             </Descriptions>
             <Button
               type="primary"
-              onClick={() => setIsAssignModalOpen(true)}
+              onClick={() => {
+                setIsAssignModalOpen(true);
+                assignForm.resetFields();
+              }}
               style={{ marginTop: 20 }}
             >
               {t("Assign Employees")}
             </Button>
             <Button
               type="danger"
-              onClick={() => setIsUnassignModalOpen(true)}
+              onClick={() => {
+                setIsUnassignModalOpen(true);
+                unassignForm.resetFields();
+              }}
               style={{
                 marginTop: 20,
                 marginLeft: 10,
@@ -339,7 +341,7 @@ const DetailProject = () => {
               onCancel={() => setIsAssignModalOpen(false)}
               footer={null}
             >
-              <Form form={form} onFinish={handleAssign} layout="vertical">
+              <Form form={assignForm} onFinish={handleAssign} layout="vertical">
                 <Form.Item
                   name="employees"
                   label={t("Employees")}
@@ -372,7 +374,11 @@ const DetailProject = () => {
               onCancel={() => setIsUnassignModalOpen(false)}
               footer={null}
             >
-              <Form form={form} onFinish={handleUnassign} layout="vertical">
+              <Form
+                form={unassignForm}
+                onFinish={handleUnassign}
+                layout="vertical"
+              >
                 <Form.Item
                   name="employees"
                   label={t("Employees")}

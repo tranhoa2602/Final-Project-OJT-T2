@@ -26,7 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 import ListSkeleton from "../../Loading/ListSkeleton"; // Ensure the correct path
-import "../../../styles/layouts/tablestyles.css"
+import "../../../styles/layouts/tablestyles.css";
 
 const { Option } = Select;
 
@@ -42,176 +42,176 @@ const columns = (
   t,
   loading
 ) => [
-    {
-      title: t("Profile Picture"),
-      dataIndex: "profilePicture",
-      key: "profilePicture",
-      render: (text, record) =>
-        loading ? (
-          <Skeleton.Avatar active size={64} shape="circle" />
-        ) : (
-          <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
-        ),
-    },
-    {
-      title: t("Name"),
-      dataIndex: "name",
-      key: "name",
-      render: (text, record) =>
-        loading ? (
-          <Skeleton.Input active size="default" style={{ width: 120 }} />
-        ) : (
-          <a
-            onClick={() => navigate("/details", { state: { employee: record } })}
-          >
-            {text}
-          </a>
-        ),
-    },
-    {
-      title: t("Email"),
-      dataIndex: "email",
-      key: "email",
-      filterDropdown: ({
-        setSelectedKeys,
-        selectedKeys,
-        confirm,
-        clearFilters,
-      }) =>
-        loading ? null : (
-          <div style={{ padding: 8 }}>
-            <Input
-              placeholder={`Search ${t("Email")}`}
-              value={selectedKeys[0]}
-              onChange={(e) =>
-                setSelectedKeys(e.target.value ? [e.target.value] : [])
-              }
-              onPressEnter={() => confirm()}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <Button
-                type="primary"
-                onClick={() => confirm()}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 90 }}
-              >
-                {t("Search")}
-              </Button>
-              <Button
-                onClick={() => clearFilters()}
-                size="small"
-                style={{ width: 90 }}
-              >
-                {t("Reset")}
-              </Button>
-            </Space>
-          </div>
-        ),
-      filterIcon: (filtered) =>
-        loading ? null : (
-          <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-        ),
-      onFilter: (value, record) =>
-        record.email.toLowerCase().includes(value.toLowerCase()),
-    },
-    {
-      title: t("Position"),
-      dataIndex: "positionName",
-      key: "positionName",
-      filters: loading
-        ? []
-        : Object.values(positions).map((position) => ({
+  {
+    title: t("Profile Picture"),
+    dataIndex: "profilePicture",
+    key: "profilePicture",
+    render: (text, record) =>
+      loading ? (
+        <Skeleton.Avatar active size={64} shape="circle" />
+      ) : (
+        <Avatar src={record.profilePicture || defaultAvatarUrl} size={64} />
+      ),
+  },
+  {
+    title: t("Name"),
+    dataIndex: "name",
+    key: "name",
+    render: (text, record) =>
+      loading ? (
+        <Skeleton.Input active size="default" style={{ width: 120 }} />
+      ) : (
+        <a
+          onClick={() => navigate("/details", { state: { employee: record } })}
+        >
+          {text}
+        </a>
+      ),
+  },
+  {
+    title: t("Email"),
+    dataIndex: "email",
+    key: "email",
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) =>
+      loading ? null : (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder={`Search ${t("Email")}`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
+            >
+              {t("Search")}
+            </Button>
+            <Button
+              onClick={() => clearFilters()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              {t("Reset")}
+            </Button>
+          </Space>
+        </div>
+      ),
+    filterIcon: (filtered) =>
+      loading ? null : (
+        <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+      ),
+    onFilter: (value, record) =>
+      record.email.toLowerCase().includes(value.toLowerCase()),
+  },
+  {
+    title: t("Position"),
+    dataIndex: "positionName",
+    key: "positionName",
+    filters: loading
+      ? []
+      : Object.values(positions).map((position) => ({
           text: position.name,
           value: position.name,
         })),
-      onFilter: (value, record) => record.positionName === value,
-    },
-    {
-      title: t("Status"),
-      key: "status",
-      dataIndex: "status",
-      filters: loading
-        ? []
-        : [
+    onFilter: (value, record) => record.positionName === value,
+  },
+  {
+    title: t("Status"),
+    key: "status",
+    dataIndex: "status",
+    filters: loading
+      ? []
+      : [
           { text: t("Involved"), value: "Involved" },
           { text: t("Available"), value: "Available" },
           { text: t("Inactive"), value: "Inactive" },
         ],
-      onFilter: (value, record) => record.status === value,
-      render: (_, { status }) =>
-        loading ? (
-          <Skeleton.Input active size="default" style={{ width: 100 }} />
-        ) : (
-          <>
-            {(Array.isArray(status) ? status : [status]).map((stat) => {
-              let color =
-                stat === "Inactive"
-                  ? "#f50" // Bright red for Inactive
-                  : stat === "Available"
-                    ? "#87d068" // Light green for Available
-                    : "#2db7f5"; // Bright blue for Involved
-              return (
-                <Tag color={color} key={stat}>
-                  {t(stat)}
-                </Tag>
-              );
-            })}
-          </>
-        ),
-    },
-    {
-      title: t("Actions"),
-      key: "actions",
-      align: "center",
-      render: (_, record) =>
-        loading ? (
-          <Space>
-            <Skeleton.Button active size="small" shape="round" />
-            <Skeleton.Button active size="small" shape="round" />
-            <Skeleton.Button active size="small" shape="round" />
-          </Space>
-        ) : (
-          <div className={styles["actions-container"]}>
+    onFilter: (value, record) => record.status === value,
+    render: (_, { status }) =>
+      loading ? (
+        <Skeleton.Input active size="default" style={{ width: 100 }} />
+      ) : (
+        <>
+          {(Array.isArray(status) ? status : [status]).map((stat) => {
+            let color =
+              stat === "Inactive"
+                ? "#f50" // Bright red for Inactive
+                : stat === "Available"
+                ? "#87d068" // Light green for Available
+                : "#2db7f5"; // Bright blue for Involved
+            return (
+              <Tag color={color} key={stat}>
+                {t(stat)}
+              </Tag>
+            );
+          })}
+        </>
+      ),
+  },
+  {
+    title: t("Actions"),
+    key: "actions",
+    align: "center",
+    render: (_, record) =>
+      loading ? (
+        <Space>
+          <Skeleton.Button active size="small" shape="round" />
+          <Skeleton.Button active size="small" shape="round" />
+          <Skeleton.Button active size="small" shape="round" />
+        </Space>
+      ) : (
+        <div className={styles["actions-container"]}>
+          <Button
+            onClick={() => navigate("/edit", { state: { employee: record } })}
+            type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
+          >
+            {t("Edit")}
+          </Button>
+          <Button
+            type="default"
+            onClick={() =>
+              navigate("/details", { state: { employee: record } })
+            }
+            icon={<InfoCircleOutlined />}
+            className={styles["detail-button"]}
+          >
+            {t("Detail")}
+          </Button>
+          <Tooltip
+            title={
+              record.status !== "Inactive"
+                ? t("Cannot delete this user while not in inactive state.")
+                : ""
+            }
+          >
             <Button
-              onClick={() => navigate("/edit", { state: { employee: record } })}
-              type="primary"
-              icon={<EditOutlined />}
-              className={styles["edit-button"]}
+              type="danger"
+              onClick={() => handleDelete(record)}
+              icon={<DeleteOutlined />}
+              className={styles["delete-button"]}
             >
-              {t("Edit")}
+              {t("Delete")}
             </Button>
-            <Button
-              type="default"
-              onClick={() =>
-                navigate("/details", { state: { employee: record } })
-              }
-              icon={<InfoCircleOutlined />}
-              className={styles["detail-button"]}
-            >
-              {t("Detail")}
-            </Button>
-            <Tooltip
-              title={
-                record.status !== "Inactive"
-                  ? t("Cannot delete this user while not in inactive state.")
-                  : ""
-              }
-            >
-              <Button
-                type="danger"
-                onClick={() => handleDelete(record)}
-                icon={<DeleteOutlined />}
-                className={styles["delete-button"]}
-              >
-                {t("Delete")}
-              </Button>
-            </Tooltip>
-          </div>
-        ),
-    },
-  ];
+          </Tooltip>
+        </div>
+      ),
+  },
+];
 
 const fetchData = async () => {
   const db = getDatabase();
@@ -337,7 +337,6 @@ const EmployeeList = () => {
     const worksheet = workbook.addWorksheet("Employees");
 
     worksheet.columns = [
-      { header: t("ID"), key: "id", width: 10 },
       { header: t("Name"), key: "name", width: 30 },
       { header: t("Email"), key: "email", width: 30 },
       { header: t("Phone"), key: "phone", width: 15 },

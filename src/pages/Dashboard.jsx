@@ -3,6 +3,13 @@ import { Layout, Card, Row, Col, Skeleton } from "antd";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "chart.js/auto";
 import { getDatabase, ref, get } from "firebase/database";
+import {
+  TeamOutlined,
+  UsergroupAddOutlined,
+  UserDeleteOutlined,
+  ProjectOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 import app from "../../firebaseConfig"; // Ensure you have your firebase configuration
 import styles from "../styles/layouts/Dashboard.module.scss"; // Import the SCSS module
 
@@ -84,39 +91,49 @@ const Dashboard = () => {
           <Col span={8}>
             <Skeleton loading={loading} active>
               <Card className={`${styles.card} ${styles.card1}`} hoverable>
-                <h2 className={styles.cardTitle}>Total Employees</h2>
-                <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
-                <p className={styles.cardChange}>
-                  Total employees in the company
-                </p>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardText}>
+                    <h2 className={styles.cardTitle}>
+                      Total Employees In Company
+                    </h2>
+                    <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
+                  </div>
+                  <TeamOutlined className={styles.cardIcon} />
+                </div>
               </Card>
             </Skeleton>
           </Col>
           <Col span={8}>
             <Skeleton loading={loading} active>
               <Card className={`${styles.card} ${styles.card2}`} hoverable>
-                <h2 className={styles.cardTitle}>Employees Participating</h2>
-                <h1 className={styles.cardValue}>
-                  {employeeCounts.participating}
-                </h1>
-                <p className={styles.cardChange}>
-                  Employees currently participating in projects
-                </p>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardText}>
+                    <h2 className={styles.cardTitle}>
+                      Employees Participating
+                    </h2>
+                    <h1 className={styles.cardValue}>
+                      {employeeCounts.participating}
+                    </h1>
+                  </div>
+                  <UsergroupAddOutlined className={styles.cardIcon} />
+                </div>
               </Card>
             </Skeleton>
           </Col>
           <Col span={8}>
             <Skeleton loading={loading} active>
               <Card className={`${styles.card} ${styles.card3}`} hoverable>
-                <h2 className={styles.cardTitle}>
-                  Employees Not Participating
-                </h2>
-                <h1 className={styles.cardValue}>
-                  {employeeCounts.notParticipating}
-                </h1>
-                <p className={styles.cardChange}>
-                  Employees not currently participating in projects
-                </p>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardText}>
+                    <h2 className={styles.cardTitle}>
+                      Employees Not Participating
+                    </h2>
+                    <h1 className={styles.cardValue}>
+                      {employeeCounts.notParticipating}
+                    </h1>
+                  </div>
+                  <UserDeleteOutlined className={styles.cardIcon} />
+                </div>
               </Card>
             </Skeleton>
           </Col>
@@ -125,22 +142,28 @@ const Dashboard = () => {
           <Col span={8}>
             <Skeleton loading={loading} active>
               <Card className={`${styles.card} ${styles.card4}`} hoverable>
-                <h2 className={styles.cardTitle}>Projects Created</h2>
-                <h1 className={styles.cardValue}>{projectCount}</h1>
-                <p className={styles.cardChange}>Total projects created</p>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardText}>
+                    <h2 className={styles.cardTitle}>Total Projects Created</h2>
+                    <h1 className={styles.cardValue}>{projectCount}</h1>
+                  </div>
+                  <ProjectOutlined className={styles.cardIcon} />
+                </div>
               </Card>
             </Skeleton>
           </Col>
           <Col span={8}>
             <Skeleton loading={loading} active>
               <Card className={`${styles.card} ${styles.card5}`} hoverable>
-                <h2 className={styles.cardTitle}>Terminated Employees</h2>
-                <h1 className={styles.cardValue}>
-                  {employeeCounts.terminated}
-                </h1>
-                <p className={styles.cardChange}>
-                  Employees terminated from the company
-                </p>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardText}>
+                    <h2 className={styles.cardTitle}>Terminated Employees</h2>
+                    <h1 className={styles.cardValue}>
+                      {employeeCounts.terminated}
+                    </h1>
+                  </div>
+                  <LogoutOutlined className={styles.cardIcon} />
+                </div>
               </Card>
             </Skeleton>
           </Col>

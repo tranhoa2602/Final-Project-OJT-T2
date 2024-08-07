@@ -22,55 +22,67 @@
 
 .card {
   border-radius: 10px;
-  text-align: center;
+  text-align: left;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
   color: white; // Ensure text is readable on colored backgrounds
+  height: 150px; // Make the card smaller
 
   &:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   }
 }
 
+.cardContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.cardText {
+  padding: 20px;
+}
+
+.cardIcon {
+  font-size: 40px;
+  margin-right: 20px;
+}
+
 .card1 {
   background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  color: #fff;
 }
 
 .card2 {
   background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
-  color: #fff;
 }
 
 .card3 {
   background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
-  color: #fff;
 }
 
 .card4 {
   background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-  color: #fff;
 }
 
 .card5 {
   background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
-  color: #fff;
 }
 
 .cardTitle {
   margin-top: 20px;
-  font-size: 24px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .cardValue {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   margin: 10px 0;
 }
 
 .cardChange {
-  font-size: 16px;
+  font-size: 14px;
   color: #fff;
 }
 

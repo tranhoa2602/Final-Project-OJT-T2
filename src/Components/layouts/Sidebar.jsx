@@ -5,6 +5,7 @@ import {
   UserOutlined,
   FundProjectionScreenOutlined,
   GlobalOutlined,
+  HomeOutlined,
   SolutionOutlined,
   DeploymentUnitOutlined,
   LogoutOutlined,
@@ -74,7 +75,7 @@ const Sidebar = () => {
   const items = [
     userRole === "Admin" && {
       key: "1",
-      icon: <UserOutlined />,
+      icon: <HomeOutlined />,
       label: <Link to="/Dashboard">{t("Dashboard")}</Link>,
     },
     userRole === "Admin" && {

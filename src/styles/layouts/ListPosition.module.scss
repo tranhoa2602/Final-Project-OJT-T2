@@ -4,7 +4,14 @@
   font-family: "Roboto", sans-serif;
   padding: 20px;
 
-  .actions-container {
+  .truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px; /* Adjust the width as needed */
+  }
+
+  .list-position .actions-container {
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, Tag, message, Input, Select } from "antd";
+import {
+  Space,
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Select,
+  Skeleton,
+  Modal,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import styles from "../../styles/layouts/ViewLanguage.module.scss"; // Import the SCSS module
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import styles from "../../styles/layouts/ViewLanguage.module.scss";
+import LanguageSkeleton from "../Loading/ListProgram"; // Import the skeleton component
+import "../../styles/layouts/tablestyles.css"
 
 const { Option } = Select;
 
@@ -20,6 +28,7 @@ const ViewLanguage = () => {
   const [searchName, setSearchName] = useState("");
   const [searchType, setSearchType] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
+  const [loading, setLoading] = useState(true); // Loading state
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -38,19 +47,28 @@ const ViewLanguage = () => {
         }
 
         setData(languages);
-        setFilteredData(languages.filter(item => item.deletestatus === false));
+        setFilteredData(
+          languages.filter((item) => item.deletestatus === false)
+        );
       } catch (error) {
         console.error("Error fetching Programming Languages: ", error);
         message.error(t("Failed to fetch Programming Languages."));
+      } finally {
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000); // Set timeout for 2 seconds
       }
     };
 
     fetchData();
+
+    // Cleanup the timer if the component unmounts
+    return () => clearTimeout(fetchData);
   }, [t]);
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data.filter(item => item.deletestatus === false);
+      let filtered = data.filter((item) => item.deletestatus === false);
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -79,23 +97,36 @@ const ViewLanguage = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-  const handleDelete = async (id, status) => {
+  const handleDelete = (id, status) => {
     if (status === "Active") {
-      message.error(t("Can't delete status active"));
+      message.error(t("Language is in Active status and cannot be deleted."));
       return;
     }
-    try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
-        { deletestatus: true }
-      );
-      message.success(t("Programming Language moved to bin successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
-    } catch (error) {
-      console.error("Error updating deletestatus: ", error);
-      message.error(t("Failed to move Programming Language to bin."));
-    }
+    Modal.confirm({
+      title: t("Are you sure you want to delete this programming language?"),
+      content: t("This action cannot be undone."),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          await axios.patch(
+            `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
+            { deletestatus: true }
+          );
+          message.success(t("Programming Language moved to bin successfully!"));
+          setData(
+            data.map((item) =>
+              item.id === id ? { ...item, deletestatus: true } : item
+            )
+          );
+          setFilteredData(filteredData.filter((item) => item.id !== id));
+        } catch (error) {
+          console.error("Error updating deletestatus: ", error);
+          message.error(t("Failed to move Programming Language to bin."));
+        }
+      },
+    });
   };
 
   const handleRestore = async (id) => {
@@ -105,8 +136,12 @@ const ViewLanguage = () => {
         { deletestatus: false }
       );
       message.success(t("Programming Language restored successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: false } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(
+        data.map((item) =>
+          item.id === id ? { ...item, deletestatus: false } : item
+        )
+      );
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error restoring Programming Language: ", error);
       message.error(t("Failed to restore Programming Language."));
@@ -119,8 +154,8 @@ const ViewLanguage = () => {
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
       );
       message.success(t("Programming Language deleted permanently!"));
-      setData(data.filter(item => item.id !== id));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      setData(data.filter((item) => item.id !== id));
+      setFilteredData(filteredData.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting Programming Language: ", error);
       message.error(t("Failed to delete Programming Language."));
@@ -220,6 +255,7 @@ const ViewLanguage = () => {
       title: t("Description"),
       dataIndex: "programingdescription",
       key: "programingdescription",
+      className: "truncate-text"
     },
     {
       title: t("Actions"),
@@ -236,7 +272,6 @@ const ViewLanguage = () => {
           <Button
             type="primary"
             danger
-            disabled={record.programingstatus === "Active"}
             onClick={() => handleDelete(record.id, record.programingstatus)}
           >
             <DeleteOutlined /> {t("Move to Bin")}
@@ -248,30 +283,53 @@ const ViewLanguage = () => {
 
   return (
     <div className={styles["language-list"]}>
-      <div className={styles["actions-container"]}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => navigate("/AddLanguage")}
-        >
-          {t("Add Programming Language")}
-        </Button>
-        <Button
-        type="primary"
-        icon={<DeleteOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/LanguageBin")}
-      >
-        {t("View Bin")}
-      </Button>
-      </div>
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        rowKey="id"
-        pagination={{ current: currentPage, pageSize: 5 }}
-        onChange={handleTableChange}
-      />
+      {loading ? (
+        <Space className={styles["actions-container"]}>
+          <Skeleton.Input style={{ width: 200 }} active />
+          <Skeleton.Input style={{ width: 200 }} active />
+          <Skeleton.Button style={{ width: 120 }} active />
+          <Skeleton.Button style={{ width: 120 }} active />
+        </Space>
+      ) : (
+        <div className={styles["actions-container"]}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate("/AddLanguage")}
+          >
+            {t("Add Programming Language")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<DeleteOutlined />}
+            style={{backgroundColor: 'green', color: 'white', marginRight:'890px'}}
+            onClick={() => navigate("/LanguageBin")}
+          >
+            {t("View Bin")}
+          </Button>
+        </div>
+      )}
+      <h1 className="title">LIST OF PROGRAMMING LANGUAGES</h1>
+      {loading ? (
+        <LanguageSkeleton />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={filteredData}
+          rowKey="id"
+          pagination={{ current: currentPage, pageSize }}
+          onChange={handleTableChange}
+          components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
+        />
+      )}
     </div>
   );
 };

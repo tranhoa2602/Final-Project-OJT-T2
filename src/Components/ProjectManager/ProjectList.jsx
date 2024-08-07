@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Space } from "antd";
+import { Table, Button, Tag, message, Input, Space, Skeleton } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
+  PlusOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
+import "../../styles/layouts/tablestyles.css"     
+import { Alignment } from "docx";
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -20,6 +25,7 @@ const ListProject = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +33,12 @@ const ListProject = () => {
     if (storedUser) {
       setUser(storedUser);
     }
-    fetchProjects();
+
+    const timer = setTimeout(() => {
+      fetchProjects();
+    }, 2000); // Set timeout for 2 seconds
+
+    return () => clearTimeout(timer); // Cleanup the timer
   }, []);
 
   const fetchProjects = async () => {
@@ -47,9 +58,29 @@ const ListProject = () => {
       setProjects(formattedData);
       setFilteredProjects(sortProjects(formattedData));
     }
+    setLoading(false); // Set loading to false after data is fetched
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (["Ongoing"].includes(status)) {
+      message.error(
+        t("The project is in Ongoing status and cannot be deleted.")
+      );
+      return;
+    }
+    if (["Pending"].includes(status)) {
+      message.error(
+        t("The project is in Pending status and cannot be deleted.")
+      );
+      return;
+    }
+    if (["Not Started"].includes(status)) {
+      message.error(
+        t("The project is in Not Started status and cannot be deleted.")
+      );
+      return;
+    }
+
     try {
       const db = getDatabase();
       await update(ref(db, `projects/${id}`), { deletestatus: true });
@@ -115,6 +146,8 @@ const ListProject = () => {
     {
       title: t("Actions"),
       key: "actions",
+      align: "center",
+      class: '.table-header',
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -125,18 +158,23 @@ const ListProject = () => {
 
           {(user?.position === "Project Manager" &&
             user?.name === record.projectManager) ||
-            user?.role === "Admin" ? (
+          user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
-                <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
+                <Button
+                  icon={<EditOutlined />}
+                  type="primary"
+                  style={{ marginLeft: 8 }}
+                >
                   {t("Edit")}
                 </Button>
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id)}
+                onClick={() => handleDelete(record.id, record.status)}
+                type="primary"
+                danger
                 style={{ marginLeft: 8 }}
-                disabled={record.status === "Ongoing" || record.status === "Pending"} // Disable button if status is "Ongoing" or "Pending"
               >
                 {t("Delete")}
               </Button>
@@ -214,41 +252,81 @@ const ListProject = () => {
 
   return (
     <div>
-      <Space style={{ marginTop: 16 }}>
-        <Input
-          placeholder={t("Search by Name")}
-          value={searchText}
-          onChange={handleSearch}
-          style={{ width: 200 }}
-        />
+      {loading ? (
+        <>
+          <Space style={{ marginTop: 16 }}>
+            <Skeleton.Input active size="large" style={{ width: 200 }} />
+            <Skeleton.Button active size="large" style={{ width: 150 }} />
+            <Skeleton.Button active size="large" style={{ width: 150 }} />
+            <Skeleton.Button active size="large" style={{ width: 150 }} />
+          </Space>
+          <ProjectSkeleton />
+        </>
+      ) : (
+        <>
+          <Space style={{ marginTop: 16 }}>
+            <Input
+              placeholder={t("Search by Name")}
+              value={searchText}
+              onChange={handleSearch}
+              style={{ width: 200 }}
+            />
 
-        {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="primary" onClick={showModal}>
-            {t("Create new project")}
-          </Button>
-        )}
-        {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="primary" onClick={exportToExcel}>
-            {t("Export to Excel")}
-          </Button>
-        )}
-        {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="default" onClick={() => navigate("/ProjectBin")}>
-            {t("Project Bin")}
-          </Button>
-        )}
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={filteredProjects}
-        rowKey="id"
-        pagination={{ pageSize: 6 }}
-      />
-      <CreateProject
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        onSave={handleSave}
-      />
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showModal}
+              >
+                {t("Create new project")}
+              </Button>
+            )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="primary"
+                icon={<ExportOutlined />}
+                onClick={exportToExcel}
+              >
+                {t("Export to Excel")}
+              </Button>
+            )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="default"
+                icon={<DeleteOutlined />}
+                style={{backgroundColor: 'green', color: 'white'}}
+                onClick={() => navigate("/ProjectBin")}
+              >
+                {t("Project Bin")}
+              </Button>
+            )}
+          </Space>
+          <h1 className="title">LIST OF PROJECTS</h1>
+          <Table
+            columns={columns}
+            dataSource={filteredProjects}
+            rowKey="id"
+            pagination={{ pageSize: 6 }}
+            components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                  </th>
+                ),
+              },
+            }}
+          />
+          <CreateProject
+            visible={isModalVisible}
+            onCancel={handleCancel}
+            onSave={handleSave}
+          />
+        </>
+      )}
     </div>
   );
 };

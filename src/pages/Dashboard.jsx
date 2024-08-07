@@ -28,6 +28,10 @@ const Dashboard = () => {
   });
   const [projectCount, setProjectCount] = useState(0);
   const [loading, setLoading] = useState(true); // Add loading state
+  const [monthlyAdditions, setMonthlyAdditions] = useState({
+    ProgramLanguages: {},
+    Technologies: {},
+  });
 
   useEffect(() => {
     // Fetch data from Firebase with a delay to simulate loading
@@ -36,14 +40,25 @@ const Dashboard = () => {
       const db = getDatabase(app);
       const projectsRef = ref(db, "projects");
       const employeesRef = ref(db, "employees");
+      const programLanguagesRef = ref(db, "programmingLanguages");
+      const technologiesRef = ref(db, "technologies");
 
-      const [projectsSnapshot, employeesSnapshot] = await Promise.all([
+      const [
+        projectsSnapshot,
+        employeesSnapshot,
+        programLanguagesSnapshot,
+        technologiesSnapshot,
+      ] = await Promise.all([
         get(projectsRef),
         get(employeesRef),
+        get(programLanguagesRef),
+        get(technologiesRef),
       ]);
 
       const projectsData = projectsSnapshot.val();
       const employeesData = employeesSnapshot.val();
+      const programLanguagesData = programLanguagesSnapshot.val();
+      const technologiesData = technologiesSnapshot.val();
 
       const { projectStatuses, employeeParticipation } =
         extractData(projectsData);
@@ -51,14 +66,20 @@ const Dashboard = () => {
       const { total, participating, notParticipating, terminated } =
         calculateEmployeeCounts(employeesData, projectsData);
 
+      const monthlyAdditions = calculateMonthlyAdditions(
+        programLanguagesData,
+        technologiesData
+      );
+
       setProjectStatuses(projectStatuses);
       setEmployeeParticipation(employeeParticipation);
       setEmployeeCounts({ total, participating, notParticipating, terminated });
       setProjectCount(Object.keys(projectsData).length);
+      setMonthlyAdditions(monthlyAdditions);
 
       setTimeout(() => {
-        setLoading(false); // Set loading to false after data fetch
-      }, 1500); // Set loading time to 1.5 seconds
+        setLoading(false);
+      }, 1500);
     };
 
     fetchData();
@@ -82,6 +103,22 @@ const Dashboard = () => {
         label: "Number of Employees",
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         data: Object.values(employeeParticipation),
+      },
+    ],
+  };
+
+  const combinedDataBar = {
+    labels: Object.keys(monthlyAdditions.ProgramLanguages),
+    datasets: [
+      {
+        label: "Program Languages",
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        data: Object.values(monthlyAdditions.ProgramLanguages),
+      },
+      {
+        label: "Technologies",
+        backgroundColor: "rgba(255, 206, 86, 0.6)",
+        data: Object.values(monthlyAdditions.Technologies),
       },
     ],
   };
@@ -201,6 +238,20 @@ const Dashboard = () => {
             </Skeleton>
           </Col>
         </Row>
+        <Row gutter={16} className={styles.row}>
+          <Col span={24}>
+            <Skeleton loading={loading} active>
+              <Card
+                title={t("Additions: ProgramLanguages and Technologies")}
+                className={styles.chartCard}
+              >
+                <div className={styles.chartContainer}>
+                  <Bar data={combinedDataBar} />
+                </div>
+              </Card>
+            </Skeleton>
+          </Col>
+        </Row>
       </Content>
     </Layout>
   );
@@ -254,4 +305,26 @@ const calculateEmployeeCounts = (employeesData, projectsData) => {
     notParticipating,
     terminated,
   };
+};
+
+// Utility function to calculate monthly additions of ProgramLanguages and Technologies
+const calculateMonthlyAdditions = (programLanguagesData, technologiesData) => {
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getFullYear()}`;
+  };
+
+  const processAdditions = (data) =>
+    data
+      ? Object.values(data).reduce((acc, item) => {
+          const dateAdded = formatDate(item.dateAdded);
+          acc[dateAdded] = (acc[dateAdded] || 0) + 1;
+          return acc;
+        }, {})
+      : {};
+
+  const ProgramLanguages = processAdditions(programLanguagesData);
+  const Technologies = processAdditions(technologiesData);
+
+  return { ProgramLanguages, Technologies };
 };

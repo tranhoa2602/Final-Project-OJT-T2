@@ -365,6 +365,8 @@ i18n.use(initReactI18next).init({
         "Terminated Employees": "Terminated Employees",
         "Project Status Distribution": "Project Status Distribution",
         "Employee Participation Over Time": "Employee Participation Over Time",
+        "Additions: ProgramLanguages and Technologies":
+          "Additions: ProgramLanguages and Technologies",
       },
     },
     vi: {
@@ -731,6 +733,8 @@ i18n.use(initReactI18next).init({
         "Project Status Distribution": "Phân phối trạng thái dự án",
         "Employee Participation Over Time":
           "Sự tham gia của nhân viên theo thời gian",
+        "Additions: ProgramLanguages and Technologies":
+          "Bổ sung: Ngôn ngữ và công nghệ được sự dụng",
       },
     },
   },

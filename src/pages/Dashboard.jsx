@@ -10,12 +10,14 @@ import {
   ProjectOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 import app from "../../firebaseConfig"; // Ensure you have your firebase configuration
 import styles from "../styles/layouts/Dashboard.module.scss"; // Import the SCSS module
 
 const { Content } = Layout;
 
 const Dashboard = () => {
+  const { t } = useTranslation(); // Use useTranslation hook
   const [projectStatuses, setProjectStatuses] = useState({});
   const [employeeParticipation, setEmployeeParticipation] = useState({});
   const [employeeCounts, setEmployeeCounts] = useState({
@@ -86,6 +88,7 @@ const Dashboard = () => {
 
   return (
     <Layout className={styles.layout}>
+      <h1 className="title">{t("DASHBOARD")}</h1>
       <Content className={styles.content}>
         <Row gutter={16} className={styles.row}>
           <Col span={8}>
@@ -94,7 +97,7 @@ const Dashboard = () => {
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
                     <h2 className={styles.cardTitle}>
-                      Total Employees In Company
+                      {t("Total Employees In Company")}
                     </h2>
                     <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
                   </div>
@@ -109,7 +112,7 @@ const Dashboard = () => {
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
                     <h2 className={styles.cardTitle}>
-                      Employees Participating
+                      {t("Employees Participating")}
                     </h2>
                     <h1 className={styles.cardValue}>
                       {employeeCounts.participating}
@@ -126,7 +129,7 @@ const Dashboard = () => {
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
                     <h2 className={styles.cardTitle}>
-                      Employees Not Participating
+                      {t("Employees Not Participating")}
                     </h2>
                     <h1 className={styles.cardValue}>
                       {employeeCounts.notParticipating}
@@ -144,7 +147,9 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card4}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>Total Projects Created</h2>
+                    <h2 className={styles.cardTitle}>
+                      {t("Total Projects Created")}
+                    </h2>
                     <h1 className={styles.cardValue}>{projectCount}</h1>
                   </div>
                   <ProjectOutlined className={styles.cardIcon} />
@@ -157,7 +162,9 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card5}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>Terminated Employees</h2>
+                    <h2 className={styles.cardTitle}>
+                      {t("Terminated Employees")}
+                    </h2>
                     <h1 className={styles.cardValue}>
                       {employeeCounts.terminated}
                     </h1>
@@ -172,7 +179,7 @@ const Dashboard = () => {
           <Col span={12}>
             <Skeleton loading={loading} active>
               <Card
-                title="Project Status Distribution"
+                title={t("Project Status Distribution")}
                 className={styles.chartCard}
               >
                 <div className={styles.chartContainer}>
@@ -184,7 +191,7 @@ const Dashboard = () => {
           <Col span={12}>
             <Skeleton loading={loading} active>
               <Card
-                title="Employee Participation Over Time"
+                title={t("Employee Participation Over Time")}
                 className={styles.chartCard}
               >
                 <div className={styles.chartContainer}>

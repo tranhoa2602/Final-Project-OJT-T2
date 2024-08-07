@@ -81,11 +81,11 @@ const Sidebar = () => {
     userRole === "Admin" && {
       key: "sub1_manage",
       icon: <UserOutlined />,
-      label: t("Manage Accounts"),
+      label: t("Admin Page"),
       children: [
         {
           key: "2",
-          label: <Link to="/admin">{t("Account Info")}</Link>,
+          label: <Link to="/admin">{t("Admin Profile")}</Link>,
         },
         {
           key: "3",

@@ -376,6 +376,12 @@ i18n.use(initReactI18next).init({
                 'Technology moved to bin successfully!': 'Technology moved to bin successfully!',
                 'All': 'All',
                 'Programming Language added successfully!': 'Programming Language added successfully!',
+                'Employees assigned successfully!': 'Employees assigned successfully!',
+                'Employees unassigned successfully!': 'Employees unassigned successfully!',
+                'Please select employees!': 'Please select employees!',
+                'Selected employees are already assigned to this project!': 'Selected employees are already assigned to this project!',
+                'Employees': 'Employees',
+
 
 
             },
@@ -755,7 +761,11 @@ i18n.use(initReactI18next).init({
                 'Technology moved to bin successfully!': 'Công nghệ đã được chuyển vào thùng rác thành công!',
                 'All': 'Tất cả',
                 'Programming Language added successfully!': 'Ngôn ngữ lập trình đã được thêm thành công!',
-
+                'Employees assigned successfully!': 'Nhân viên đã được phân công thành công!',
+                'Employees unassigned successfully!': 'Đã hủy phân công nhân viên thành công!',
+                'Please select employees!': 'Vui lòng chọn nhân viên!',
+                'Selected employees are already assigned to this project!': 'Những nhân viên được chọn đã được phân công vào dự án này!',
+                'Employees': 'Nhân viên',
             },
         },
     },

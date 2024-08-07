@@ -10,33 +10,12 @@ import {
   LogoutOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Switch, Button } from "antd";
+import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { FaFlagUsa, FaFlag } from "react-icons/fa";
 import logo from "../../assets/logo.png"; // Đường dẫn tới logo của bạn
+import "../../styles/layouts/Sidebar.scss"; // Đảm bảo rằng đường dẫn tới tệp SCSS là chính xác
 
 const { Sider } = Layout;
-
-const siderStyle = {
-  textAlign: "left",
-  color: "#fff",
-  height: "100vh", // Ensure full height
-  position: "fixed",
-  left: 0,
-  top: 0,
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  backgroundColor: "#000", // Set sidebar background to black
-};
-
-const layoutStyle = {
-  borderRadius: 8,
-  overflow: "hidden",
-  height: "100vh",
-  width: "calc(100% - 8px)",
-  maxWidth: "calc(100% - 8px)",
-};
 
 const Sidebar = () => {
   const { t } = useTranslation();
@@ -134,10 +113,21 @@ const Sidebar = () => {
   ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array
 
   return (
-    <Layout style={layoutStyle}>
+    <Layout style={{ height: "100vh", maxWidth: "100%" }}>
       <Sider
         width="15%"
-        style={siderStyle}
+        style={{
+          textAlign: "left",
+          color: "#fff",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          backgroundColor: "#000",
+        }}
         collapsible
         collapsed={collapsed}
         onCollapse={toggleCollapse}
@@ -151,6 +141,11 @@ const Sidebar = () => {
                 width: collapsed ? "50%" : "60%",
               }}
             />
+            {!collapsed && (
+              <h2 style={{ marginTop: "10px", color: "#fff" }}>
+                Creative Technology
+              </h2>
+            )}
           </div>
           <Menu
             defaultSelectedKeys={["1"]}
@@ -160,28 +155,20 @@ const Sidebar = () => {
             items={items}
             openKeys={openKeys}
             onOpenChange={onOpenChange}
-            style={{ backgroundColor: "#000" }} // Set menu background to black
+            style={{ backgroundColor: "#000" }}
           />
         </div>
         <div>
           <div style={{ textAlign: "center", padding: "10px" }}>
-            <Switch
-              checkedChildren={
-                <>
-                  <FaFlag style={{ marginRight: 5 }} />
-                  {t("Vietnamese")}
-                </>
-              }
-              unCheckedChildren={
-                <>
-                  <FaFlagUsa style={{ marginRight: 5 }} />
-                  {t("English")}
-                </>
-              }
-              onChange={changeLanguage}
-              checked={language === "vi"}
-              style={{ width: collapsed ? "50%" : "50%" }}
-            />
+            <div className="flag-switch" data-first-lang="" data-second-lang="">
+              <input
+                type="checkbox"
+                id="check1"
+                checked={language === "vi"}
+                onChange={changeLanguage}
+              />
+              <label htmlFor="check1"></label>
+            </div>
           </div>
           <div style={{ textAlign: "center", padding: "5px" }}>
             <Button

@@ -23,7 +23,7 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/layouts/ListPosition.module.scss";
 import PositionSkeleton from "../Loading/positionSkeleton";
-import "../../styles/layouts/tablestyles.css" // Import the PositionSkeleton component
+import "../../styles/layouts/tablestyles.css"; // Import the PositionSkeleton component
 
 const { TextArea } = Input;
 
@@ -166,6 +166,8 @@ const ListPosition = () => {
           const positionRef = ref(db, `positions/${id}`);
           await remove(positionRef);
           message.success(t("Position deleted permanently!"));
+  
+          // Cập nhật danh sách positions
           setPositions(prevPositions => prevPositions.filter(position => position.id !== id));
         } catch (error) {
           console.error("Error deleting position:", error);
@@ -247,7 +249,7 @@ const ListPosition = () => {
       title: t("Description"),
       dataIndex: "description",
       key: "description",
-      className: 'truncate-text', // Add this line to apply truncation
+      className: "truncate-text", // Add this line to apply truncation
     },
     {
       title: t("Status"),
@@ -284,7 +286,9 @@ const ListPosition = () => {
               </Button>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handlePermanentDelete(record.id)}
+                onClick={() =>
+                  handlePermanentDelete(record.id)
+                }
                 className={styles["delete-button"]}
               >
                 {t("Delete")}
@@ -325,7 +329,10 @@ const ListPosition = () => {
           <Skeleton.Button style={{ width: 100 }} active />
         </Space>
       ) : (
-        <Space className={styles["actions-container"]} style={{ marginTop: '20px' }}>
+        <Space
+          className={styles["actions-container"]}
+          style={{ marginTop: "20px" }}
+        >
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -340,10 +347,9 @@ const ListPosition = () => {
           <Button
             type="default"
             icon={<DeleteOutlined />}
-            style={{ backgroundColor: 'green', color: 'white' }}
+            style={{ backgroundColor: "green", color: "white" }}
             onClick={handleViewBin}
             className={styles["view-bin-button"]}
-
           >
             {showBin ? t("Back to List") : t("View Bin")}
           </Button>

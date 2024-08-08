@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Space, Skeleton } from "antd";
+import {
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Space,
+  Skeleton,
+  Modal,
+} from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import {
   EditOutlined,
@@ -14,9 +23,8 @@ import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
-import "../../styles/layouts/tablestyles.css"
+import "../../styles/layouts/tablestyles.css";
 import styles from "../../styles/layouts/ProjectList.module.scss";
-import { Alignment } from "docx";
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -27,6 +35,7 @@ const ListProject = () => {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true); // Add loading state
+  const [deleteId, setDeleteId] = useState(null); // Add state to track project to be deleted
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +71,7 @@ const ListProject = () => {
     setLoading(false); // Set loading to false after data is fetched
   };
 
-  const handleDelete = async (id, status) => {
+  const confirmDelete = (id, status) => {
     if (["Ongoing"].includes(status)) {
       message.error(
         t("The project is in Ongoing status and cannot be deleted.")
@@ -82,11 +91,24 @@ const ListProject = () => {
       return;
     }
 
+    setDeleteId(id); // Set the project id to be deleted
+    Modal.confirm({
+      title: t("Are you sure you want to delete this project?"),
+      content: t("This action cannot be undone."),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("No"),
+      onOk: handleDelete,
+    });
+  };
+
+  const handleDelete = async () => {
     try {
       const db = getDatabase();
-      await update(ref(db, `projects/${id}`), { deletestatus: true });
+      await update(ref(db, `projects/${deleteId}`), { deletestatus: true });
       message.success(t("Project moved to bin successfully!"));
       fetchProjects(); // Refresh the project list after deletion
+      setDeleteId(null); // Reset deleteId after deletion
     } catch (error) {
       console.error("Error updating delete status:", error);
       message.error(t("Failed to move project to bin!"));
@@ -126,7 +148,7 @@ const ListProject = () => {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
-      className: "name-projects"
+      className: "name-projects",
     },
     {
       title: t("Project Manager"),
@@ -151,8 +173,7 @@ const ListProject = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
-      class: '.table-header',
-      className: 'action-table',
+      className: "action-table",
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -163,7 +184,7 @@ const ListProject = () => {
 
           {(user?.position === "Project Manager" &&
             user?.name === record.projectManager) ||
-            user?.role === "Admin" ? (
+          user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button
@@ -176,7 +197,7 @@ const ListProject = () => {
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id, record.status)}
+                onClick={() => confirmDelete(record.id, record.status)}
                 type="primary"
                 danger
                 style={{ marginLeft: 8 }}
@@ -269,7 +290,7 @@ const ListProject = () => {
         </>
       ) : (
         <>
-          <Space class={styles['actions-container']}>
+          <Space className={styles["actions-container"]}>
             <Input
               placeholder={t("Search by Name")}
               value={searchText}
@@ -279,35 +300,35 @@ const ListProject = () => {
 
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={showModal}
-                >
-                  {t("Create new project")}
-                </Button>
-              )}
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showModal}
+              >
+                {t("Create new project")}
+              </Button>
+            )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-                <Button
-                  type="primary"
-                  icon={<ExportOutlined />}
-                  onClick={exportToExcel}
-                >
-                  {t("Export to Excel")}
-                </Button>
-              )}
+              <Button
+                type="primary"
+                icon={<ExportOutlined />}
+                onClick={exportToExcel}
+              >
+                {t("Export to Excel")}
+              </Button>
+            )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-                <Button
-                  type="default"
-                  icon={<DeleteOutlined />}
-                  style={{ backgroundColor: 'green', color: 'white' }}
-                  onClick={() => navigate("/ProjectBin")}
-                >
-                  {t("Project Bin")}
-                </Button>
-              )}
+              <Button
+                type="default"
+                icon={<DeleteOutlined />}
+                style={{ backgroundColor: "green", color: "white" }}
+                onClick={() => navigate("/ProjectBin")}
+              >
+                {t("Project Bin")}
+              </Button>
+            )}
           </Space>
           <h1 className="title">{t("LIST OF PROJECTS")}</h1>
           <Table
@@ -315,7 +336,7 @@ const ListProject = () => {
             dataSource={filteredProjects}
             rowKey="id"
             pagination={{ pageSize: 6 }}
-            style={{width: '1000px', margin: 'auto' }}
+            style={{ width: "1000px", margin: "auto" }}
             components={{
               header: {
                 cell: (props) => (

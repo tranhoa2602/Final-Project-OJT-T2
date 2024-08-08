@@ -225,6 +225,7 @@ const DetailProject = () => {
       const employeeRef = ref(db, `employees/${employeeId}`);
       const employeeSnapshot = await get(employeeRef);
       const employeeData = employeeSnapshot.val();
+      if (!employeeData) continue; // Check if employeeData exists
       const employeeProjects = employeeData.projects || [];
       const updatedEmployeeProjects = employeeProjects.filter(
         (proj) => proj !== id

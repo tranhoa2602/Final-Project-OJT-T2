@@ -230,8 +230,8 @@ const ListProject = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
-      className: "table-header", // Sửa ở đây
-      className: "action-table", // Sửa ở đây
+      className: "table-header action-table", // Sửa ở đây
+
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (

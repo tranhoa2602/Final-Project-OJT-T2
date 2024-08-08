@@ -108,48 +108,73 @@ const ListPosition = () => {
     setModalVisible(true);
   };
 
-  const confirmDelete = (id, status, action) => {
+  const handleMoveToBin = (id, status) => {
     if (status === "active") {
-      message.error(
-        t("The position is in Active status and cannot be deleted.")
-      );
+      message.error(t("The position is in Active status and cannot be deleted."));
       return;
     }
 
     Modal.confirm({
-      title: t("Confirm Delete"),
-      content: t("Are you sure you want to delete this position?"),
+      title: t("Are you sure you want to move this position to the bin?"),
       okText: t("Yes"),
-      okType: "danger",
       cancelText: t("No"),
-      onOk: () => action(id),
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          const positionRef = ref(db, `positions/${id}`);
+          await update(positionRef, { deleteStatus: true });
+          message.success(t("Position moved to bin successfully!"));
+          setPositions(prevPositions => prevPositions.filter(position => position.id !== id));
+        } catch (error) {
+          console.error("Error moving position to bin:", error);
+          message.error(t("Failed to move position to bin."));
+        }
+      },
     });
   };
 
-  const handleMoveToBin = (id, status) => {
-    confirmDelete(id, status, async (id) => {
-      const db = getDatabase();
-      const positionRef = ref(db, `positions/${id}`);
-      await update(positionRef, { deleteStatus: true });
-      message.success(t("Position moved to bin successfully!"));
-      setPositions(positions.filter((position) => position.id !== id));
+  const handleRestore = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to restore this position from the bin?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          const positionRef = ref(db, `positions/${id}`);
+          await update(positionRef, { deleteStatus: false });
+          message.success(t("Position restored successfully!"));
+          setPositions(prevPositions => prevPositions.map(position =>
+            position.id === id ? { ...position, deleteStatus: false } : position
+          ));
+        } catch (error) {
+          console.error("Error restoring position:", error);
+          message.error(t("Failed to restore position."));
+        }
+      },
     });
   };
 
-  const handleRestore = async (id) => {
-    const db = getDatabase();
-    const positionRef = ref(db, `positions/${id}`);
-    await update(positionRef, { deleteStatus: false });
-    message.success(t("Position restored successfully!"));
-    setPositions(positions.filter((position) => position.id !== id));
-  };
-
-  const handlePermanentDelete = async (id) => {
-    const db = getDatabase();
-    const positionRef = ref(db, `positions/${id}`);
-    await remove(positionRef);
-    message.success(t("Position deleted permanently!"));
-    setPositions(positions.filter((position) => position.id !== id));
+  const handlePermanentDelete = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to permanently delete this position?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          const positionRef = ref(db, `positions/${id}`);
+          await remove(positionRef);
+          message.success(t("Position deleted permanently!"));
+  
+          // Cập nhật danh sách positions
+          setPositions(prevPositions => prevPositions.filter(position => position.id !== id));
+        } catch (error) {
+          console.error("Error deleting position:", error);
+          message.error(t("Failed to delete position."));
+        }
+      },
+    });
   };
 
   const handleViewBin = async () => {
@@ -262,7 +287,7 @@ const ListPosition = () => {
               <Button
                 icon={<DeleteOutlined />}
                 onClick={() =>
-                  confirmDelete(record.id, record.status, handlePermanentDelete)
+                  handlePermanentDelete(record.id)
                 }
                 className={styles["delete-button"]}
               >

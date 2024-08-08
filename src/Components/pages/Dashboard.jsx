@@ -33,51 +33,6 @@ const Dashboard = () => {
     Technologies: {},
   });
 
-  const fetchEmployeesData = async () => {
-    const db = getDatabase(app);
-    const employeesRef = ref(db, "employees");
-    const snapshot = await get(employeesRef);
-
-    if (snapshot.exists()) {
-      const employeesData = snapshot.val();
-      const total = Object.keys(employeesData).length;
-      const terminated = Object.values(employeesData).filter(
-        (employee) => employee.status === "terminated" && employee.deleteStatus
-      ).length;
-      const participating = new Set();
-
-      const projectsRef = ref(db, "projects");
-      const projectsSnapshot = await get(projectsRef);
-      const projectsData = projectsSnapshot.val();
-
-      Object.values(projectsData).forEach((project) => {
-        if (project.employees) {
-          project.employees.forEach((employeeId) =>
-            participating.add(employeeId)
-          );
-        }
-      });
-
-      const notParticipating = total - participating.size;
-
-      setEmployeeCounts({
-        total,
-        participating: participating.size,
-        notParticipating,
-        terminated,
-      });
-
-      // Update employeeParticipation for the current month
-      const currentMonthYear = `${
-        new Date().getMonth() + 1
-      }/${new Date().getFullYear()}`;
-      setEmployeeParticipation((prev) => ({
-        ...prev,
-        [currentMonthYear]: (prev[currentMonthYear] || 0) + participating.size,
-      }));
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -134,6 +89,44 @@ const Dashboard = () => {
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
+
+  const fetchEmployeeChanges = async () => {
+    const db = getDatabase(app);
+    const employeesRef = ref(db, "employees");
+    const employeesSnapshot = await get(employeesRef);
+
+    if (employeesSnapshot.exists()) {
+      const employeesData = employeesSnapshot.val();
+      const newTotal = Object.keys(employeesData).length;
+
+      if (newTotal > employeeCounts.total) {
+        // New employee added
+        const currentMonthYear = `${
+          new Date().getMonth() + 1
+        }/${new Date().getFullYear()}`;
+        setEmployeeParticipation((prev) => ({
+          ...prev,
+          [currentMonthYear]: (prev[currentMonthYear] || 0) + 1,
+        }));
+      }
+
+      const { total, participating, notParticipating, terminated } =
+        calculateEmployeeCounts(employeesData, projectsData);
+
+      setEmployeeCounts({
+        total,
+        participating,
+        notParticipating,
+        terminated,
+      });
+    }
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(fetchEmployeeChanges, 10000); // Check every 10 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, [employeeCounts.total]); // Dependency array includes employeeCounts.total
 
   const dataPie = {
     labels: Object.keys(projectStatuses),

@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 import { get, getDatabase, ref } from "firebase/database";
 import { Form, Input, Button, Typography, Alert } from "antd";
 import { useNavigate } from "react-router-dom";
-import styles from "../styles/layouts/ForgetPassword.module.scss";
+import styles from "../../styles/layouts/ForgetPassword.module.scss";
 import {
   EMAILJS_SERVICE_ID,
   EMAILJS_TEMPLATE_ID,
   EMAILJS_USER_ID,
-} from "../../emailConfig"; // Import email configuration
+} from "../../../emailConfig"; // Import email configuration
 
 const { Title } = Typography;
 
@@ -71,9 +71,8 @@ const ForgetPassword = () => {
       return;
     }
 
-    const resetLink = `${
-      window.location.origin
-    }/reset-password?email=${encodeURIComponent(employee.email)}`;
+    const resetLink = `${window.location.origin
+      }/reset-password?email=${encodeURIComponent(employee.email)}`;
     sendResetPasswordEmail(employee.email, resetLink);
   };
 

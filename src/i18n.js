@@ -358,7 +358,7 @@ i18n.use(initReactI18next).init({
         "Unassign Employees": "Unassign Employees",
         Dashboard: "Dashboard",
         DASHBOARD: "DASHBOARD",
-        "Total Employees": "Total Employees",
+        "Total Employees In Company": "Total Employees In Company",
         "Employees Participating": "Employees Participating",
         "Employees Not Participating": "Employees Not Participating",
         "Total Projects Created": "Total Projects Created",
@@ -386,7 +386,6 @@ i18n.use(initReactI18next).init({
         "Selected employees are already assigned to this project!":
           "Selected employees are already assigned to this project!",
         Employees: "Employees",
-        Back: "Back",
       },
     },
     vi: {
@@ -667,7 +666,7 @@ i18n.use(initReactI18next).init({
         "Languages and Framework": "Ngôn ngữ và Khung phần mềm",
         Specification: "Sự chỉ rõ",
         "Project Name": "Tên dự án",
-        "Move to Bin": "Chuyển đến Thùng rác",
+        "Move to Bin": "Xóa",
         "Add Technology": "Thêm Công nghệ",
         Images: "hình ảnh",
         "Join a Project": "Tham gia một dự án",
@@ -745,7 +744,7 @@ i18n.use(initReactI18next).init({
         "Unassign Employees": "Bỏ phân công nhân viên",
         Dashboard: "Bảng thông tin",
         DASHBOARD: "BẢNG THÔNG TIN",
-        "Total Employees": "Tổng số nhân viên",
+        "Total Employees In Company": "Tổng số nhân viên trong công ty",
         "Employees Participating": "Nhân viên tham gia",
         "Employees Not Participating": "Nhân viên không tham gia",
         "Total Projects Created": "Tổng số dự án đã tạo",
@@ -775,7 +774,6 @@ i18n.use(initReactI18next).init({
         "Selected employees are already assigned to this project!":
           "Những nhân viên được chọn đã được phân công vào dự án này!",
         Employees: "Nhân viên",
-        Back: "Trở lại",
       },
     },
   },

@@ -321,7 +321,6 @@ const EmployeeList = () => {
           const db = getDatabase();
           const employeeRef = ref(db, `employees/${employee.key}`);
           await update(employeeRef, {
-            status: "terminated",
             deleteStatus: true,
           });
           const { employees } = await fetchData();

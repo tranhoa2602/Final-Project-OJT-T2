@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
+import "../../../styles/layouts/tablestyles.css";
 
 const defaultAvatarUrl =
   "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
@@ -158,6 +159,9 @@ const EmployeeBin = () => {
           {t("Back to List")}
         </Button>
       </Space>
+
+      <h1 className="title">{t("EMPLOYEES BIN")}</h1>
+
       {loading ? (
         <Skeleton active paragraph={{ rows: 5 }} />
       ) : (
@@ -167,6 +171,15 @@ const EmployeeBin = () => {
           rowKey="key"
           pagination={{ pageSize: 6 }}
           className={styles["employee-table"]}
+          components={{
+            header: {
+              cell: (props) => (
+                <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                </th>
+              ),
+            },
+          }}
         />
       )}
     </div>

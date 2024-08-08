@@ -4,10 +4,30 @@
   font-family: "Roboto", sans-serif;
   padding: 20px;
 
+  .delete-button {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+
+    &:hover {
+      background-color: #ff7875;
+    }
+
+    &:focus {
+      background-color: #d9363e;
+    }
+
+    &[disabled] {
+      background-color: #ff4d4f;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: not-allowed;
+    }
+  }
+
   .actions-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 20px;
     margin-bottom: 20px;
 
     .search-input {
@@ -24,7 +44,7 @@
       padding: 12px 24px;
       color: white;
       border: none;
-      border-radius: 25px;
+      border-radius: 9px;
       cursor: pointer;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
       transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
@@ -68,7 +88,8 @@
     max-width: 1200px; // Set a larger maximum width for the table
     margin: 0 auto; // Center the table within its container
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 20px ;
+    table-layout: fixed;
 
     th,
     td {
@@ -80,13 +101,22 @@
     th {
       background-color: #f4f4f4;
       font-weight: bold;
-      text-transform: uppercase;
       text-align: center;
       font-size: 16px; // Larger font size for table headers
     }
 
     tr:nth-child(even) {
       background-color: #f9f9f9;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+
+    tr {
+      &:hover {
+        background-color: #f9f9f9; // Ensure the hover color is consistent with even rows
+      }
     }
 
     .actions-container {

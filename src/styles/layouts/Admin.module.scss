@@ -3,14 +3,20 @@
 .profile-detail-page {
   font-family: "Roboto", sans-serif;
   padding: 50px;
-  background-color: #b19e9660;
+  background: url("../../assets/1287134.jpg");
+  background-size: cover;
+  min-height: 60vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin: 100px;
+  margin: 50px;
   max-width: 1200px;
   text-align: center;
 
   .page-title {
+    color: #fff;
     font-weight: 800;
     font-size: 32px; // Increased font size
     margin-bottom: 30px;
@@ -31,6 +37,7 @@
       text-align: left;
 
       .profile-name {
+        color: #ffffff;
         font-weight: 500;
         font-size: 28px; // Increased font size
         margin-bottom: 5px;
@@ -38,7 +45,7 @@
 
       .profile-email {
         font-size: 18px;
-        color: #090909;
+        color: #f9f6f6;
         margin-bottom: 20px;
       }
 
@@ -48,14 +55,14 @@
         justify-content: center;
         font-weight: 500;
         color: #fff;
-        background-color: #1890ff;
-        border-color: #1890ff;
+        background-color: #000;
+        border-color: #000;
         border-radius: 4px;
         padding: 8px 16px;
 
         &:hover {
-          background-color: #40a9ff;
-          border-color: #40a9ff;
+          background-color: #ff0000;
+          border-color: #eb1616;
         }
       }
     }
@@ -64,19 +71,24 @@
   .profile-details {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    max-width: 600px;
-    margin: 0 auto;
-    text-align: left;
+    align-items: center;
+    margin: 0;
 
     p {
-      font-size: 18px;
+      color: #ffffff;
+      font-size: 20px;
       margin-bottom: 10px;
 
       strong {
         font-weight: 500;
       }
     }
+  }
+
+  .profile-social-media {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
   }
 
   .ant-modal-title {

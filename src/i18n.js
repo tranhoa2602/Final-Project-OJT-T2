@@ -285,6 +285,108 @@ i18n.use(initReactI18next).init({
         Join: "Join",
         "Admin Profile": "Admin Profile",
         "Employee List": "Employee List",
+        "No end date yet": "No end date yet",
+        "Change Profile Picture": "Change Profile Picture",
+        "Profile Picture": "Profile Picture",
+        "Profile updated successfully!": "Profile updated successfully!",
+        "Project successfully restored!": "Project successfully restored!",
+        "Project permanently deleted!": "Project permanently deleted!",
+        "Project moved to bin successfully!":
+          "Project moved to bin successfully!",
+        "Failed to move project to bin!": "Failed to move project to bin!",
+        "Project Bin": "Project Bin",
+        Restore: "Restore",
+        "Create Account": "Create Account",
+        "View Bin": "View Bin",
+        "The first letter of the email cannot be capitalized":
+          "The first letter of the email cannot be capitalized",
+        "End date cannot be before start date!":
+          "End date cannot be before start date!",
+        "Phone number must have 10 numbers":
+          "Phone number must have 10 numbers",
+        "Export to Excel filter by Email": "Export to Excel by Email",
+        "Export to Excel filter by Position":
+          "Export to Excel filter by Position",
+        "Back to List": "Back to List",
+        "Programming Language moved to bin successfully!":
+          "Programming Language moved to bin successfully!",
+        "Programming Language restored successfully!":
+          "Programming Language restored successfully!",
+        "Programming Language permanently deleted!":
+          "Programming Language deleted permanently!",
+        "Back to Language List": "Back to Language List",
+        "Please select the project duration!":
+          "Please select the project duration!",
+        "Project Duration": "Project Duration",
+        "Are you sure you want to delete this employee?":
+          "Are you sure you want to delete this employee?",
+        "Confirm Delete": "Confirm Delete",
+        "WORKING EXPERIENCE": "WORKING EXPERIENCE",
+        "TYPICAL PROJECTS": "TYPICAL PROJECTS",
+        "LIST OF EMPLOYEES": "LIST OF EMPLOYEES",
+        "LIST OF TECHNOLOGY": "LIST OF TECHNOLOGY",
+        "LIST OF POSITION": "LIST OF POSITION",
+        "LIST OF PROJECTS": "LIST OF PROJECTS",
+        "LIST OF PROGRAMMING LANGUAGES": "LIST OF PROGRAMMING LANGUAGES",
+        "Technology is in Active status and cannot be deleted":
+          "Technology is in Active status and cannot be deleted",
+        "Employees in Involved status cannot be deleted.":
+          "Employees in Involved status cannot be deleted.",
+        "Employees in Available status cannot be deleted.":
+          "Employees in Available status cannot be deleted.",
+        "The project is in Ongoing status and cannot be deleted.":
+          "The project is in Ongoing status and cannot be deleted.",
+        "The project is in Pending status and cannot be deleted.":
+          "The project is in Pending status and cannot be deleted.",
+        "The project is in Not Started status and cannot be deleted.":
+          "The project is in Not Started status and cannot be deleted.",
+        "The position is in Active status and cannot be deleted.":
+          "The position is in Active status and cannot be deleted.",
+        "Technology is in Active status and cannot be deleted.":
+          "Technology is in Active status and cannot be deleted.",
+        "Language is in Active status and cannot be deleted.":
+          "Language is in Active status and cannot be deleted.",
+        "Are you sure you want to delete this programming language?":
+          "Are you sure you want to delete this programming language?",
+        "This action cannot be undone.": "This action cannot be undone.",
+        Yes: "Yes",
+        No: "No",
+        "Confirm Deletion": "Confirm Deletion",
+        "Are you sure you want to move this technology to the bin?":
+          "Are you sure you want to move this technology to the bin?",
+        "Unassign Employees from Project": "Unassign Employees from Project",
+        "Unassign Employees": "Unassign Employees",
+        Dashboard: "Dashboard",
+        DASHBOARD: "DASHBOARD",
+        "Total Employees In Company": "Total Employees In Company",
+        "Employees Participating": "Employees Participating",
+        "Employees Not Participating": "Employees Not Participating",
+        "Total Projects Created": "Total Projects Created",
+        "Terminated Employees": "Terminated Employees",
+        "Project Status Distribution": "Project Status Distribution",
+        "Employee Participation Over Time": "Employee Participation Over Time",
+        "Additions: ProgramLanguages and Technologies":
+          "Additions: ProgramLanguages and Technologies",
+        "No images were uploaded.": "No images were uploaded.",
+        "Upload Images": "Upload Images",
+        "Select Images": "Select Images",
+        "Back to Tech List": "Back to Tech List",
+        "Technology restored successfully!":
+          "Technology restored successfully!",
+        "Technology permanently deleted!": "Technology permanently deleted!",
+        "Technology moved to bin successfully!":
+          "Technology moved to bin successfully!",
+        All: "All",
+        "Programming Language added successfully!":
+          "Programming Language added successfully!",
+        "Employees assigned successfully!": "Employees assigned successfully!",
+        "Employees unassigned successfully!":
+          "Employees unassigned successfully!",
+        "Please select employees!": "Please select employees!",
+        "Selected employees are already assigned to this project!":
+          "Selected employees are already assigned to this project!",
+        Employees: "Employees",
+        Back: "Back",
       },
     },
     vi: {
@@ -572,6 +674,108 @@ i18n.use(initReactI18next).init({
         Join: "Tham gia",
         "Admin Profile": "Hồ sơ quản trị",
         "Employee List": "Danh sách nhân viên",
+        "No end date yet": "Chưa có ngày kết thúc",
+        "Change Profile Picture": "Thay đổi ảnh đại diện",
+        "Profile Picture": "Ảnh đại diện",
+        "Profile updated successfully!": "Hô sơ được cập nhật thành công!",
+        "Project successfully restored!": "Dự án đã được khôi phục thành công!",
+        "Project permanently deleted!": "Dự án đã bị xóa vĩnh viễn!",
+        "Project moved to bin successfully!":
+          "Dự án đã được chuyển vào thùng rác thành công!",
+        "Project Bin": "Thùng rác dự án",
+        Restore: "Khôi phục",
+        "Create Account": "Tạo tài khoản",
+        "View Bin": "Xem thùng rác",
+        "The first letter of the email cannot be capitalized":
+          "Chữ cái đầu tiên của email không được viết hoa",
+        "End date cannot be before start date!":
+          "Ngày kết thúc không thể trước ngày bắt đầu!",
+        "Phone number must have 10 numbers": "Số điện thoại phải có 10 số",
+        "Export to Excel filter by Email": "Xuất sang Excel lọc theo Email",
+        "Export to Excel filter by Position": "Xuất sang Excel lọc theo Vị trí",
+        "Back to List": "Quay lại danh sách",
+        "Programming Language moved to bin successfully!":
+          "Ngôn ngữ lập trình đã được chuyển vào thùng rác thành công!",
+        "Programming Language restored successfully!":
+          "Ngôn ngữ lập trình đã được khôi phục thành công!",
+        "Programming Language permanently deleted!":
+          "Ngôn ngữ lập trình đã bị xóa vĩnh viễn!",
+        "Back to Language List": "Quay lại danh sách ngôn ngữ",
+        "Please select the project duration!":
+          "Vui lòng chọn thời gian thực hiện dự án!",
+        "Project Duration": "Thời gian dự án",
+        "Are you sure you want to delete this employee?":
+          "Bạn có chắc chắn muốn xóa nhân viên này?",
+        "Confirm Delete": "Xác nhận Xóa",
+        "WORKING EXPERIENCE": "KINH NGHIỆM LÀM VIỆC",
+        "TYPICAL PROJECTS": "CÁC DỰ ÁN TIÊU BIỂU",
+        "LIST OF EMPLOYEES": "DANH SÁCH NHÂN VIÊN",
+        "LIST OF TECHNOLOGY": "DANH SÁCH CÔNG NGHỆ",
+        "LIST OF POSITION": "DANH SÁCH CHỨC VỤ",
+        "LIST OF PROJECTS": "DANH SÁCH DỰ ÁN",
+        "LIST OF PROGRAMMING LANGUAGES": "DANH SÁCH NGÔN NGỮ LẬP TRÌNH",
+        "Technology is in Active status and cannot be deleted":
+          "Công nghệ đang ở trạng thái Hoạt động không thể xóa",
+        "Employees in Involved status cannot be deleted.":
+          "Không thể xóa nhân viên ở trạng thái Đã tham gia.",
+        "Employees in Available status cannot be deleted.":
+          "Không thể xóa nhân viên ở trạng thái Có sẵn.",
+        "The project is in Ongoing status and cannot be deleted.":
+          "Dự án đang ở trạng thái Đang tiến hành và không thể xóa.",
+        "The project is in Pending status and cannot be deleted.":
+          "Dự án đang ở trạng thái Đang chờ xử lý và không thể xóa.",
+        "The project is in Not Started status and cannot be deleted.":
+          "Dự án đang ở trạng thái Chưa bắt đầu và không thể xóa.",
+        "The position is in Active status and cannot be deleted.":
+          "Vị trí này đang ở trạng thái Hoạt động và không thể xóa.",
+        "Technology is in Active status and cannot be deleted.":
+          "Công nghệ đang ở trạng thái Hoạt động và không thể xóa.",
+        "Language is in Active status and cannot be deleted.":
+          "Ngôn ngữ đang ở trạng thái Hoạt động và không thể xóa.",
+        "Are you sure you want to delete this programming language?":
+          "Bạn có chắc chắn muốn xóa ngôn ngữ lập trình này không?",
+        "This action cannot be undone.":
+          "Hành động này không thể được hoàn tác.",
+        Yes: "Có",
+        No: "Không",
+        "Confirm Deletion": "Xác nhận xóa",
+        "Are you sure you want to move this technology to the bin?":
+          "Bạn có chắc chắn muốn chuyển công nghệ này vào thùng rác không?",
+        "Unassign Employees from Project": "Bỏ phân công nhân viên khỏi dự án",
+        "Unassign Employees": "Bỏ phân công nhân viên",
+        Dashboard: "Bảng thông tin",
+        DASHBOARD: "BẢNG THÔNG TIN",
+        "Total Employees In Company": "Tổng số nhân viên trong công ty",
+        "Employees Participating": "Nhân viên tham gia",
+        "Employees Not Participating": "Nhân viên không tham gia",
+        "Total Projects Created": "Tổng số dự án đã tạo",
+        "Terminated Employees": "Nhân viên đã chấm dứt",
+        "Project Status Distribution": "Phân phối trạng thái dự án",
+        "Employee Participation Over Time":
+          "Sự tham gia của nhân viên theo thời gian",
+        "Additions: ProgramLanguages and Technologies":
+          "Bổ sung: Ngôn ngữ và công nghệ được sự dụng",
+        "No images were uploaded.": "Không có hình ảnh nào được tải lên.",
+        "Upload Images": "Tải ảnh lên",
+        "Select Images": "Chọn ảnh",
+        "Back to Tech List": "Quay lại danh sách công nghệ",
+        "Technology restored successfully!":
+          "Công nghệ đã được phục hồi thành công!",
+        "Technology permanently deleted!": "Công nghệ đã bị xóa vĩnh viễn!",
+        "Technology moved to bin successfully!":
+          "Công nghệ đã được chuyển vào thùng rác thành công!",
+        All: "Tất cả",
+        "Programming Language added successfully!":
+          "Ngôn ngữ lập trình đã được thêm thành công!",
+        "Employees assigned successfully!":
+          "Nhân viên đã được phân công thành công!",
+        "Employees unassigned successfully!":
+          "Đã hủy phân công nhân viên thành công!",
+        "Please select employees!": "Vui lòng chọn nhân viên!",
+        "Selected employees are already assigned to this project!":
+          "Những nhân viên được chọn đã được phân công vào dự án này!",
+        Employees: "Nhân viên",
+        Back: "Trở lại",
       },
     },
   },

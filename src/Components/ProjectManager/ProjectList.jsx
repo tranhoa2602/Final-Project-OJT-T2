@@ -1,16 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Space } from "antd";
+import {
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Space,
+  Skeleton,
+  Modal,
+} from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
+  PlusOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import ProjectSkeleton from "../Loading/projectSkeleton"; // Import the ProjectSkeleton component
+import "../../styles/layouts/tablestyles.css";
+import styles from "../../styles/layouts/ProjectList.module.scss";
 
 const ListProject = () => {
   const { t } = useTranslation();
@@ -20,6 +34,8 @@ const ListProject = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [loading, setLoading] = useState(true); // Add loading state
+  const [deleteId, setDeleteId] = useState(null); // Add state to track project to be deleted
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +43,12 @@ const ListProject = () => {
     if (storedUser) {
       setUser(storedUser);
     }
-    fetchProjects();
+
+    const timer = setTimeout(() => {
+      fetchProjects();
+    }, 2000); // Set timeout for 2 seconds
+
+    return () => clearTimeout(timer); // Cleanup the timer
   }, []);
 
   const fetchProjects = async () => {
@@ -47,14 +68,47 @@ const ListProject = () => {
       setProjects(formattedData);
       setFilteredProjects(sortProjects(formattedData));
     }
+    setLoading(false); // Set loading to false after data is fetched
   };
 
-  const handleDelete = async (id) => {
+  const confirmDelete = (id, status) => {
+    if (["Ongoing"].includes(status)) {
+      message.error(
+        t("The project is in Ongoing status and cannot be deleted.")
+      );
+      return;
+    }
+    if (["Pending"].includes(status)) {
+      message.error(
+        t("The project is in Pending status and cannot be deleted.")
+      );
+      return;
+    }
+    if (["Not Started"].includes(status)) {
+      message.error(
+        t("The project is in Not Started status and cannot be deleted.")
+      );
+      return;
+    }
+
+    setDeleteId(id); // Set the project id to be deleted
+    Modal.confirm({
+      title: t("Confirm Delete"),
+      content: t("This action cannot be undone."),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("No"),
+      onOk: handleDelete,
+    });
+  };
+
+  const handleDelete = async () => {
     try {
       const db = getDatabase();
-      await update(ref(db, `projects/${id}`), { deletestatus: true });
+      await update(ref(db, `projects/${deleteId}`), { deletestatus: true });
       message.success(t("Project moved to bin successfully!"));
       fetchProjects(); // Refresh the project list after deletion
+      setDeleteId(null); // Reset deleteId after deletion
     } catch (error) {
       console.error("Error updating delete status:", error);
       message.error(t("Failed to move project to bin!"));
@@ -94,6 +148,7 @@ const ListProject = () => {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
+      className: "name-projects",
     },
     {
       title: t("Project Manager"),
@@ -103,6 +158,8 @@ const ListProject = () => {
     {
       title: t("Status"),
       key: "status",
+      align: "center",
+      className: "type-tags",
       render: (text, record) => getStatusTag(record.status),
       filters: [
         { text: t("Pending"), value: "Pending" },
@@ -115,6 +172,8 @@ const ListProject = () => {
     {
       title: t("Actions"),
       key: "actions",
+      align: "center",
+      className: "action-table",
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -123,19 +182,25 @@ const ListProject = () => {
             </Link>
           )}
 
-          {(user?.position === "Project Manager" && user?.name === record.projectManager) ||
-            user?.role === "Admin" ? (
+          {(user?.position === "Project Manager" &&
+            user?.name === record.projectManager) ||
+          user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
-                <Button icon={<EditOutlined />} style={{ marginLeft: 8 }}>
+                <Button
+                  icon={<EditOutlined />}
+                  type="primary"
+                  style={{ marginLeft: 8 }}
+                >
                   {t("Edit")}
                 </Button>
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleDelete(record.id)}
+                onClick={() => confirmDelete(record.id, record.status)}
+                type="primary"
+                danger
                 style={{ marginLeft: 8 }}
-                disabled={record.status === "Ongoing" || record.status === "Pending"} // Disable button if status is "Ongoing" or "Pending"
               >
                 {t("Delete")}
               </Button>
@@ -190,64 +255,105 @@ const ListProject = () => {
 
   const exportToExcel = () => {
     const dataToExport = filteredProjects.map((project) => ({
-      Name: project.name,
-      Description: project.description,
-      Technology: project.technology.join(", "),
-      ProgrammingLanguage: project.programmingLanguage.join(", "),
-      StartDate: project.startDate.toLocaleDateString(),
-      EndDate: project.endDate.toLocaleDateString(),
-      Status: project.status,
-      ProjectManager: project.projectManager,
+      [t("Name")]: project.name,
+      [t("Description")]: project.description,
+      [t("Technology")]: project.technology.join(", "),
+      [t("Programming Language")]: project.programmingLanguage.join(", "),
+      [t("Start Date")]: project.startDate.toLocaleDateString(),
+      [t("End Date")]: project.endDate.toLocaleDateString(),
+      [t("Status")]: project.status,
+      [t("Project Manager")]: project.projectManager,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
+    XLSX.utils.book_append_sheet(workbook, worksheet, t("Projects"));
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
     });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "ProjectRoster.xlsx");
+    saveAs(data, t("ProjectRoster") + ".xlsx");
   };
 
   return (
-    <div>
-      <Space style={{ marginTop: 16 }}>
-        <Input
-          placeholder={t("Search by Name")}
-          value={searchText}
-          onChange={handleSearch}
-          style={{ width: 200 }}
-        />
+    <div className={styles["project-list"]}>
+      {loading ? (
+        <>
+          <Space style={{ marginTop: 16 }}>
+            <Skeleton.Input active size="large" style={{ width: 200 }} />
+            <Skeleton.Button active size="large" style={{ width: 150 }} />
+            <Skeleton.Button active size="large" style={{ width: 150 }} />
+            <Skeleton.Button active size="large" style={{ width: 150 }} />
+          </Space>
+          <ProjectSkeleton />
+        </>
+      ) : (
+        <>
+          <Space className={styles["actions-container"]}>
+            <Input
+              placeholder={t("Search by Name")}
+              value={searchText}
+              onChange={handleSearch}
+              style={{ width: 200 }}
+            />
 
-        {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="primary" onClick={showModal}>
-            {t("Create new project")}
-          </Button>
-        )}
-        {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="primary" onClick={exportToExcel}>
-            {t("Export to Excel")}
-          </Button>
-        )}
-        {(user?.position === "Project Manager" || user?.role === "Admin") && (
-          <Button type="default" onClick={() => navigate("/ProjectBin")}>
-            {t("Project Bin")}
-          </Button>
-        )}
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={filteredProjects}
-        rowKey="id"
-        pagination={{ pageSize: 6 }}
-      />
-      <CreateProject
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        onSave={handleSave}
-      />
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={showModal}
+              >
+                {t("Create new project")}
+              </Button>
+            )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="primary"
+                icon={<ExportOutlined />}
+                onClick={exportToExcel}
+              >
+                {t("Export to Excel")}
+              </Button>
+            )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="default"
+                icon={<DeleteOutlined />}
+                style={{ backgroundColor: "green", color: "white" }}
+                onClick={() => navigate("/ProjectBin")}
+              >
+                {t("Project Bin")}
+              </Button>
+            )}
+          </Space>
+          <h1 className="title">{t("LIST OF PROJECTS")}</h1>
+          <Table
+            columns={columns}
+            dataSource={filteredProjects}
+            rowKey="id"
+            pagination={{ pageSize: 6 }}
+            style={{ width: "1000px", margin: "auto" }}
+            components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                    {props.children}
+                  </th>
+                ),
+              },
+            }}
+          />
+          <CreateProject
+            visible={isModalVisible}
+            onCancel={handleCancel}
+            onSave={handleSave}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5; /* Replace with your desired background color */
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden; /* To prevent horizontal scrolling */
+  }
+  
+  #root {
+    height: 100%;
+  }
+  

@@ -33,6 +33,7 @@ import VerifyAccount from "../../../VerifyAccount";
 import EmployeeCV from "../Employee/Employee_Information/EmployeeCV.jsx";
 import ProfileDetail from "../User/ProfileDetail";
 import ProfileEdit from "../User/ProfileEdit";
+import Dashboard from "../../pages/Dashboard.jsx";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -108,6 +109,7 @@ const Main = () => {
           <Route path="/LanguageBin" element={<LanguageBin />} />
           <Route path="/EmployeeBin" element={<EmployeeBin />} />
           <Route path="/ProjectBin" element={<ProjectBin />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           {/* Corrected path */}
         </Routes>
       </main>

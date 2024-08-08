@@ -1,48 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Space, message } from "antd";
+import { Table, Button, Tag, Space, message, Skeleton } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { RedoOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { getDatabase, ref, get, update, set } from "firebase/database";
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-
-const getVietnamTime = () => {
-  const formatter = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Ho_Chi_Minh',
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-  
-  const parts = formatter.formatToParts(new Date());
-  const day = parts.find(part => part.type === 'day').value;
-  const month = parts.find(part => part.type === 'month').value;
-  const year = parts.find(part => part.type === 'year').value;
-  const hour = parts.find(part => part.type === 'hour').value;
-  const minute = parts.find(part => part.type === 'minute').value;
-  const second = parts.find(part => part.type === 'second').value;
-  
-  return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
-};
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 const TechBin = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true); // Set loading to true before fetching data
         const response = await axios.get(
           `${firebaseConfig.databaseURL}/technologies.json`
         );
@@ -53,10 +32,12 @@ const TechBin = () => {
           techList.push({ id: key, ...result[key] });
         }
 
-        setData(techList.filter(item => item.deletestatus === true));
+        setData(techList.filter((item) => item.deletestatus === true));
       } catch (error) {
         console.error("Error fetching technologies:", error);
         message.error(t("Failed to fetch technologies."));
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
       }
     };
 
@@ -65,60 +46,12 @@ const TechBin = () => {
 
   const handleRestore = async (id) => {
     try {
-      const db = getDatabase();
-      
-    
-      const storedUser = localStorage.getItem('user');
-      
-      if (!storedUser) {
-        throw new Error("User information is missing in local storage.");
-      }
-      
-     
-      const user = JSON.parse(storedUser);
-      const userKey = user.key;
-      
-      if (!userKey) {
-        throw new Error("User key is missing in local storage.");
-      }
-      
-     
-      const userRef = ref(db, `users/${userKey}`);
-      const userSnapshot = await get(userRef);
-      
-      if (!userSnapshot.exists()) {
-        throw new Error("User not found.");
-      }
-      
-      const userName = userSnapshot.val().name || 'Unknown';
-      
-     
-      const techRef = ref(db, `technologies/${id}`);
-      const techSnapshot = await get(techRef);
-      
-      if (!techSnapshot.exists()) {
-        throw new Error("Technology not found.");
-      }
-      
-      const techName = techSnapshot.val().techname;
-      
-     
-      await update(techRef, { deletestatus: false });
-      
-   
-      const formattedTimestamp = getVietnamTime();
-      
-      await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
-        techname: techName,
-        user: userName,
-        action: "Restore",
-        timestamp: formattedTimestamp,
-      });
-      
-      message.success("Technology restored successfully!");
-      
-      
-      window.location.reload();
+      await axios.patch(
+        `${firebaseConfig.databaseURL}/technologies/${id}.json`,
+        { deletestatus: false }
+      );
+      message.success(t("Technology restored successfully!"));
+      setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error restoring technology:", error.message);
       message.error(`Failed to restore technology: ${error.message}`);
@@ -178,15 +111,8 @@ const TechBin = () => {
       const deleteResponse = await axios.delete(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`
       );
-      
-      if (deleteResponse.status === 200) {
-        message.success("Technology permanently deleted!");
-        
-        
-        setData(prevData => prevData.filter(item => item.id !== id));
-      } else {
-        throw new Error(`Failed to delete technology. Status code: ${deleteResponse.status}`);
-      }
+      message.success(t("Technology permanently deleted!"));
+      setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting technology:", error.message);
       message.error("Failed to delete technology.");
@@ -225,7 +151,9 @@ const TechBin = () => {
       dataIndex: "techstatus",
       key: "techstatus",
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {t(status === "Active" ? "Active" : "Inactive")}
+        </Tag>
       ),
     },
     {
@@ -259,17 +187,10 @@ const TechBin = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => handleRestore(record.id)}
-          >
+          <Button type="primary" onClick={() => handleRestore(record.id)}>
             <RedoOutlined /> {t("Restore")}
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => handleDelete(record.id)}
-          >
+          <Button type="primary" danger onClick={() => handleDelete(record.id)}>
             <DeleteOutlined /> {t("Delete")}
           </Button>
         </Space>
@@ -286,17 +207,17 @@ const TechBin = () => {
       >
         {t("Back to Tech List")}
       </Button>
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        pagination={{
-          current: currentPage,
-          pageSize: pageSize,
-          total: data.length,
-          onChange: handleTableChange,
-        }}
-      />
+      {loading ? (
+        <Skeleton active paragraph={{ rows: 5 }} />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={data}
+          rowKey="id"
+          pagination={{ current: currentPage, pageSize }}
+          onChange={handleTableChange}
+        />
+      )}
     </div>
   );
 };

@@ -63,7 +63,8 @@ const Login = ({ setUser }) => {
       localStorage.setItem("user", JSON.stringify(storedUser));
       setUser(storedUser);
 
-      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/profile";
+      const userRolePath =
+        storedUser.role === "Admin" ? "/Dashboard" : "/profile";
       navigate(userRolePath);
       message.success("Login successful!");
     } else {

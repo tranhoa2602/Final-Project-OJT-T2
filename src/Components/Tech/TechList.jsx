@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Button, Tag, message, Input, Select } from "antd";
+import {
+  Space,
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Select,
+  Skeleton,
+  Modal,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getDatabase, ref, get, update, set } from "firebase/database";
@@ -7,9 +17,11 @@ import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { EditOutlined, DeleteOutlined, PlusOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import TechListSkeleton from "../Loading/ListTech"; // Import the TechListSkeleton component
+import "../../styles/layouts/tablestyles.css"
 
 const { Option } = Select;
 
@@ -22,6 +34,7 @@ const TechList = () => {
   const [searchStatus, setSearchStatus] = useState("");
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,19 +50,26 @@ const TechList = () => {
         }
 
         setData(techList);
-        setFilteredData(techList.filter(item => item.deletestatus === false));
+        setFilteredData(techList.filter((item) => item.deletestatus === false));
+        setLoading(false); // Set loading to false after data is fetched
       } catch (error) {
         console.error("Error fetching technologies: ", error);
         message.error(t("Failed to fetch technologies."));
+        setLoading(false); // Set loading to false even if there's an error
       }
     };
 
-    fetchData();
+    // Simulate a delay to show the skeleton
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 2000); // Adjust the delay as needed
+
+    return () => clearTimeout(timer);
   }, [t]);
 
   useEffect(() => {
     const filterData = () => {
-      let filtered = data.filter(item => item.deletestatus === false);
+      let filtered = data.filter((item) => item.deletestatus === false);
 
       if (searchName) {
         filtered = filtered.filter((item) =>
@@ -99,58 +119,52 @@ const TechList = () => {
     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
   };
   
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (status === "Active") {
+      message.error(t("The technology is in Active status and cannot be deleted."));
+      return;
+    }
+  
     try {
-      
       const storedUser = localStorage.getItem('user');
-      
       if (!storedUser) {
         throw new Error("User information is missing in local storage.");
       }
-      
-      
+  
       const user = JSON.parse(storedUser);
       const userKey = user.key;
-      
+  
       if (!userKey) {
         throw new Error("User key is missing in local storage.");
       }
-      
+  
       const db = getDatabase();
-      
-      
       const userRef = ref(db, `users/${userKey}`);
       const userSnapshot = await get(userRef);
-      
+  
       if (!userSnapshot.exists()) {
         throw new Error("User not found.");
       }
-      
-      const userName = userSnapshot.val().name || 'Unknown'; 
-      
-     
+  
+      const userName = userSnapshot.val().name || 'Unknown';
       const techRef = ref(db, `technologies/${id}`);
       const techSnapshot = await get(techRef);
-      
+  
       if (!techSnapshot.exists()) {
         throw new Error("Technology not found.");
       }
-      
+  
       const techName = techSnapshot.val().techname;
-      
-      
       await update(techRef, { deletestatus: true });
-      
-      
+  
       const formattedTimestamp = getVietnamTime();
-      
       await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
         techname: techName,
-        user: userName, 
+        user: userName,
         action: "Move to Bin",
         timestamp: formattedTimestamp,
       });
-      
+  
       message.success("Technology moved to bin successfully!");
       setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
       setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
@@ -159,6 +173,8 @@ const TechList = () => {
       message.error(`Failed to move technology to bin: ${error.message}`);
     }
   };
+  
+
   
   
   
@@ -203,6 +219,8 @@ const TechList = () => {
       title: t("Type"),
       dataIndex: "techtype",
       key: "techtype",
+      align: "center",
+      className: "type-tags",
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Input
@@ -221,10 +239,10 @@ const TechList = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-                <Tag color="blue" key={tag}>
-                  {tag}
-                </Tag>
-              ))
+              <Tag color="blue" key={tag}>
+                {tag}
+              </Tag>
+            ))
             : null}
         </>
       ),
@@ -233,6 +251,7 @@ const TechList = () => {
       title: t("Status"),
       dataIndex: "techstatus",
       key: "techstatus",
+      align: 'center',
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Select
@@ -250,13 +269,16 @@ const TechList = () => {
       onFilter: (value, record) =>
         record.techstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {t(status === "Active" ? "Active" : "Inactive")}
+        </Tag>
       ),
     },
     {
       title: t("Description"),
       dataIndex: "techdescription",
       key: "techdescription",
+      className: "truncate-text"
     },
     {
       title: t("Images"),
@@ -288,6 +310,7 @@ const TechList = () => {
       title: t("Actions"),
       key: "action",
       align: "center",
+      className: "action-table",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -299,8 +322,7 @@ const TechList = () => {
           <Button
             type="primary"
             danger
-            disabled={record.techstatus === "Active"}
-            onClick={() => handleDelete(record.id)}
+            onClick={() => handleDelete(record.id, record.techstatus)} // Truyền status vào đây
           >
             <DeleteOutlined /> {t("Move to Bin")}
           </Button>
@@ -311,37 +333,59 @@ const TechList = () => {
 
   return (
     <>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/AddTech")}
-      >
-        {t("Add Technology")}
-      </Button>
-      <Button
-        type="primary"
-        icon={<DeleteOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/TechBin")}
-      >
-        {t("View Bin")}
-      </Button>
-      <Button
-        type="primary"
-        icon={<HistoryOutlined />}
-        style={{ marginBottom: 16 }}
-        onClick={() => navigate("/TechHistory")}
-      >
-        {t("View History")}
-      </Button>
-      <Table
-        columns={columns}
-        dataSource={filteredData}
-        rowKey="id"
-        pagination={{ current: currentPage, pageSize: 3 }} 
-        onChange={handleTableChange}
-      />
+      {loading ? (
+        <>
+          <Space style={{ marginBottom: 16 }}>
+            <Skeleton.Button active size="large" style={{ width: 200 }} />
+            <Skeleton.Button active size="large" style={{ width: 200 }} />
+          </Space>
+          <TechListSkeleton />
+        </>
+      ) : (
+        <div style={{ marginTop: '20px' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{ marginBottom: 16 }}
+            onClick={() => navigate("/AddTech")}
+          >
+            {t("Add Technology")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<DeleteOutlined />}
+            style={{ backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px' }}
+            onClick={() => navigate("/TechBin")}
+          >
+            {t("View Bin")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<HistoryOutlined />}
+            style={{ backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px' }}
+            onClick={() => navigate("/TechHistory")}
+          >
+            {t("View History")}
+          </Button>
+          <h1 className="title">{t("LIST OF TECHNOLOGY")}</h1>
+          <Table
+            columns={columns}
+            dataSource={filteredData}
+            rowKey="id"
+            pagination={{ current: currentPage, pageSize: 3 }}
+            onChange={handleTableChange}
+            components={{
+              header: {
+                cell: (props) => (
+                  <th {...props} className={`table-header ${props.className}`}>
+                    {props.children}
+                  </th>
+                ),
+              },
+            }}
+          />
+        </div>
+      )}
     </>
   );
 };

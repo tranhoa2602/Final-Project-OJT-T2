@@ -9,6 +9,7 @@ import {
   Tag,
   Switch,
   Space,
+  Skeleton,
 } from "antd";
 import { getDatabase, ref, set, update, remove, get } from "firebase/database";
 import { v4 as uuidv4 } from "uuid";
@@ -17,9 +18,12 @@ import {
   DeleteOutlined,
   SearchOutlined,
   RollbackOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import styles from "../../styles/layouts/ListPosition.module.scss"; // Import the SCSS module
+import styles from "../../styles/layouts/ListPosition.module.scss";
+import PositionSkeleton from "../Loading/positionSkeleton";
+import "../../styles/layouts/tablestyles.css" // Import the PositionSkeleton component
 
 const { TextArea } = Input;
 
@@ -29,6 +33,7 @@ const ListPosition = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPosition, setEditingPosition] = useState(null);
   const [showBin, setShowBin] = useState(false);
+  const [loading, setLoading] = useState(true); // Add loading state
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -49,9 +54,15 @@ const ListPosition = () => {
       } else {
         setPositions([]);
       }
+      setLoading(false); // Set loading to false after data is fetched
     };
 
-    fetchPositions();
+    // Simulate a delay to show the skeleton
+    const timer = setTimeout(() => {
+      fetchPositions();
+    }, 2000); // Adjust the delay as needed
+
+    return () => clearTimeout(timer);
   }, [showBin]);
 
   const handleAddOrUpdatePosition = async (values) => {
@@ -97,7 +108,14 @@ const ListPosition = () => {
     setModalVisible(true);
   };
 
-  const handleMoveToBin = async (id) => {
+  const handleMoveToBin = async (id, status) => {
+    if (status === "active") {
+      message.error(
+        t("The position is in Active status and cannot be deleted.")
+      );
+      return;
+    }
+
     const db = getDatabase();
     const positionRef = ref(db, `positions/${id}`);
     await update(positionRef, { deleteStatus: true });
@@ -152,6 +170,7 @@ const ListPosition = () => {
       title: t("Name"),
       dataIndex: "name",
       key: "name",
+      className: "type-tags",
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -192,11 +211,14 @@ const ListPosition = () => {
       title: t("Description"),
       dataIndex: "description",
       key: "description",
+      className: 'truncate-text', // Add this line to apply truncation
     },
     {
       title: t("Status"),
       dataIndex: "status",
       key: "status",
+      align: "center",
+      className: "type-tags",
       filters: [
         { text: t("Active"), value: "active" },
         { text: t("Inactive"), value: "inactive" },
@@ -212,6 +234,7 @@ const ListPosition = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
+      className: "action-table",
       render: (text, record) => (
         <div className={styles["actions-container"]}>
           {showBin ? (
@@ -235,6 +258,7 @@ const ListPosition = () => {
             <>
               <Button
                 icon={<EditOutlined />}
+                type="primary"
                 onClick={() => handleEdit(record)}
                 className={styles["edit-button"]}
               >
@@ -242,9 +266,11 @@ const ListPosition = () => {
               </Button>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleMoveToBin(record.id)}
+                onClick={() => handleMoveToBin(record.id, record.status)}
+                type="primary"
+                danger
                 className={styles["delete-button"]}
-                disabled={record.status === "active"}
+                style={{ marginLeft: "8px" }}
               >
                 {t("Move to Bin")}
               </Button>
@@ -257,32 +283,57 @@ const ListPosition = () => {
 
   return (
     <div className={styles["list-position"]}>
-      <Space className={styles["actions-container"]}>
-        <Button
-          type="primary"
-          onClick={() => {
-            form.setFieldsValue({ status: true });
-            setModalVisible(true);
+      {loading ? (
+        <Space className={styles["actions-container"]}>
+          <Skeleton.Button style={{ width: 120 }} active />
+          <Skeleton.Button style={{ width: 100 }} active />
+        </Space>
+      ) : (
+        <Space className={styles["actions-container"]} style={{ marginTop: '20px' }}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              form.setFieldsValue({ status: true });
+              setModalVisible(true);
+            }}
+            className={styles["add-position-button"]}
+          >
+            {t("Add Position")}
+          </Button>
+          <Button
+            type="default"
+            icon={<DeleteOutlined />}
+            style={{ backgroundColor: 'green', color: 'white' }}
+            onClick={handleViewBin}
+            className={styles["view-bin-button"]}
+
+          >
+            {showBin ? t("Back to List") : t("View Bin")}
+          </Button>
+        </Space>
+      )}
+      <h1 className="title">{t("LIST OF POSITION")}</h1>
+      {loading ? (
+        <PositionSkeleton />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={positions}
+          rowKey="id"
+          pagination={{ pageSize: 6 }}
+          className={styles["position-table"]}
+          components={{
+            header: {
+              cell: (props) => (
+                <th {...props} className={`table-header ${props.className}`}>
+                  {props.children}
+                </th>
+              ),
+            },
           }}
-          className={styles["add-position-button"]}
-        >
-          {t("Add Position")}
-        </Button>
-        <Button
-          type="default"
-          onClick={handleViewBin}
-          className={styles["view-bin-button"]}
-        >
-          {showBin ? t("Back to List") : t("View Bin")}
-        </Button>
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={positions}
-        rowKey="id"
-        pagination={{ pageSize: 6 }}
-        className={styles["position-table"]}
-      />
+        />
+      )}
       <Modal
         title={editingPosition ? t("Edit Position") : t("Add Position")}
         open={modalVisible}

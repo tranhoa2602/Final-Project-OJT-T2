@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Tag, message, Input, Space, Skeleton, Modal } from "antd";
+import {
+  Table,
+  Button,
+  Tag,
+  message,
+  Input,
+  Space,
+  Skeleton,
+  Modal,
+} from "antd";
 import { getDatabase, ref, update, get, set } from "firebase/database";
 import {
   EditOutlined,
@@ -37,67 +46,70 @@ const ListProject = () => {
 
     const timer = setTimeout(() => {
       fetchProjects();
-    }, 2000); 
+    }, 2000);
 
-    return () => clearTimeout(timer); 
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchProjects = async () => {
-    const db = getDatabase(); 
-    const projectsRef = ref(db, "projects"); 
-    const snapshot = await get(projectsRef); 
-  
-    if (snapshot.exists()) { 
-      const data = snapshot.val(); 
+    const db = getDatabase();
+    const projectsRef = ref(db, "projects");
+    const snapshot = await get(projectsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
       const formattedData = Object.keys(data)
         .map((key) => ({
-          id: key, 
-          ...data[key], 
-          startDate: new Date(data[key].startDate), 
-          endDate: new Date(data[key].endDate), 
+          id: key,
+          ...data[key],
+          startDate: new Date(data[key].startDate),
+          endDate: new Date(data[key].endDate),
         }))
-        .filter((project) => project.deletestatus === false); 
-  
-      setProjects(formattedData); 
-      setFilteredProjects(sortProjects(formattedData)); 
+        .filter((project) => project.deletestatus === false);
+
+      setProjects(formattedData);
+      setFilteredProjects(sortProjects(formattedData));
     }
-  
-    setLoading(false); 
+
+    setLoading(false);
   };
-  
 
   const getVietnamTime = () => {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
-    
+
     const parts = formatter.formatToParts(new Date());
-    const day = parts.find(part => part.type === 'day').value;
-    const month = parts.find(part => part.type === 'month').value;
-    const year = parts.find(part => part.type === 'year').value;
-    const hour = parts.find(part => part.type === 'hour').value;
-    const minute = parts.find(part => part.type === 'minute').value;
-    const second = parts.find(part => part.type === 'second').value;
-    
+    const day = parts.find((part) => part.type === "day").value;
+    const month = parts.find((part) => part.type === "month").value;
+    const year = parts.find((part) => part.type === "year").value;
+    const hour = parts.find((part) => part.type === "hour").value;
+    const minute = parts.find((part) => part.type === "minute").value;
+    const second = parts.find((part) => part.type === "second").value;
+
     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
   };
 
   const handleDelete = (id, status) => {
     if (["Ongoing"].includes(status)) {
-      message.error(t("The project is in Ongoing status and cannot be deleted."));
+      message.error(
+        t("The project is in Ongoing status and cannot be deleted.")
+      );
       return;
     }
     if (["Pending"].includes(status)) {
-      message.error(t("The project is in Pending status and cannot be deleted."));
+      message.error(
+        t("The project is in Pending status and cannot be deleted.")
+      );
       return;
     }
-  
+
     // Show confirmation dialog
     Modal.confirm({
       title: t("Are you sure you want to move this project to the bin?"),
@@ -106,53 +118,52 @@ const ListProject = () => {
       onOk: async () => {
         try {
           const db = getDatabase();
-          const userKey = JSON.parse(localStorage.getItem('user'))?.key;
-          
+          const userKey = JSON.parse(localStorage.getItem("user"))?.key;
+
           if (!userKey) {
             throw new Error("User key is missing in local storage.");
           }
-          
+
           const userRef = ref(db, `users/${userKey}`);
           const userSnapshot = await get(userRef);
-          
+
           if (!userSnapshot.exists()) {
             throw new Error("User not found.");
           }
-          
-          const userName = userSnapshot.val().name || 'Unknown';
-          
+
+          const userName = userSnapshot.val().name || "Unknown";
+
           const projectRef = ref(db, `projects/${id}`);
           const projectSnapshot = await get(projectRef);
-          
+
           if (!projectSnapshot.exists()) {
             throw new Error("Project not found.");
           }
-          
+
           const projectData = projectSnapshot.val();
-          const projectName = projectData.name; 
-  
+          const projectName = projectData.name;
+
           if (!projectName) {
             throw new Error("Project name is undefined.");
           }
-  
-         
+
           await update(projectRef, { deletestatus: true });
-  
-          
+
           const formattedTimestamp = getVietnamTime();
-          const historyRef = ref(db, `projecthistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`);
-  
-          
+          const historyRef = ref(
+            db,
+            `projecthistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`
+          );
+
           await set(historyRef, {
             projectname: projectName,
             user: userName,
             action: "Move to Bin",
             timestamp: formattedTimestamp,
           });
-  
+
           message.success(t("Project moved to bin successfully!"));
-          fetchProjects(); 
-          
+          fetchProjects();
         } catch (error) {
           console.error("Error handling delete action:", error.message);
           message.error(t(`Failed to move project to bin: ${error.message}`));
@@ -160,9 +171,6 @@ const ListProject = () => {
       },
     });
   };
-  
-  
-  
 
   const getStatusTag = (status) => {
     switch (status) {
@@ -378,7 +386,6 @@ const ListProject = () => {
               >
                 {t("Project Bin")}
               </Button>
-              
             )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
@@ -390,7 +397,6 @@ const ListProject = () => {
               >
                 {t("Project History")}
               </Button>
-              
             )}
           </Space>
           <h1 className="title">{t("LIST OF PROJECTS")}</h1>

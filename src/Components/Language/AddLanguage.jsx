@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message, Switch, Select, Spin } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Typography,
+  message,
+  Switch,
+  Select,
+  Spin,
+} from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import BackButton from "../../Components/layouts/BackButton";
 
 const { Title } = Typography;
 
@@ -28,9 +38,13 @@ const AddLanguage = () => {
   useEffect(() => {
     const fetchExistingTypes = async () => {
       try {
-        const response = await axios.get(`${firebaseConfig.databaseURL}/programmingLanguages.json`);
+        const response = await axios.get(
+          `${firebaseConfig.databaseURL}/programmingLanguages.json`
+        );
         const types = response.data
-          ? Object.values(response.data).map(lang => lang.programingtype).flat()
+          ? Object.values(response.data)
+              .map((lang) => lang.programingtype)
+              .flat()
           : [];
         setExistingTypes([...new Set(types)]);
       } catch (error) {
@@ -68,12 +82,26 @@ const AddLanguage = () => {
   };
 
   const validateDescription = (_, value) => {
-    const wordCount = value ? value.split(' ').filter(word => word).length : 0;
-    return wordCount <= 20 ? Promise.resolve() : Promise.reject(new Error(t("Description cannot exceed 20 words")));
+    const wordCount = value
+      ? value.split(" ").filter((word) => word).length
+      : 0;
+    return wordCount <= 20
+      ? Promise.resolve()
+      : Promise.reject(new Error(t("Description cannot exceed 20 words")));
   };
 
   return (
-    <Spin spinning={loading} tip={t("Submitting...")} style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+    <Spin
+      spinning={loading}
+      tip={t("Submitting...")}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <BackButton />
       <Form
         {...formItemLayout}
         form={form}
@@ -81,33 +109,53 @@ const AddLanguage = () => {
         onFinishFailed={handleFailure}
         initialValues={{ programingstatus: true }}
       >
-        <Title level={2}>{t("Add New Programming Language")}</Title>
+        <Title level={3} style={{ textAlign: "center" }}>
+          {t("Add New Programming Language")}
+        </Title>
         <Form.Item
           label={t("Programming Language Name")}
           name="programingname"
-          rules={[{ required: true, message: t("Please input Programming Language Name!") }]}
+          rules={[
+            {
+              required: true,
+              message: t("Please input Programming Language Name!"),
+            },
+          ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           label={t("Programming Language Type")}
           name="programingtype"
-          rules={[{ required: true, message: t("Please input Programming Language Type!") }]}
+          rules={[
+            {
+              required: true,
+              message: t("Please input Programming Language Type!"),
+            },
+          ]}
         >
           <Select
             mode="tags"
             style={{ width: "100%" }}
             placeholder={t("Tags Mode")}
-            options={existingTypes.map(type => ({ value: type }))}
+            options={existingTypes.map((type) => ({ value: type }))}
           />
         </Form.Item>
         <Form.Item
           label={t("Programming Language Status")}
           name="programingstatus"
           valuePropName="checked"
-          rules={[{ required: true, message: t("Please select Programming Language Status!") }]}
+          rules={[
+            {
+              required: true,
+              message: t("Please select Programming Language Status!"),
+            },
+          ]}
         >
-          <Switch checkedChildren={t("Active")} unCheckedChildren={t("Inactive")} />
+          <Switch
+            checkedChildren={t("Active")}
+            unCheckedChildren={t("Inactive")}
+          />
         </Form.Item>
         <Form.Item
           label={t("Programming Language Description")}

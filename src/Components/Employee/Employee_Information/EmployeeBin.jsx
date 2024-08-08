@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Avatar, message, Skeleton } from "antd";
+import { Space, Table, Tag, Button, Avatar, message, Skeleton, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update, remove } from "firebase/database";
 import {
@@ -121,31 +121,45 @@ const EmployeeBin = () => {
     fetchDataAndSetState();
   }, []);
 
-  const handleRestore = async (employee) => {
-    try {
-      const db = getDatabase();
-      const employeeRef = ref(db, `employees/${employee.key}`);
-      await update(employeeRef, { deleteStatus: false });
-      const employees = await fetchData(); // Refresh the list
-      setEmployees(employees);
-      message.success(t("Employee restored successfully"));
-    } catch (error) {
-      console.error("Error restoring employee:", error);
-      message.error(t("Failed to restore employee"));
-    }
+  const handleRestore = (employee) => {
+    Modal.confirm({
+      title: t("Are you sure you want to restore this employee?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          const employeeRef = ref(db, `employees/${employee.key}`);
+          await update(employeeRef, { deleteStatus: false });
+          const employees = await fetchData(); // Refresh the list
+          setEmployees(employees);
+          message.success(t("Employee restored successfully"));
+        } catch (error) {
+          console.error("Error restoring employee:", error);
+          message.error(t("Failed to restore employee"));
+        }
+      },
+    });
   };
 
-  const handleDelete = async (employee) => {
-    try {
-      const db = getDatabase();
-      await remove(ref(db, `employees/${employee.key}`));
-      const employees = await fetchData(); // Refresh the list
-      setEmployees(employees);
-      message.success(t("Employee deleted permanently"));
-    } catch (error) {
-      console.error("Error deleting employee:", error);
-      message.error(t("Failed to delete employee"));
-    }
+  const handleDelete = (employee) => {
+    Modal.confirm({
+      title: t("Are you sure you want to permanently delete this employee?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          await remove(ref(db, `employees/${employee.key}`));
+          const employees = await fetchData(); // Refresh the list
+          setEmployees(employees);
+          message.success(t("Employee deleted permanently"));
+        } catch (error) {
+          console.error("Error deleting employee:", error);
+          message.error(t("Failed to delete employee"));
+        }
+      },
+    });
   };
 
   return (

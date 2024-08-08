@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Space, message, Skeleton } from "antd";
+import { Table, Button, Tag, Space, message, Skeleton, Modal} from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
@@ -37,31 +37,47 @@ const LanguageBin = () => {
     fetchData();
   }, [t]);
 
-  const handleRestore = async (id) => {
-    try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
-        { deletestatus: false }
-      );
-      message.success(t("Programming Language restored successfully!"));
-      setData(data.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Error restoring Programming Language:", error);
-      message.error(t("Failed to restore Programming Language."));
-    }
+  const handleRestore = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to restore this programming language?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          await axios.patch(
+            `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
+            { deletestatus: false }
+          );
+          message.success(t("Programming Language restored successfully!"));
+          const updatedData = await fetchData(); // Refresh the list
+          setData(updatedData);
+        } catch (error) {
+          console.error("Error restoring Programming Language:", error);
+          message.error(t("Failed to restore Programming Language."));
+        }
+      },
+    });
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(
-        `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
-      );
-      message.success(t("Programming Language permanently deleted!"));
-      setData(data.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error("Error deleting Programming Language:", error);
-      message.error(t("Failed to delete Programming Language."));
-    }
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to permanently delete this programming language?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          await axios.delete(
+            `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
+          );
+          message.success(t("Programming Language permanently deleted!"));
+          const updatedData = await fetchData(); // Refresh the list
+          setData(updatedData);
+        } catch (error) {
+          console.error("Error deleting Programming Language:", error);
+          message.error(t("Failed to delete Programming Language."));
+        }
+      },
+    });
   };
 
   const columns = [

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Tag, message, Input, Space, Skeleton, Modal } from "antd";
-import { getDatabase, ref, update, get } from "firebase/database";
+import { getDatabase, ref, update, get, set } from "firebase/database";
 import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
   PlusOutlined,
   ExportOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -65,6 +66,28 @@ const ListProject = () => {
   };
   
 
+  const getVietnamTime = () => {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  };
+
   const handleDelete = (id, status) => {
     if (["Ongoing"].includes(status)) {
       message.error(t("The project is in Ongoing status and cannot be deleted."));
@@ -83,16 +106,61 @@ const ListProject = () => {
       onOk: async () => {
         try {
           const db = getDatabase();
-          await update(ref(db, `projects/${id}`), { deletestatus: true });
+          const userKey = JSON.parse(localStorage.getItem('user'))?.key;
+          
+          if (!userKey) {
+            throw new Error("User key is missing in local storage.");
+          }
+          
+          const userRef = ref(db, `users/${userKey}`);
+          const userSnapshot = await get(userRef);
+          
+          if (!userSnapshot.exists()) {
+            throw new Error("User not found.");
+          }
+          
+          const userName = userSnapshot.val().name || 'Unknown';
+          
+          const projectRef = ref(db, `projects/${id}`);
+          const projectSnapshot = await get(projectRef);
+          
+          if (!projectSnapshot.exists()) {
+            throw new Error("Project not found.");
+          }
+          
+          const projectData = projectSnapshot.val();
+          const projectName = projectData.name; 
+  
+          if (!projectName) {
+            throw new Error("Project name is undefined.");
+          }
+  
+         
+          await update(projectRef, { deletestatus: true });
+  
+          
+          const formattedTimestamp = getVietnamTime();
+          const historyRef = ref(db, `projecthistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`);
+  
+          
+          await set(historyRef, {
+            projectname: projectName,
+            user: userName,
+            action: "Move to Bin",
+            timestamp: formattedTimestamp,
+          });
+  
           message.success(t("Project moved to bin successfully!"));
-          fetchProjects(); // Refresh the project list after deletion
+          fetchProjects(); 
+          
         } catch (error) {
-          console.error("Error updating delete status:", error);
-          message.error(t("Failed to move project to bin!"));
+          console.error("Error handling delete action:", error.message);
+          message.error(t(`Failed to move project to bin: ${error.message}`));
         }
       },
     });
   };
+  
   
   
 
@@ -310,6 +378,19 @@ const ListProject = () => {
               >
                 {t("Project Bin")}
               </Button>
+              
+            )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="default"
+                icon={<HistoryOutlined />}
+                style={{ backgroundColor: "green", color: "white" }}
+                onClick={() => navigate("/ProjectHistory")}
+              >
+                {t("Project History")}
+              </Button>
+              
             )}
           </Space>
           <h1 className="title">{t("LIST OF PROJECTS")}</h1>

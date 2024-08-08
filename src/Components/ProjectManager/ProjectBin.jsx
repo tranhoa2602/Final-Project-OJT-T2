@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Tag, message, Space, Skeleton } from "antd";
-import { getDatabase, ref, update, remove, get } from "firebase/database";
+import { getDatabase, ref, update, remove, get, set } from "firebase/database";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -36,18 +36,144 @@ const ProjectBin = () => {
     setLoading(false); // Set loading to false after data is fetched
   };
 
+  const getVietnamTime = () => {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  };
+
   const handleRestore = async (id) => {
     const db = getDatabase();
-    await update(ref(db, `projects/${id}`), { deletestatus: false });
-    message.success(t("Project successfully restored!"));
-    fetchProjects();
+  
+    try {
+      // Fetch project data to verify it exists
+      const projectRef = ref(db, `projects/${id}`);
+      const projectSnapshot = await get(projectRef);
+  
+      if (!projectSnapshot.exists()) {
+        throw new Error("Project not found.");
+      }
+  
+      // Get the project data and user information
+      const projectData = projectSnapshot.val();
+      const projectName = projectData.name;
+      
+      if (!projectName) {
+        throw new Error("Project name is undefined.");
+      }
+  
+      // Restore the project by setting deletestatus to false
+      await update(projectRef, { deletestatus: false });
+  
+      // Get user information from local storage
+      const userKey = JSON.parse(localStorage.getItem('user'))?.key;
+      if (!userKey) {
+        throw new Error("User key is missing in local storage.");
+      }
+  
+      const userRef = ref(db, `users/${userKey}`);
+      const userSnapshot = await get(userRef);
+  
+      if (!userSnapshot.exists()) {
+        throw new Error("User not found.");
+      }
+  
+      const userName = userSnapshot.val().name || 'Unknown';
+  
+      // Prepare timestamp for the history record
+      const formattedTimestamp = getVietnamTime();
+      const historyRef = ref(db, `projecthistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`);
+  
+      // Write the restoration action to projecthistory
+      await set(historyRef, {
+        projectname: projectName,
+        user: userName,
+        action: "Restored from Bin",
+        timestamp: formattedTimestamp,
+      });
+  
+      message.success(t("Project successfully restored!"));
+      fetchProjects(); // Refresh the project list after restoring
+  
+    } catch (error) {
+      console.error("Error restoring project:", error.message);
+      message.error(t(`Failed to restore project: ${error.message}`));
+    }
   };
 
   const handleDelete = async (id) => {
     const db = getDatabase();
-    await remove(ref(db, `projects/${id}`));
-    message.success(t("Project permanently deleted!"));
-    fetchProjects();
+  
+    try {
+      // Fetch project data to verify it exists
+      const projectRef = ref(db, `projects/${id}`);
+      const projectSnapshot = await get(projectRef);
+  
+      if (!projectSnapshot.exists()) {
+        throw new Error("Project not found.");
+      }
+  
+      // Get the project data and user information
+      const projectData = projectSnapshot.val();
+      const projectName = projectData.name;
+      
+      if (!projectName) {
+        throw new Error("Project name is undefined.");
+      }
+  
+      // Get user information from local storage
+      const userKey = JSON.parse(localStorage.getItem('user'))?.key;
+      if (!userKey) {
+        throw new Error("User key is missing in local storage.");
+      }
+  
+      const userRef = ref(db, `users/${userKey}`);
+      const userSnapshot = await get(userRef);
+  
+      if (!userSnapshot.exists()) {
+        throw new Error("User not found.");
+      }
+  
+      const userName = userSnapshot.val().name || 'Unknown';
+  
+      // Permanently delete the project
+      await remove(projectRef);
+  
+      // Prepare timestamp for the history record
+      const formattedTimestamp = getVietnamTime();
+      const historyRef = ref(db, `projecthistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`);
+  
+      // Write the deletion action to projecthistory
+      await set(historyRef, {
+        projectname: projectName,
+        user: userName,
+        action: "Permanently Deleted",
+        timestamp: formattedTimestamp,
+      });
+  
+      message.success(t("Project permanently deleted!"));
+      fetchProjects(); // Refresh the project list after deletion
+  
+    } catch (error) {
+      console.error("Error deleting project:", error.message);
+      message.error(t(`Failed to permanently delete project: ${error.message}`));
+    }
   };
 
   const getStatusTag = (status) => {

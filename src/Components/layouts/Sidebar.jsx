@@ -76,7 +76,7 @@ const Sidebar = () => {
     userRole === "Admin" && {
       key: "1",
       icon: <HomeOutlined />,
-      label: <Link to="/Dashboard">{t("Dashboard")}</Link>,
+      label: <Link to="/dashboard">{t("Dashboard")}</Link>,
     },
     userRole === "Admin" && {
       key: "sub1_manage",

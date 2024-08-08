@@ -45,7 +45,8 @@ const Main = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
       setUser(storedUser);
-      const userRolePath = storedUser.role === "Admin" ? "/admin" : "/profile";
+      const userRolePath =
+        storedUser.role === "Admin" ? "/dashboard" : "/profile";
       if (location.pathname === "/") {
         navigate(userRolePath);
       }
@@ -93,24 +94,24 @@ const Main = () => {
           <Route path="/verify-account" element={<VerifyAccount />} />
           <Route path="/edit-profile" element={<ProfileEdit />} />
           <Route path="/cv/:id" element={<EmployeeCV />} />
-          <Route path="/AddTech" element={<AddTech />} />
-          <Route path="/EditTech/:id" element={<EditTech />} />
-          <Route path="/TechList" element={<TechList />} />
-          <Route path="/AddLanguage" element={<AddLanguage />} />
-          <Route path="/EditLanguage/:id" element={<EditLanguage />} />
-          <Route path="/ViewLanguage" element={<ViewLanguage />} />
+          <Route path="/addTech" element={<AddTech />} />
+          <Route path="/editTech/:id" element={<EditTech />} />
+          <Route path="/techList" element={<TechList />} />
+          <Route path="/addLanguage" element={<AddLanguage />} />
+          <Route path="/editLanguage/:id" element={<EditLanguage />} />
+          <Route path="/viewLanguage" element={<ViewLanguage />} />
           <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/ListPosition" element={<ListPosition />} />
+          <Route path="/listPosition" element={<ListPosition />} />
           <Route path="/Projects" element={<ProjectList />} />
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
-          <Route path="/TechBin" element={<TechBin />} />
-          <Route path="/TechHistory" element={<TechHistory />} />
-          <Route path="/ProjectHistory" element={<ProjectHistory />} />
-          <Route path="/LanguageBin" element={<LanguageBin />} />
-          <Route path="/EmployeeBin" element={<EmployeeBin />} />
-          <Route path="/ProjectBin" element={<ProjectBin />} />
+          <Route path="/techBin" element={<TechBin />} />
+          <Route path="/techHistory" element={<TechHistory />} />
+          <Route path="/projectHistory" element={<ProjectHistory />} />
+          <Route path="/eanguageBin" element={<LanguageBin />} />
+          <Route path="/employeeBin" element={<EmployeeBin />} />
+          <Route path="/projectBin" element={<ProjectBin />} />
           <Route path="/dashboard" element={<Dashboard />} />
           {/* Corrected path */}
         </Routes>

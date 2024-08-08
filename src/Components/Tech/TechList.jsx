@@ -4,11 +4,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
+import { ref, get, update, set } from "firebase/database";
+import { database } from "../../../firebaseConfig";
+
+
 
 const { Option } = Select;
 
@@ -76,20 +80,68 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
+
+
+
   const handleDelete = async (id) => {
     try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/technologies/${id}.json`,
-        { deletestatus: true }
-      );
-      message.success(t("Technology moved to bin successfully!"));
-      setData(data.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-      setFilteredData(filteredData.filter(item => item.id !== id));
+      const storedUser = localStorage.getItem('user');
+      
+      if (!storedUser) {
+        throw new Error("User information is missing in local storage.");
+      }
+      
+      const user = JSON.parse(storedUser);
+      const userKey = user.key;
+      const username = user.role;
+      
+      const userRef = ref(database, `users/${userKey}`);
+      const userSnapshot = await get(userRef);
+  
+      if (!userSnapshot.exists()) {
+        throw new Error("User not found.");
+      }
+  
+      const techRef = ref(database, `technologies/${id}`);
+      const techSnapshot = await get(techRef);
+  
+      if (!techSnapshot.exists()) {
+        throw new Error("Technology not found.");
+      }
+  
+      const techName = techSnapshot.val().techname;
+  
+      await update(techRef, { deletestatus: true });
+  
+      // Use a sanitized timestamp for the key
+      const timestamp = new Date().toISOString().replace(/[-:.T]/g, '_');
+      
+      await set(ref(database, `techhistory/${timestamp}`), {
+        techname: techName,
+        user: username,
+        action: "deleted",
+        timestamp: new Date().toISOString(),
+      });
+  
+      message.success("Technology moved to bin successfully!");
+      setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
+      setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
     } catch (error) {
-      console.error("Error updating deletestatus: ", error);
-      message.error(t("Failed to move technology to bin."));
+      console.error("Error handling delete action: ", error.message);
+      message.error(`Failed to move technology to bin: ${error.message}`);
     }
   };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   const handleNameFilter = (value) => {
     setSearchName(value);
@@ -252,6 +304,14 @@ const TechList = () => {
         onClick={() => navigate("/TechBin")}
       >
         {t("View Bin")}
+      </Button>
+      <Button
+        type="primary"
+        icon={<HistoryOutlined />}
+        style={{ marginBottom: 16 }}
+        onClick={() => navigate("/TechHistory")}
+      >
+        {t("View History")}
       </Button>
       <Table
         columns={columns}

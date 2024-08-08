@@ -24,6 +24,7 @@ import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
 import DetailProject from "../ProjectManager/DetailProject";
 import TechBin from "../Tech/TechBin";
+import TechHistory from "../Tech/TechHistory";
 import LanguageBin from "../Language/LanguageBin";
 import ProjectBin from "../ProjectManager/ProjectBin.jsx";
 import EmployeeBin from "../Employee/Employee_Information/EmployeeBin";
@@ -103,6 +104,7 @@ const Main = () => {
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
           <Route path="/TechBin" element={<TechBin />} />
+          <Route path="/TechHistory" element={<TechHistory />} />
           <Route path="/LanguageBin" element={<LanguageBin />} />
           <Route path="/EmployeeBin" element={<EmployeeBin />} />
           <Route path="/ProjectBin" element={<ProjectBin />} />

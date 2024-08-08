@@ -320,9 +320,7 @@ const EmployeeList = () => {
         try {
           const db = getDatabase();
           const employeeRef = ref(db, `employees/${employee.key}`);
-          await update(employeeRef, {
-            deleteStatus: true,
-          });
+          await update(employeeRef, { deleteStatus: true });
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);

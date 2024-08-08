@@ -93,7 +93,7 @@ const ListProject = () => {
 
     setDeleteId(id); // Set the project id to be deleted
     Modal.confirm({
-      title: t("Are you sure you want to delete this project?"),
+      title: t("Confirm Delete"),
       content: t("This action cannot be undone."),
       okText: t("Yes"),
       okType: "danger",

@@ -184,7 +184,7 @@ const ListProject = () => {
 
           {(user?.position === "Project Manager" &&
             user?.name === record.projectManager) ||
-          user?.role === "Admin" ? (
+            user?.role === "Admin" ? (
             <>
               <Link to={`/projects/edit/${record.id}`}>
                 <Button
@@ -300,35 +300,35 @@ const ListProject = () => {
 
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={showModal}
-              >
-                {t("Create new project")}
-              </Button>
-            )}
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={showModal}
+                >
+                  {t("Create new project")}
+                </Button>
+              )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="primary"
-                icon={<ExportOutlined />}
-                onClick={exportToExcel}
-              >
-                {t("Export to Excel")}
-              </Button>
-            )}
+                <Button
+                  type="primary"
+                  icon={<ExportOutlined />}
+                  onClick={exportToExcel}
+                >
+                  {t("Export to Excel")}
+                </Button>
+              )}
             {(user?.position === "Project Manager" ||
               user?.role === "Admin") && (
-              <Button
-                type="default"
-                icon={<DeleteOutlined />}
-                style={{ backgroundColor: "green", color: "white" }}
-                onClick={() => navigate("/ProjectBin")}
-              >
-                {t("Project Bin")}
-              </Button>
-            )}
+                <Button
+                  type="default"
+                  icon={<DeleteOutlined />}
+                  style={{ backgroundColor: "green", color: "white" }}
+                  onClick={() => navigate("/ProjectBin")}
+                >
+                  {t("Project Bin")}
+                </Button>
+              )}
           </Space>
           <h1 className="title">{t("LIST OF PROJECTS")}</h1>
           <Table

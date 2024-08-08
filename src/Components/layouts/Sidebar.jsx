@@ -13,8 +13,8 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png"; // Đường dẫn tới logo của bạn
-import "../../styles/layouts/Sidebar.scss"; // Đảm bảo rằng đường dẫn tới tệp SCSS là chính xác
+import logo from "../../assets/logo.png";
+import "../../styles/layouts/Sidebar.scss";
 
 const { Sider } = Layout;
 

@@ -32,6 +32,7 @@ const Dashboard = () => {
     ProgramLanguages: {},
     Technologies: {},
   });
+  const [projectsData, setProjectsData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +56,8 @@ const Dashboard = () => {
       ]);
 
       const projectsData = projectsSnapshot.val();
+      setProjectsData(projectsData);
+
       const employeesData = employeesSnapshot.val();
       const programLanguagesData = programLanguagesSnapshot.val();
       const technologiesData = technologiesSnapshot.val();
@@ -87,7 +90,7 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const fetchEmployeeChanges = async () => {
+  const fetchEmployeeChanges = async (projectsData) => {
     const db = getDatabase(app);
     const employeesRef = ref(db, "employees");
     const employeesSnapshot = await get(employeesRef);
@@ -120,10 +123,13 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    const intervalId = setInterval(fetchEmployeeChanges, 10000); // Check every 10 seconds
+    const intervalId = setInterval(
+      () => fetchEmployeeChanges(projectsData),
+      10000
+    ); // Check every 10 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }, [employeeCounts.total]); // Dependency array includes employeeCounts.total
+  }, [employeeCounts.total, projectsData]); // Dependency array includes employeeCounts.total and projectsData
 
   const dataPie = {
     labels: Object.keys(projectStatuses),

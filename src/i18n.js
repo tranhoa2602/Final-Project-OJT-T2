@@ -386,6 +386,8 @@ i18n.use(initReactI18next).init({
         "Selected employees are already assigned to this project!":
           "Selected employees are already assigned to this project!",
         Employees: "Employees",
+        "Are you sure you want to delete this position?":
+          "Are you sure you want to delete this position?",
       },
     },
     vi: {
@@ -774,6 +776,8 @@ i18n.use(initReactI18next).init({
         "Selected employees are already assigned to this project!":
           "Những nhân viên được chọn đã được phân công vào dự án này!",
         Employees: "Nhân viên",
+        "Are you sure you want to delete this position?":
+          "Bạn có muốn xóa vị trí này?",
       },
     },
   },

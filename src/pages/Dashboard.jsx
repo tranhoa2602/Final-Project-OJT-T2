@@ -176,9 +176,7 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card1}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>
-                      {t("Total Employees In Company")}
-                    </h2>
+                    <h2 className={styles.cardTitle}>{t("Total Employees")}</h2>
                     <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
                   </div>
                   <TeamOutlined className={styles.cardIcon} />

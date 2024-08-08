@@ -109,13 +109,20 @@ const DetailProject = () => {
     await update(employeeRef, { status: newStatus });
   };
 
-  const sendEmail = async (emails, projectName, actions) => {
-    const emailPromises = emails.map((email) =>
+  const sendEmail = async (employees, projectName, actions) => {
+    const emailPromises = employees.map((employee) =>
       emailjs.send(
-        "service_npsa81b",
-        "template_j26jobr",
-        { email, projectName, actions },
-        "Tj4lqdQXNHyDVUreX"
+        "service_ix57gso",
+        "template_ah5k8be",
+        {
+          to_name: employee.name,
+          email_name: employee.email,
+          from_name: "Your Company Name",
+          email: employee.email,
+          projectName,
+          actions,
+        },
+        "9CB1DrFUxye4x5Y7j"
       )
     );
 
@@ -162,7 +169,7 @@ const DetailProject = () => {
     const updates = {};
     updates[`projects/${id}`] = updatedProject;
 
-    const updatedEmails = [];
+    const updatedEmployees = [];
     for (const employeeId of newEmployees) {
       const employeeRef = ref(db, `employees/${employeeId}`);
       const employeeSnapshot = await get(employeeRef);
@@ -213,11 +220,12 @@ const DetailProject = () => {
     const updates = {};
     updates[`projects/${id}`] = updatedProject;
 
-    const updatedEmails = [];
+    const removedEmployees = [];
     for (const employeeId of values.employees) {
       const employeeRef = ref(db, `employees/${employeeId}`);
       const employeeSnapshot = await get(employeeRef);
       const employeeData = employeeSnapshot.val();
+      if (!employeeData) continue; // Check if employeeData exists
       const employeeProjects = employeeData.projects || [];
       const updatedEmployeeProjects = employeeProjects.filter(
         (proj) => proj !== id

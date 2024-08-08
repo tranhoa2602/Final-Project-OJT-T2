@@ -1,70 +1,195 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Space, message } from "antd";
+import { Table, Button, Tag, Space, message, Skeleton, Modal } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { RedoOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import { getDatabase, ref, get, set } from "firebase/database";
 
 const TechBin = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${firebaseConfig.databaseURL}/technologies.json`
-        );
-        const result = response.data;
-        const techList = [];
-
-        for (const key in result) {
-          techList.push({ id: key, ...result[key] });
-        }
-
-        setData(techList.filter(item => item.deletestatus === true));
-      } catch (error) {
-        console.error("Error fetching technologies:", error);
-        message.error(t("Failed to fetch technologies."));
-      }
-    };
-
-    fetchData();
-  }, [t]);
-
-  const handleRestore = async (id) => {
+  // Define fetchData function
+  const fetchData = async () => {
     try {
-      await axios.patch(
-        `${firebaseConfig.databaseURL}/technologies/${id}.json`,
-        { deletestatus: false }
+      setLoading(true); // Set loading to true before fetching data
+      const response = await axios.get(
+        `${firebaseConfig.databaseURL}/technologies.json`
       );
-      message.success(t("Technology restored successfully!"));
-      setData(data.filter(item => item.id !== id));
+      const result = response.data;
+      const techList = [];
+
+      for (const key in result) {
+        techList.push({ id: key, ...result[key] });
+      }
+
+      setData(techList.filter((item) => item.deletestatus === true));
     } catch (error) {
-      console.error("Error restoring technology:", error);
-      message.error(t("Failed to restore technology."));
+      console.error("Error fetching technologies:", error);
+      message.error(t("Failed to fetch technologies."));
+    } finally {
+      setLoading(false); // Set loading to false after data is fetched
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(
-        `${firebaseConfig.databaseURL}/technologies/${id}.json`
-      );
-      message.success(t("Technology permanently deleted!"));
-      setData(data.filter(item => item.id !== id));
-    } catch (error) {
-      console.error("Error deleting technology:", error);
-      message.error(t("Failed to delete technology."));
-    }
+  useEffect(() => {
+    fetchData();
+  }, [t]);
+
+  const getVietnamTime = () => {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  };
+
+  const handleRestore = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to restore this technology?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const storedUser = localStorage.getItem('user');
+          
+          if (!storedUser) {
+            throw new Error("User information is missing in local storage.");
+          }
+          
+          const user = JSON.parse(storedUser);
+          const userKey = user.key;
+          
+          if (!userKey) {
+            throw new Error("User key is missing in local storage.");
+          }
+          
+          const db = getDatabase();
+          
+          const userRef = ref(db, `users/${userKey}`);
+          const userSnapshot = await get(userRef);
+          
+          if (!userSnapshot.exists()) {
+            throw new Error("User not found.");
+          }
+          
+          const userName = userSnapshot.val().name || 'Unknown'; 
+          
+          const techRef = ref(db, `technologies/${id}`);
+          const techSnapshot = await get(techRef);
+          
+          if (!techSnapshot.exists()) {
+            throw new Error("Technology not found.");
+          }
+          
+          const techName = techSnapshot.val().techname;
+          
+          const formattedTimestamp = getVietnamTime();
+          
+          await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
+            techname: techName,
+            user: userName,
+            action: "Restored from Bin",
+            timestamp: formattedTimestamp,
+          });
+          
+          await axios.patch(
+            `${firebaseConfig.databaseURL}/technologies/${id}.json`,
+            { deletestatus: false }
+          );
+          
+          message.success(t("Technology restored successfully!"));
+          await fetchData(); // Refresh the list
+        } catch (error) {
+          console.error("Error restoring technology:", error.message);
+          message.error(t(`Failed to restore technology: ${error.message}`));
+        }
+      },
+    });
+  };
+
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to permanently delete this technology?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const storedUser = localStorage.getItem('user');
+          
+          if (!storedUser) {
+            throw new Error("User information is missing in local storage.");
+          }
+          
+          const user = JSON.parse(storedUser);
+          const userKey = user.key;
+          
+          if (!userKey) {
+            throw new Error("User key is missing in local storage.");
+          }
+          
+          const db = getDatabase();
+          
+          const userRef = ref(db, `users/${userKey}`);
+          const userSnapshot = await get(userRef);
+          
+          if (!userSnapshot.exists()) {
+            throw new Error("User not found.");
+          }
+          
+          const userName = userSnapshot.val().name || 'Unknown'; 
+          
+          const techRef = ref(db, `technologies/${id}`);
+          const techSnapshot = await get(techRef);
+          
+          if (!techSnapshot.exists()) {
+            throw new Error("Technology not found.");
+          }
+          
+          const techName = techSnapshot.val().techname;
+          
+          const formattedTimestamp = getVietnamTime();
+          
+          await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
+            techname: techName,
+            user: userName,
+            action: "Permanently Deleted",
+            timestamp: formattedTimestamp,
+          });
+          
+          await axios.delete(`${firebaseConfig.databaseURL}/technologies/${id}.json`);
+          message.success(t("Technology permanently deleted!"));
+          setData(data.filter((item) => item.id !== id));
+        } catch (error) {
+          console.error("Error deleting technology:", error.message);
+          message.error(t(`Failed to delete technology: ${error.message}`));
+        }
+      },
+    });
   };
 
   const handleTableChange = (pagination) => {
@@ -86,10 +211,10 @@ const TechBin = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-              <Tag color="blue" key={tag}>
-                {tag}
-              </Tag>
-            ))
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
             : null}
         </>
       ),
@@ -135,17 +260,10 @@ const TechBin = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => handleRestore(record.id)}
-          >
+          <Button type="primary" onClick={() => handleRestore(record.id)}>
             <RedoOutlined /> {t("Restore")}
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => handleDelete(record.id)}
-          >
+          <Button type="primary" danger onClick={() => handleDelete(record.id)}>
             <DeleteOutlined /> {t("Delete")}
           </Button>
         </Space>
@@ -158,17 +276,25 @@ const TechBin = () => {
       <Button
         type="primary"
         style={{ marginBottom: 16 }}
-        onClick={() => navigate("/TechList")}
+        onClick={() => navigate("/techlist")}
       >
-        {t("Back to Tech List")}
+        {t("Back to List")}
       </Button>
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        pagination={{ current: currentPage, pageSize: 3 }}
-        onChange={handleTableChange}
-      />
+      {loading ? (
+        <Skeleton active />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={data}
+          pagination={{
+            current: currentPage,
+            pageSize,
+            total: data.length,
+          }}
+          onChange={handleTableChange}
+          rowKey="id"
+        />
+      )}
     </div>
   );
 };

@@ -11,6 +11,7 @@ import {
   EMAILJS_TEMPLATE_ID,
   EMAILJS_USER_ID,
 } from "../../../../emailConfig";
+import BackButton from "../../layouts/BackButton";
 
 const CreateEmployee = () => {
   const { t } = useTranslation();
@@ -140,6 +141,8 @@ const CreateEmployee = () => {
 
   return (
     <div style={{ height: "100vh", marginTop: "20px" }}>
+      <BackButton />
+      <h1 style={{ textAlign: "center" }}>{t("Add Employee")}</h1>
       {loading ? (
         <Spin
           size="large"

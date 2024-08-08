@@ -13,8 +13,8 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png"; // Đường dẫn tới logo của bạn
-import "../../styles/layouts/Sidebar.scss"; // Đảm bảo rằng đường dẫn tới tệp SCSS là chính xác
+import logo from "../../assets/logo.png";
+import "../../styles/layouts/Sidebar.scss";
 
 const { Sider } = Layout;
 
@@ -76,7 +76,7 @@ const Sidebar = () => {
     userRole === "Admin" && {
       key: "1",
       icon: <HomeOutlined />,
-      label: <Link to="/Dashboard">{t("Dashboard")}</Link>,
+      label: <Link to="/dashboard">{t("Dashboard")}</Link>,
     },
     userRole === "Admin" && {
       key: "sub1_manage",
@@ -118,12 +118,12 @@ const Sidebar = () => {
     {
       key: "6",
       icon: <SolutionOutlined />,
-      label: <Link to="/ListPosition">{t("Position")}</Link>,
+      label: <Link to="/listPosition">{t("Position")}</Link>,
     },
     {
       key: "sub4_technology",
       icon: <DeploymentUnitOutlined />,
-      label: <Link to="/TechList">{t("Technology")}</Link>,
+      label: <Link to="/techList">{t("Technology")}</Link>,
     },
     userRole === "Admin" && {
       key: "7",
@@ -132,7 +132,7 @@ const Sidebar = () => {
     },
     {
       key: "8",
-      label: <Link to="/ViewLanguage">{t("Programming Language")}</Link>,
+      label: <Link to="/viewLanguage">{t("Programming Language")}</Link>,
       icon: <GlobalOutlined />,
     },
   ].filter(Boolean); // Filter out any falsy values (e.g., undefined) from the items array

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Descriptions, Button, Tag, Card, Spin } from "antd";
+import { Descriptions, Button, Tag, Card, Spin, Typography } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getDatabase, ref, get } from "firebase/database";
@@ -12,6 +12,7 @@ const EmployeeDetails = () => {
   const { state } = useLocation();
   const { employee } = state;
   const [projects, setProjects] = useState([]);
+  const [employeeName, setEmployeeName] = useState(employee?.name || "");
 
   useEffect(() => {
     const fetchProjects = async (projectIds) => {
@@ -26,13 +27,14 @@ const EmployeeDetails = () => {
           ...allProjects[projId],
         }));
         setProjects(assignedProjects);
+        setEmployeeName(employee.name); // Cập nhật tên của nhân viên
       }
     };
 
     if (employee.projects) {
       fetchProjects(employee.projects);
     }
-  }, [employee.projects]);
+  }, [employee.projects, employee.name]);
 
   const returnToPrevious = () => {
     navigate("/list");
@@ -60,12 +62,10 @@ const EmployeeDetails = () => {
   return (
     <>
       <BackButton />
-      <Descriptions
-        title={t("Employee Details")}
-        bordered
-        column={1}
-        style={{ marginTop: "60px" }}
-      >
+      <Typography.Title style={{ textAlign: "center", fontSize: "20px" }}>
+        {t("Employee Detail")} : {employeeName}
+      </Typography.Title>
+      <Descriptions bordered column={1} style={{ marginTop: "20px" }}>
         <Descriptions.Item label={t("Employee Name")}>
           {employee.name}
         </Descriptions.Item>

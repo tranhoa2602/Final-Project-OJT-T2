@@ -3,7 +3,7 @@ import { Form, Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
 import bcrypt from "bcryptjs";
-import styles from "../styles/layouts/Login.module.scss";
+import styles from "../../styles/layouts/Login.module.scss";
 
 const Login = ({ setUser }) => {
   const [loading, setLoading] = useState(false);
@@ -64,7 +64,7 @@ const Login = ({ setUser }) => {
       setUser(storedUser);
 
       const userRolePath =
-        storedUser.role === "Admin" ? "/Dashboard" : "/profile";
+        storedUser.role === "Admin" ? "/dashboard" : "/profile";
       navigate(userRolePath);
       message.success("Login successful!");
     } else {

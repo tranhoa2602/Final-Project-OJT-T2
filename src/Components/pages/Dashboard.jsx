@@ -10,9 +10,9 @@ import {
   ProjectOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next"; // Import useTranslation
-import app from "../../firebaseConfig"; // Ensure you have your firebase configuration
-import styles from "../styles/layouts/Dashboard.module.scss"; // Import the SCSS module
+import { useTranslation } from "react-i18next";
+import app from "../../../firebaseConfig";
+import styles from "../../styles/layouts/Dashboard.module.scss";
 
 const { Content } = Layout;
 
@@ -133,9 +133,7 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card1}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>
-                      {t("Total Employees In Company")}
-                    </h2>
+                    <h2 className={styles.cardTitle}>{t("Total Employees")}</h2>
                     <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
                   </div>
                   <TeamOutlined className={styles.cardIcon} />

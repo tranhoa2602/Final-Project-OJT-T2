@@ -173,7 +173,7 @@ const EditTech = () => {
   if (loading || !initialValues) {
     return (
       <div style={spinnerStyle}>
-        <Spin tip={t("Loading...")} />
+        <Spin size="large" />
       </div>
     );
   }
@@ -186,7 +186,7 @@ const EditTech = () => {
       </Title>
       {loading ? (
         <div style={spinnerStyle}>
-          <Spin tip={t("Loading...")} />
+          <Spin size="large" />
         </div>
       ) : (
         initialValues && (

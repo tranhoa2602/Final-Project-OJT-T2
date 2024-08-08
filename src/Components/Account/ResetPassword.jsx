@@ -11,7 +11,7 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
-import styles from "../styles/layouts/ResetPassword.module.scss";
+import styles from "../../styles/layouts/ResetPassword.module.scss";
 
 const { Title } = Typography;
 
@@ -78,7 +78,7 @@ const ResetPassword = () => {
         setError("");
         setTimeout(() => {
           navigate("/");
-        }, 2000); // Redirect to login page after 2 seconds
+        }, 2000);
       } else {
         setError("User not found.");
         setMessage("");

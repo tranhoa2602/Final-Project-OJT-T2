@@ -126,16 +126,16 @@ const columns = (
           text: position.name,
           value: position.name,
         })),
-      onFilter: (value, record) => record.positionName === value,
-    },
-    {
-      title: t("Status"),
-      key: "status",
-      dataIndex: "status",
-      align: "center",
-      filters: loading
-        ? []
-        : [
+    onFilter: (value, record) => record.positionName === value,
+  },
+  {
+    title: t("Status"),
+    key: "status",
+    dataIndex: "status",
+    align: "center",
+    filters: loading
+      ? []
+      : [
           { text: t("Involved"), value: "Involved" },
           { text: t("Available"), value: "Available" },
           { text: t("Inactive"), value: "Inactive" },
@@ -292,13 +292,13 @@ const EmployeeList = () => {
       setPositions(positions);
       setProjects(projects);
       setFilteredEmployees(employees);
-      setLoading(false); // Set loading to false after data is fetched
+      setLoading(false);
     };
 
     // Simulate a delay to show the skeleton
     const timer = setTimeout(() => {
       fetchDataAndSetState();
-    }, 2000); // Adjust the delay as needed
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -324,7 +324,7 @@ const EmployeeList = () => {
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
-          message.success(t("Employee status updated to deleted successfully"));
+          message.success(t("Employee moved to bin successfully"));
         } catch (error) {
           console.error(t("Error updating employee status:"), error);
           message.error(t("Failed to update employee status"));
@@ -473,12 +473,12 @@ const EmployeeList = () => {
       ) : (
         <Space className={styles["actions-container"]}>
           <Input
-            placeholder={t("Export to Excel filter by Email")}
+            placeholder={t("Filter by Email")}
             onChange={handleSearch}
             className={styles["search-input"]}
           />
           <Select
-            placeholder={t("Export to Excel filter by Position")}
+            placeholder={t("Filter by Position")}
             onChange={handlePositionChange}
             className={styles["position-select"]}
             allowClear
@@ -493,7 +493,7 @@ const EmployeeList = () => {
             type="primary"
             icon={<UserAddOutlined />}
             onClick={() => navigate("/create")}
-            style={{backgroundColor: 'green', color: 'white'}}
+            style={{ backgroundColor: "green", color: "white" }}
           >
             {t("Add Employee")}
           </Button>
@@ -509,7 +509,7 @@ const EmployeeList = () => {
             icon={<DeleteOutlined />}
             onClick={() => navigate("/EmployeeBin")}
             className={styles["view-bin-button"]}
-            style={{backgroundColor: 'green', color: 'white'}}
+            style={{ backgroundColor: "green", color: "white" }}
           >
             {t("View Bin")}
           </Button>

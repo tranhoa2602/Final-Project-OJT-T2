@@ -46,51 +46,43 @@ const ListProject = () => {
 
     const timer = setTimeout(() => {
       fetchProjects();
-    }, 2000); // Set timeout for 2 seconds
+    }, 2000); 
 
-    return () => clearTimeout(timer); // Cleanup the timer
+    return () => clearTimeout(timer); 
   }, []);
 
   const fetchProjects = async () => {
-    const db = getDatabase();
-    const projectsRef = ref(db, "projects");
-    const snapshot = await get(projectsRef);
-    if (snapshot.exists()) {
-      const data = snapshot.val();
+    const db = getDatabase(); 
+    const projectsRef = ref(db, "projects"); 
+    const snapshot = await get(projectsRef); 
+  
+    if (snapshot.exists()) { 
+      const data = snapshot.val(); 
       const formattedData = Object.keys(data)
         .map((key) => ({
-          id: key,
-          ...data[key],
-          startDate: new Date(data[key].startDate),
-          endDate: new Date(data[key].endDate),
+          id: key, 
+          ...data[key], 
+          startDate: new Date(data[key].startDate), 
+          endDate: new Date(data[key].endDate), 
         }))
-        .filter((project) => project.deletestatus === false); // Only include projects not marked as deleted
-      setProjects(formattedData);
-      setFilteredProjects(sortProjects(formattedData));
+        .filter((project) => project.deletestatus === false); 
+  
+      setProjects(formattedData); 
+      setFilteredProjects(sortProjects(formattedData)); 
     }
-    setLoading(false); // Set loading to false after data is fetched
+  
+    setLoading(false); 
   };
+  
 
   const confirmDelete = (id, status) => {
-    if (["Ongoing"].includes(status)) {
-      message.error(
-        t("The project is in Ongoing status and cannot be deleted.")
-      );
+    console.log('ID:', id); // Log the ID to check its value
+  
+    if (["Ongoing", "Pending"].includes(status)) {
+      message.error(t("The project is in a status that cannot be deleted."));
       return;
     }
-    if (["Pending"].includes(status)) {
-      message.error(
-        t("The project is in Pending status and cannot be deleted.")
-      );
-      return;
-    }
-    if (["Not Started"].includes(status)) {
-      message.error(
-        t("The project is in Not Started status and cannot be deleted.")
-      );
-      return;
-    }
-
+  
     setDeleteId(id); // Set the project id to be deleted
     Modal.confirm({
       title: t("Confirm Delete"),
@@ -101,11 +93,22 @@ const ListProject = () => {
       onOk: handleDelete,
     });
   };
-
+  
+  
   const handleDelete = async () => {
+    console.log('Delete ID:', deleteId); // Log deleteId to ensure it's set
+  
+    if (!deleteId) {
+      message.error(t("No project ID provided."));
+      return;
+    }
+  
     try {
       const db = getDatabase();
-      await update(ref(db, `projects/${deleteId}`), { deletestatus: true });
+      const projectRef = ref(db, `projects/${deleteId}`);
+      
+      await update(projectRef, { deletestatus: true });
+  
       message.success(t("Project moved to bin successfully!"));
       fetchProjects(); // Refresh the project list after deletion
       setDeleteId(null); // Reset deleteId after deletion
@@ -114,6 +117,7 @@ const ListProject = () => {
       message.error(t("Failed to move project to bin!"));
     }
   };
+  
 
   const getStatusTag = (status) => {
     switch (status) {

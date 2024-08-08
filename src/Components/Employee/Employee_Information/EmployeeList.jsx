@@ -475,12 +475,12 @@ const EmployeeList = () => {
       ) : (
         <Space className={styles["actions-container"]}>
           <Input
-            placeholder={t("Export to Excel filter by Email")}
+            placeholder={t("Filter by Email")}
             onChange={handleSearch}
             className={styles["search-input"]}
           />
           <Select
-            placeholder={t("Export to Excel filter by Position")}
+            placeholder={t("Filter by Position")}
             onChange={handlePositionChange}
             className={styles["position-select"]}
             allowClear

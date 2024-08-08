@@ -102,7 +102,7 @@ const ProjectBin = () => {
 
   return (
     <div>
-      <Space style={{ marginTop: 16 }}>
+      <Space style={{ marginTop: 16, marginBottom: 16 }}>
         <Link to="/projects">
           <Button type="default">{t("Back to Project List")}</Button>
         </Link>
@@ -115,6 +115,15 @@ const ProjectBin = () => {
           dataSource={filteredProjects}
           rowKey="id"
           pagination={{ pageSize: 6 }}
+          components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }}
         />
       )}
     </div>

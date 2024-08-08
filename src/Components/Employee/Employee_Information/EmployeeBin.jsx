@@ -149,10 +149,10 @@ const EmployeeBin = () => {
   };
 
   return (
-    <div className={styles["employee-bin"]}>
+    <div className={styles["employee-bin"]} style={{marginTop: '16px'}}>
       <Space className={styles["actions-container"]}>
         <Button
-          type="default"
+          type="primary"
           onClick={() => navigate("/list")}
           className={styles["back-button"]}
         >

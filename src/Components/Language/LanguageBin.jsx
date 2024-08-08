@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Space, message } from "antd";
+import { Table, Button, Tag, Space, message, Skeleton } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
@@ -9,6 +9,7 @@ import { RedoOutlined, DeleteOutlined } from "@ant-design/icons";
 const LanguageBin = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,10 +25,12 @@ const LanguageBin = () => {
           languages.push({ id: key, ...result[key] });
         }
 
-        setData(languages.filter(item => item.deletestatus === true));
+        setData(languages.filter((item) => item.deletestatus === true));
       } catch (error) {
         console.error("Error fetching Programming Languages:", error);
         message.error(t("Failed to fetch Programming Languages."));
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
       }
     };
 
@@ -41,7 +44,7 @@ const LanguageBin = () => {
         { deletestatus: false }
       );
       message.success(t("Programming Language restored successfully!"));
-      setData(data.filter(item => item.id !== id));
+      setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error restoring Programming Language:", error);
       message.error(t("Failed to restore Programming Language."));
@@ -54,7 +57,7 @@ const LanguageBin = () => {
         `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
       );
       message.success(t("Programming Language permanently deleted!"));
-      setData(data.filter(item => item.id !== id));
+      setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting Programming Language:", error);
       message.error(t("Failed to delete Programming Language."));
@@ -96,17 +99,10 @@ const LanguageBin = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => handleRestore(record.id)}
-          >
+          <Button type="primary" onClick={() => handleRestore(record.id)}>
             <RedoOutlined /> {t("Restore")}
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => handleDelete(record.id)}
-          >
+          <Button type="primary" danger onClick={() => handleDelete(record.id)}>
             <DeleteOutlined /> {t("Delete")}
           </Button>
         </Space>
@@ -123,11 +119,11 @@ const LanguageBin = () => {
       >
         {t("Back to Language List")}
       </Button>
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-      />
+      {loading ? (
+        <Skeleton active paragraph={{ rows: 5 }} />
+      ) : (
+        <Table columns={columns} dataSource={data} rowKey="id" />
+      )}
     </div>
   );
 };

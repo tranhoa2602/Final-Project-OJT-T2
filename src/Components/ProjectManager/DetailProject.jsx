@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDatabase, ref, get, update } from "firebase/database";
+import { getDatabase, ref, get, update, push } from "firebase/database";
 import {
   Card,
   Descriptions,
@@ -109,16 +109,16 @@ const DetailProject = () => {
     await update(employeeRef, { status: newStatus });
   };
 
-  const sendEmail = async (employees, projectName, actions) => {
-    const emailPromises = employees.map((employee) =>
+  const sendEmail = async (emails, projectName, actions) => {
+    const emailPromises = emails.map((email) =>
       emailjs.send(
         "service_ix57gso",
         "template_ah5k8be",
         {
-          to_name: employee.name,
-          email_name: employee.email,
+          to_name: email.name,
+          email_name: email.email,
           from_name: "Your Company Name",
-          email: employee.email,
+          email: email.email,
           projectName,
           actions,
         },
@@ -138,6 +138,24 @@ const DetailProject = () => {
         message.error("Failed to send emails.");
       }
     }
+  };
+
+  const logHistory = async (employees, projectName, action) => {
+    const db = getDatabase();
+    const historyRef = ref(db, `projectassignhistory`);
+    const timestamp = new Date().toISOString();
+
+    const historyPromises = employees.map((employee) =>
+      push(historyRef, {
+        user: "current user", // replace with the actual user information if available
+        action,
+        employeeName: employee.name,
+        projectName,
+        timestamp,
+      })
+    );
+
+    await Promise.all(historyPromises);
   };
 
   const handleAssign = async (values) => {
@@ -169,7 +187,7 @@ const DetailProject = () => {
     const updates = {};
     updates[`projects/${id}`] = updatedProject;
 
-    const updatedEmployees = [];
+    const updatedEmails = [];
     for (const employeeId of newEmployees) {
       const employeeRef = ref(db, `employees/${employeeId}`);
       const employeeSnapshot = await get(employeeRef);
@@ -180,7 +198,7 @@ const DetailProject = () => {
         projects: [...new Set([...employeeProjects, id])],
       };
       updates[`employees/${employeeId}`] = updatedEmployee;
-      updatedEmails.push(employeeData.email);
+      updatedEmails.push(employeeData);
     }
 
     await update(ref(db), updates);
@@ -189,7 +207,8 @@ const DetailProject = () => {
       await updateEmployeeStatus(employeeId);
     }
 
-    sendEmail(updatedEmails, projectData.name, "added");
+    await sendEmail(updatedEmails, projectData.name, "added");
+    await logHistory(updatedEmails, projectData.name, "assigned");
 
     message.success(t("Employees assigned successfully!"));
     setIsAssignModalOpen(false);
@@ -220,7 +239,7 @@ const DetailProject = () => {
     const updates = {};
     updates[`projects/${id}`] = updatedProject;
 
-    const removedEmployees = [];
+    const updatedEmails = [];
     for (const employeeId of values.employees) {
       const employeeRef = ref(db, `employees/${employeeId}`);
       const employeeSnapshot = await get(employeeRef);
@@ -235,7 +254,7 @@ const DetailProject = () => {
         projects: updatedEmployeeProjects,
       };
       updates[`employees/${employeeId}`] = updatedEmployee;
-      updatedEmails.push(employeeData.email);
+      updatedEmails.push(employeeData);
     }
 
     await update(ref(db), updates);
@@ -244,7 +263,8 @@ const DetailProject = () => {
       await updateEmployeeStatus(employeeId);
     }
 
-    sendEmail(updatedEmails, projectData.name, "fired");
+    await sendEmail(updatedEmails, projectData.name, "removed");
+    await logHistory(updatedEmails, projectData.name, "unassigned");
 
     message.success(t("Employees unassigned successfully!"));
     setIsUnassignModalOpen(false);

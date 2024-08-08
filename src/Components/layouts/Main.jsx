@@ -26,6 +26,7 @@ import DetailProject from "../ProjectManager/DetailProject";
 import TechBin from "../Tech/TechBin";
 import TechHistory from "../Tech/TechHistory";
 import ProjectHistory from "../ProjectManager/ProjectHistory";
+import ProjectAssignHistory from "../ProjectManager/ProjectAssignHistory.jsx";
 import LanguageBin from "../Language/LanguageBin";
 import ProjectBin from "../ProjectManager/ProjectBin.jsx";
 import EmployeeBin from "../Employee/Employee_Information/EmployeeBin";
@@ -109,7 +110,8 @@ const Main = () => {
           <Route path="/techBin" element={<TechBin />} />
           <Route path="/techHistory" element={<TechHistory />} />
           <Route path="/projectHistory" element={<ProjectHistory />} />
-          <Route path="/eanguageBin" element={<LanguageBin />} />
+          <Route path="/assignHistory" element={<ProjectAssignHistory />} />
+          <Route path="/languageBin" element={<LanguageBin />} />
           <Route path="/employeeBin" element={<EmployeeBin />} />
           <Route path="/projectBin" element={<ProjectBin />} />
           <Route path="/dashboard" element={<Dashboard />} />

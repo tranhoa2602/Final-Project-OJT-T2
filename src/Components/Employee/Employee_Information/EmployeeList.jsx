@@ -324,7 +324,7 @@ const EmployeeList = () => {
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
-          message.success(t("Employee status updated to deleted successfully"));
+          message.success(t("Employee moved to bin successfully"));
         } catch (error) {
           console.error(t("Error updating employee status:"), error);
           message.error(t("Failed to update employee status"));

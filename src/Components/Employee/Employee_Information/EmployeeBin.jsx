@@ -75,7 +75,7 @@ const columns = (handleRestore, handleDelete, navigate, t) => [
           {t("Detail")}
         </Button>
         <Button
-          type="danger"
+          type="default" danger
           onClick={() => handleDelete(record)}
           icon={<DeleteOutlined />}
           className={styles["delete-button"]}

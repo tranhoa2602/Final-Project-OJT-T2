@@ -11,6 +11,28 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
+const getVietnamTime = () => {
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+  
+  const parts = formatter.formatToParts(new Date());
+  const day = parts.find(part => part.type === 'day').value;
+  const month = parts.find(part => part.type === 'month').value;
+  const year = parts.find(part => part.type === 'year').value;
+  const hour = parts.find(part => part.type === 'hour').value;
+  const minute = parts.find(part => part.type === 'minute').value;
+  const second = parts.find(part => part.type === 'second').value;
+  
+  return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+};
+
 const TechBin = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
@@ -45,14 +67,14 @@ const TechBin = () => {
     try {
       const db = getDatabase();
       
-      // Get user information from local storage
+    
       const storedUser = localStorage.getItem('user');
       
       if (!storedUser) {
         throw new Error("User information is missing in local storage.");
       }
       
-      // Convert user data from JSON to object
+     
       const user = JSON.parse(storedUser);
       const userKey = user.key;
       
@@ -60,7 +82,7 @@ const TechBin = () => {
         throw new Error("User key is missing in local storage.");
       }
       
-      // Fetch user data from Firebase
+     
       const userRef = ref(db, `users/${userKey}`);
       const userSnapshot = await get(userRef);
       
@@ -68,9 +90,9 @@ const TechBin = () => {
         throw new Error("User not found.");
       }
       
-      const userName = userSnapshot.val().name || 'Unknown'; // Use name from user object
+      const userName = userSnapshot.val().name || 'Unknown';
       
-      // Fetch technology data from Firebase
+     
       const techRef = ref(db, `technologies/${id}`);
       const techSnapshot = await get(techRef);
       
@@ -80,20 +102,22 @@ const TechBin = () => {
       
       const techName = techSnapshot.val().techname;
       
-      // Restore technology's delete status
+     
       await update(techRef, { deletestatus: false });
       
-      // Log restore action to history
-      await set(ref(db, `techhistory/${new Date().toISOString().replace(/[.:]/g, "_")}`), {
+   
+      const formattedTimestamp = getVietnamTime();
+      
+      await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
         techname: techName,
-        user: userName, // Use name from user object
+        user: userName,
         action: "Restore",
-        timestamp: new Date().toISOString(),
+        timestamp: formattedTimestamp,
       });
       
       message.success("Technology restored successfully!");
       
-      // Reload the page
+      
       window.location.reload();
     } catch (error) {
       console.error("Error restoring technology:", error.message);
@@ -103,14 +127,14 @@ const TechBin = () => {
   
   const handleDelete = async (id) => {
     try {
-      // Get user information from local storage
+    
       const storedUser = localStorage.getItem('user');
       
       if (!storedUser) {
         throw new Error("User information is missing in local storage.");
       }
       
-      // Convert user data from JSON to object
+     
       const user = JSON.parse(storedUser);
       const userKey = user.key;
       
@@ -120,7 +144,7 @@ const TechBin = () => {
       
       const db = getDatabase();
       
-      // Fetch user data from Firebase
+     
       const userRef = ref(db, `users/${userKey}`);
       const userSnapshot = await get(userRef);
       
@@ -128,9 +152,9 @@ const TechBin = () => {
         throw new Error("User not found.");
       }
       
-      const userName = userSnapshot.val().name || 'Unknown'; // Use name from user object
+      const userName = userSnapshot.val().name || 'Unknown'; 
       
-      // Fetch technology data from Firebase
+      
       const techRef = ref(db, `technologies/${id}`);
       const techSnapshot = await get(techRef);
       
@@ -140,30 +164,32 @@ const TechBin = () => {
       
       const techName = techSnapshot.val().techname;
       
-      // Log delete action to history
-      await set(ref(db, `techhistory/${new Date().toISOString().replace(/[.:]/g, "_")}`), {
+      
+      const formattedTimestamp = getVietnamTime();
+      
+      await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
         techname: techName,
-        user: userName, // Use name from user object
+        user: userName,
         action: "Delete",
-        timestamp: new Date().toISOString(),
+        timestamp: formattedTimestamp,
       });
       
-      // Permanently delete the technology
+      
       const deleteResponse = await axios.delete(
         `${firebaseConfig.databaseURL}/technologies/${id}.json`
       );
       
       if (deleteResponse.status === 200) {
-        message.success(t("Technology permanently deleted!"));
+        message.success("Technology permanently deleted!");
         
-        // Update UI
+        
         setData(prevData => prevData.filter(item => item.id !== id));
       } else {
         throw new Error(`Failed to delete technology. Status code: ${deleteResponse.status}`);
       }
     } catch (error) {
       console.error("Error deleting technology:", error.message);
-      message.error(t("Failed to delete technology."));
+      message.error("Failed to delete technology.");
     }
   };
   
@@ -172,8 +198,6 @@ const TechBin = () => {
     setPageSize(pagination.pageSize);
   };
   
-  
-
   const columns = [
     {
       title: t("Name"),
@@ -266,8 +290,12 @@ const TechBin = () => {
         columns={columns}
         dataSource={data}
         rowKey="id"
-        pagination={{ current: currentPage, pageSize: 3 }}
-        onChange={handleTableChange}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: data.length,
+          onChange: handleTableChange,
+        }}
       />
     </div>
   );

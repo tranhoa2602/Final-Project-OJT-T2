@@ -3,11 +3,13 @@ import { Table, Button, message } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const TechHistory = () => {
   const { t } = useTranslation();
   const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchHistoryData = async () => {
@@ -25,7 +27,6 @@ const TechHistory = () => {
           historyList.push({ id: key, ...result[key] });
         }
 
-        // Sort historyList by timestamp in descending order
         historyList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         setHistoryData(historyList);
@@ -78,13 +79,22 @@ const TechHistory = () => {
   ];
 
   return (
-    <Table
-      columns={columns}
-      dataSource={historyData}
-      rowKey="id"
-      loading={loading}
-      pagination={{ pageSize: 5 }}
-    />
+    <div>
+      <Button
+        type="primary"
+        style={{ marginBottom: 16 }}
+        onClick={() => navigate("/TechList")} 
+      >
+        {t("Back to Tech List")}
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={historyData}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 5 }}
+      />
+    </div>
   );
 };
 

@@ -77,26 +77,48 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
+  const getVietnamTime = () => {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  };
+  
   const handleDelete = async (id) => {
     try {
-      // Get user information from local storage
+      
       const storedUser = localStorage.getItem('user');
       
       if (!storedUser) {
         throw new Error("User information is missing in local storage.");
       }
       
-      // Convert user data from JSON to object
+      
       const user = JSON.parse(storedUser);
       const userKey = user.key;
-    
+      
       if (!userKey) {
         throw new Error("User key is missing in local storage.");
       }
-    
+      
       const db = getDatabase();
       
-      // Fetch user data from Firebase
+      
       const userRef = ref(db, `users/${userKey}`);
       const userSnapshot = await get(userRef);
       
@@ -104,30 +126,31 @@ const TechList = () => {
         throw new Error("User not found.");
       }
       
-      const userName = userSnapshot.val().name || 'Unknown'; // Use name from user object
-    
-      // Fetch technology data from Firebase
+      const userName = userSnapshot.val().name || 'Unknown'; 
+      
+     
       const techRef = ref(db, `technologies/${id}`);
       const techSnapshot = await get(techRef);
       
       if (!techSnapshot.exists()) {
         throw new Error("Technology not found.");
       }
-    
+      
       const techName = techSnapshot.val().techname;
-    
-      // Update technology's delete status
+      
+      
       await update(techRef, { deletestatus: true });
-    
-      // Log delete action to history
-      await set(ref(db, `techhistory/${new Date().toISOString().replace(/[.:]/g, "_")}`), {
+      
+      
+      const formattedTimestamp = getVietnamTime();
+      
+      await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
         techname: techName,
-        user: userName, // Use name from user object
+        user: userName, 
         action: "Move to Bin",
-        timestamp: new Date().toISOString(),
+        timestamp: formattedTimestamp,
       });
-    
-      // Update UI
+      
       message.success("Technology moved to bin successfully!");
       setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
       setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
@@ -136,6 +159,10 @@ const TechList = () => {
       message.error(`Failed to move technology to bin: ${error.message}`);
     }
   };
+  
+  
+  
+  
   
 
   const handleNameFilter = (value) => {

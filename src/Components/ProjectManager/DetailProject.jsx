@@ -112,8 +112,8 @@ const DetailProject = () => {
   const sendEmail = async (employees, projectName, actions) => {
     const emailPromises = employees.map((employee) =>
       emailjs.send(
-        "service_npsa81b",
-        "template_j26jobr",
+        "service_ix57gso",
+        "template_ah5k8be",
         {
           to_name: employee.name,
           email_name: employee.email,
@@ -122,7 +122,7 @@ const DetailProject = () => {
           projectName,
           actions,
         },
-        "Tj4lqdQXNHyDVUreX"
+        "9CB1DrFUxye4x5Y7j"
       )
     );
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Space, message, Skeleton, Modal} from "antd";
+import { Table, Button, Tag, Space, message, Skeleton, Modal } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { RedoOutlined, DeleteOutlined } from "@ant-design/icons";
+import { getDatabase, ref, update, remove } from "firebase/database";
 
 const LanguageBin = () => {
   const { t } = useTranslation();
@@ -12,48 +13,53 @@ const LanguageBin = () => {
   const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${firebaseConfig.databaseURL}/programmingLanguages.json`
-        );
-        const result = response.data;
-        const languages = [];
+  // Function to fetch data
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`${firebaseConfig.databaseURL}/programmingLanguages.json`);
+      const result = response.data;
+      const languages = [];
 
-        for (const key in result) {
-          languages.push({ id: key, ...result[key] });
-        }
-
-        setData(languages.filter((item) => item.deletestatus === true));
-      } catch (error) {
-        console.error("Error fetching Programming Languages:", error);
-        message.error(t("Failed to fetch Programming Languages."));
-      } finally {
-        setLoading(false); // Set loading to false after data is fetched
+      for (const key in result) {
+        languages.push({ id: key, ...result[key] });
       }
-    };
 
+      setData(languages.filter((item) => item.deletestatus === true));
+    } catch (error) {
+      console.error("Error fetching Programming Languages:", error);
+      message.error(t("Failed to fetch Programming Languages."));
+    } finally {
+      setLoading(false); // Set loading to false after data is fetched
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [t]);
 
   const handleRestore = (id) => {
     Modal.confirm({
-      title: t("Are you sure you want to restore this programming language?"),
+      title: t("Are you sure you want to restore this programming language from the bin?"),
       okText: t("Yes"),
       cancelText: t("No"),
       onOk: async () => {
         try {
-          await axios.patch(
-            `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`,
-            { deletestatus: false }
-          );
+          // Initialize Firebase Realtime Database
+          const db = getDatabase();
+          const languageRef = ref(db, `programmingLanguages/${id}`);
+          
+          // Update the `deleteStatus` to false
+          await update(languageRef, { deletestatus: false });
+          
+          // Show success message
           message.success(t("Programming Language restored successfully!"));
-          const updatedData = await fetchData(); // Refresh the list
-          setData(updatedData);
+          
+          // Refresh the list of programming languages
+          await fetchData(); // Ensure fetchData is correctly implemented
         } catch (error) {
-          console.error("Error restoring Programming Language:", error);
-          message.error(t("Failed to restore Programming Language."));
+          // Log and display error message
+          console.error("Error restoring programming language:", error.message);
+          message.error(t(`Failed to restore programming language: ${error.message}`));
         }
       },
     });
@@ -66,15 +72,22 @@ const LanguageBin = () => {
       cancelText: t("No"),
       onOk: async () => {
         try {
-          await axios.delete(
-            `${firebaseConfig.databaseURL}/programmingLanguages/${id}.json`
-          );
+          // Initialize Firebase Realtime Database
+          const db = getDatabase();
+          const languageRef = ref(db, `programmingLanguages/${id}`);
+          
+          // Permanently delete the programming language
+          await remove(languageRef);
+          
+          // Show success message
           message.success(t("Programming Language permanently deleted!"));
-          const updatedData = await fetchData(); // Refresh the list
-          setData(updatedData);
+          
+          // Refresh the list of programming languages
+          await fetchData(); // Ensure fetchData is correctly implemented
         } catch (error) {
-          console.error("Error deleting Programming Language:", error);
-          message.error(t("Failed to delete Programming Language."));
+          // Log and display error message
+          console.error("Error deleting Programming Language:", error.message);
+          message.error(t(`Failed to delete Programming Language: ${error.message}`));
         }
       },
     });

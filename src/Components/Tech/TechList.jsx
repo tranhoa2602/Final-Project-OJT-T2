@@ -119,59 +119,66 @@ const TechList = () => {
     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
   };
   
-  const handleDelete = async (id, status) => {
+  const handleDelete = (id, status) => {
     if (status === "Active") {
       message.error(t("The technology is in Active status and cannot be deleted."));
       return;
     }
-  
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (!storedUser) {
-        throw new Error("User information is missing in local storage.");
-      }
-  
-      const user = JSON.parse(storedUser);
-      const userKey = user.key;
-  
-      if (!userKey) {
-        throw new Error("User key is missing in local storage.");
-      }
-  
-      const db = getDatabase();
-      const userRef = ref(db, `users/${userKey}`);
-      const userSnapshot = await get(userRef);
-  
-      if (!userSnapshot.exists()) {
-        throw new Error("User not found.");
-      }
-  
-      const userName = userSnapshot.val().name || 'Unknown';
-      const techRef = ref(db, `technologies/${id}`);
-      const techSnapshot = await get(techRef);
-  
-      if (!techSnapshot.exists()) {
-        throw new Error("Technology not found.");
-      }
-  
-      const techName = techSnapshot.val().techname;
-      await update(techRef, { deletestatus: true });
-  
-      const formattedTimestamp = getVietnamTime();
-      await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
-        techname: techName,
-        user: userName,
-        action: "Move to Bin",
-        timestamp: formattedTimestamp,
-      });
-  
-      message.success("Technology moved to bin successfully!");
-      setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-      setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
-    } catch (error) {
-      console.error("Error handling delete action: ", error.message);
-      message.error(`Failed to move technology to bin: ${error.message}`);
-    }
+
+    Modal.confirm({
+      title: t("Are you sure you want to move this technology to the bin?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          const storedUser = localStorage.getItem('user');
+          if (!storedUser) {
+            throw new Error("User information is missing in local storage.");
+          }
+
+          const user = JSON.parse(storedUser);
+          const userKey = user.key;
+
+          if (!userKey) {
+            throw new Error("User key is missing in local storage.");
+          }
+
+          const db = getDatabase();
+          const userRef = ref(db, `users/${userKey}`);
+          const userSnapshot = await get(userRef);
+
+          if (!userSnapshot.exists()) {
+            throw new Error("User not found.");
+          }
+
+          const userName = userSnapshot.val().name || 'Unknown';
+          const techRef = ref(db, `technologies/${id}`);
+          const techSnapshot = await get(techRef);
+
+          if (!techSnapshot.exists()) {
+            throw new Error("Technology not found.");
+          }
+
+          const techName = techSnapshot.val().techname;
+          await update(techRef, { deletestatus: true });
+
+          const formattedTimestamp = getVietnamTime();
+          await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
+            techname: techName,
+            user: userName,
+            action: "Move to Bin",
+            timestamp: formattedTimestamp,
+          });
+
+          message.success(t("Technology moved to bin successfully!"));
+          setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
+          setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
+        } catch (error) {
+          console.error("Error handling delete action: ", error.message);
+          message.error(t(`Failed to move technology to bin: ${error.message}`));
+        }
+      },
+    });
   };
   
 

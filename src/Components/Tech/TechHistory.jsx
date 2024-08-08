@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, message } from "antd";
+import { Table, Button, message, Modal } from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
@@ -41,15 +41,22 @@ const TechHistory = () => {
     fetchHistoryData();
   }, [t]);
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${firebaseConfig.databaseURL}/techhistory/${id}.json`);
-      message.success(t("Deleted history successfully!"));
-      setHistoryData(prevData => prevData.filter(item => item.id !== id));
-    } catch (error) {
-      console.error("Error deleting entry:", error);
-      message.error(t("Failed to delete entry."));
-    }
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: t("Are you sure you want to delete this entry from history?"),
+      okText: t("Yes"),
+      cancelText: t("No"),
+      onOk: async () => {
+        try {
+          await axios.delete(`${firebaseConfig.databaseURL}/techhistory/${id}.json`);
+          message.success(t("Deleted history successfully!"));
+          setHistoryData(prevData => prevData.filter(item => item.id !== id));
+        } catch (error) {
+          console.error("Error deleting entry:", error);
+          message.error(t("Failed to delete entry."));
+        }
+      },
+    });
   };
 
   const columns = [

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Space, Table, Button, Tag, message, Input, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getDatabase, ref, get, update, set } from "firebase/database";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { EditOutlined, DeleteOutlined, PlusOutlined, HistoryOutlined } from "@ant-design/icons";
@@ -9,10 +10,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import { ref, get, update, set } from "firebase/database";
-import { database } from "../../../firebaseConfig";
-
-
 
 const { Option } = Select;
 
@@ -80,49 +77,57 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
-
-
-
   const handleDelete = async (id) => {
     try {
+      // Get user information from local storage
       const storedUser = localStorage.getItem('user');
       
       if (!storedUser) {
         throw new Error("User information is missing in local storage.");
       }
       
+      // Convert user data from JSON to object
       const user = JSON.parse(storedUser);
       const userKey = user.key;
-      const username = user.role;
+    
+      if (!userKey) {
+        throw new Error("User key is missing in local storage.");
+      }
+    
+      const db = getDatabase();
       
-      const userRef = ref(database, `users/${userKey}`);
+      // Fetch user data from Firebase
+      const userRef = ref(db, `users/${userKey}`);
       const userSnapshot = await get(userRef);
-  
+      
       if (!userSnapshot.exists()) {
         throw new Error("User not found.");
       }
-  
-      const techRef = ref(database, `technologies/${id}`);
+      
+      const userName = userSnapshot.val().name || 'Unknown'; // Use name from user object
+    
+      // Fetch technology data from Firebase
+      const techRef = ref(db, `technologies/${id}`);
       const techSnapshot = await get(techRef);
-  
+      
       if (!techSnapshot.exists()) {
         throw new Error("Technology not found.");
       }
-  
+    
       const techName = techSnapshot.val().techname;
-  
+    
+      // Update technology's delete status
       await update(techRef, { deletestatus: true });
-  
-      // Use a sanitized timestamp for the key
-      const timestamp = new Date().toISOString().replace(/[-:.T]/g, '_');
-      
-      await set(ref(database, `techhistory/${timestamp}`), {
+    
+      // Log delete action to history
+      await set(ref(db, `techhistory/${new Date().toISOString().replace(/[.:]/g, "_")}`), {
         techname: techName,
-        user: username,
-        action: "deleted",
+        user: userName, // Use name from user object
+        action: "Move to Bin",
         timestamp: new Date().toISOString(),
       });
-  
+    
+      // Update UI
       message.success("Technology moved to bin successfully!");
       setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
       setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
@@ -131,16 +136,6 @@ const TechList = () => {
       message.error(`Failed to move technology to bin: ${error.message}`);
     }
   };
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
 
   const handleNameFilter = (value) => {

@@ -312,8 +312,9 @@ const extractData = (jsonData) => {
   const employeeParticipation = Object.values(jsonData).reduce(
     (acc, project) => {
       const startDate = new Date(project.startDate);
-      const monthYear = `${startDate.getMonth() + 1
-        }/${startDate.getFullYear()}`;
+      const monthYear = `${
+        startDate.getMonth() + 1
+      }/${startDate.getFullYear()}`;
       acc[monthYear] =
         (acc[monthYear] || 0) +
         (project.employees ? project.employees.length : 0);
@@ -359,10 +360,10 @@ const calculateMonthlyAdditions = (programLanguagesData, technologiesData) => {
   const processAdditions = (data) =>
     data
       ? Object.values(data).reduce((acc, item) => {
-        const dateAdded = formatDate(item.dateAdded);
-        acc[dateAdded] = (acc[dateAdded] || 0) + 1;
-        return acc;
-      }, {})
+          const dateAdded = formatDate(item.dateAdded);
+          acc[dateAdded] = (acc[dateAdded] || 0) + 1;
+          return acc;
+        }, {})
       : {};
 
   const ProgramLanguages = processAdditions(programLanguagesData);

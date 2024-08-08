@@ -10,14 +10,14 @@ import {
   ProjectOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { useTranslation } from "react-i18next"; // Import useTranslation
-import app from "../../firebaseConfig"; // Ensure you have your firebase configuration
-import styles from "../styles/layouts/Dashboard.module.scss"; // Import the SCSS module
+import { useTranslation } from "react-i18next";
+import app from "../../firebaseConfig";
+import styles from "../styles/layouts/Dashboard.module.scss";
 
 const { Content } = Layout;
 
 const Dashboard = () => {
-  const { t } = useTranslation(); // Use useTranslation hook
+  const { t } = useTranslation();
   const [projectStatuses, setProjectStatuses] = useState({});
   const [employeeParticipation, setEmployeeParticipation] = useState({});
   const [employeeCounts, setEmployeeCounts] = useState({
@@ -27,16 +27,54 @@ const Dashboard = () => {
     terminated: 0,
   });
   const [projectCount, setProjectCount] = useState(0);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const [monthlyAdditions, setMonthlyAdditions] = useState({
     ProgramLanguages: {},
     Technologies: {},
   });
 
+  const fetchEmployeesData = async () => {
+    setLoading(true);
+    const db = getDatabase(app);
+    const employeesRef = ref(db, "employees");
+    const snapshot = await get(employeesRef);
+
+    if (snapshot.exists()) {
+      const employeesData = snapshot.val();
+      const total = Object.keys(employeesData).length;
+      const terminated = Object.values(employeesData).filter(
+        (employee) => employee.status === "terminated" && employee.deleteStatus
+      ).length;
+      const participating = new Set();
+
+      const projectsRef = ref(db, "projects");
+      const projectsSnapshot = await get(projectsRef);
+      const projectsData = projectsSnapshot.val();
+
+      Object.values(projectsData).forEach((project) => {
+        if (project.employees) {
+          project.employees.forEach((employeeId) =>
+            participating.add(employeeId)
+          );
+        }
+      });
+
+      const notParticipating = total - participating.size;
+
+      setEmployeeCounts({
+        total,
+        participating: participating.size,
+        notParticipating,
+        terminated,
+      });
+
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Fetch data from Firebase with a delay to simulate loading
     const fetchData = async () => {
-      setLoading(true); // Set loading to true before data fetch
+      setLoading(true);
       const db = getDatabase(app);
       const projectsRef = ref(db, "projects");
       const employeesRef = ref(db, "employees");
@@ -73,7 +111,12 @@ const Dashboard = () => {
 
       setProjectStatuses(projectStatuses);
       setEmployeeParticipation(employeeParticipation);
-      setEmployeeCounts({ total, participating, notParticipating, terminated });
+      setEmployeeCounts({
+        total,
+        participating,
+        notParticipating,
+        terminated,
+      });
       setProjectCount(Object.keys(projectsData).length);
       setMonthlyAdditions(monthlyAdditions);
 
@@ -287,7 +330,7 @@ const extractData = (jsonData) => {
 const calculateEmployeeCounts = (employeesData, projectsData) => {
   const total = Object.keys(employeesData).length;
   const terminated = Object.values(employeesData).filter(
-    (employee) => employee.status === "terminated"
+    (employee) => employee.status === "terminated" && employee.deleteStatus
   ).length;
 
   const participating = new Set();

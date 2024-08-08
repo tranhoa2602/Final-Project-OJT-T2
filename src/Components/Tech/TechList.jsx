@@ -15,13 +15,18 @@ import axios from "axios";
 import { getDatabase, ref, get, update, set } from "firebase/database";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import { EditOutlined, DeleteOutlined, PlusOutlined, HistoryOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  HistoryOutlined,
+} from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import TechListSkeleton from "../Loading/ListTech"; // Import the TechListSkeleton component
-import "../../styles/layouts/tablestyles.css"
+import "../../styles/layouts/tablestyles.css";
 
 const { Option } = Select;
 
@@ -98,30 +103,32 @@ const TechList = () => {
   }, [searchName, searchType, searchStatus, data]);
 
   const getVietnamTime = () => {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
-    
+
     const parts = formatter.formatToParts(new Date());
-    const day = parts.find(part => part.type === 'day').value;
-    const month = parts.find(part => part.type === 'month').value;
-    const year = parts.find(part => part.type === 'year').value;
-    const hour = parts.find(part => part.type === 'hour').value;
-    const minute = parts.find(part => part.type === 'minute').value;
-    const second = parts.find(part => part.type === 'second').value;
-    
+    const day = parts.find((part) => part.type === "day").value;
+    const month = parts.find((part) => part.type === "month").value;
+    const year = parts.find((part) => part.type === "year").value;
+    const hour = parts.find((part) => part.type === "hour").value;
+    const minute = parts.find((part) => part.type === "minute").value;
+    const second = parts.find((part) => part.type === "second").value;
+
     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
   };
-  
+
   const handleDelete = (id, status) => {
     if (status === "Active") {
-      message.error(t("The technology is in Active status and cannot be deleted."));
+      message.error(
+        t("The technology is in Active status and cannot be deleted.")
+      );
       return;
     }
 
@@ -131,7 +138,7 @@ const TechList = () => {
       cancelText: t("No"),
       onOk: async () => {
         try {
-          const storedUser = localStorage.getItem('user');
+          const storedUser = localStorage.getItem("user");
           if (!storedUser) {
             throw new Error("User information is missing in local storage.");
           }
@@ -151,7 +158,7 @@ const TechList = () => {
             throw new Error("User not found.");
           }
 
-          const userName = userSnapshot.val().name || 'Unknown';
+          const userName = userSnapshot.val().name || "Unknown";
           const techRef = ref(db, `technologies/${id}`);
           const techSnapshot = await get(techRef);
 
@@ -163,30 +170,34 @@ const TechList = () => {
           await update(techRef, { deletestatus: true });
 
           const formattedTimestamp = getVietnamTime();
-          await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
-            techname: techName,
-            user: userName,
-            action: "Move to Bin",
-            timestamp: formattedTimestamp,
-          });
+          await set(
+            ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`),
+            {
+              techname: techName,
+              user: userName,
+              action: "Move to Bin",
+              timestamp: formattedTimestamp,
+            }
+          );
 
           message.success(t("Technology moved to bin successfully!"));
-          setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
-          setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
+          setData((prevData) =>
+            prevData.map((item) =>
+              item.id === id ? { ...item, deletestatus: true } : item
+            )
+          );
+          setFilteredData((prevFilteredData) =>
+            prevFilteredData.filter((item) => item.id !== id)
+          );
         } catch (error) {
           console.error("Error handling delete action: ", error.message);
-          message.error(t(`Failed to move technology to bin: ${error.message}`));
+          message.error(
+            t(`Failed to move technology to bin: ${error.message}`)
+          );
         }
       },
     });
   };
-  
-
-  
-  
-  
-  
-  
 
   const handleNameFilter = (value) => {
     setSearchName(value);
@@ -246,10 +257,10 @@ const TechList = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-              <Tag color="blue" key={tag}>
-                {tag}
-              </Tag>
-            ))
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
             : null}
         </>
       ),
@@ -258,7 +269,7 @@ const TechList = () => {
       title: t("Status"),
       dataIndex: "techstatus",
       key: "techstatus",
-      align: 'center',
+      align: "center",
       filterDropdown: () => (
         <div className="filter-dropdown">
           <Select
@@ -285,7 +296,7 @@ const TechList = () => {
       title: t("Description"),
       dataIndex: "techdescription",
       key: "techdescription",
-      className: "truncate-text"
+      className: "truncate-text",
     },
     {
       title: t("Images"),
@@ -349,7 +360,7 @@ const TechList = () => {
           <TechListSkeleton />
         </>
       ) : (
-        <div style={{ marginTop: '20px' }}>
+        <div style={{ marginTop: "20px" }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -361,16 +372,26 @@ const TechList = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{ backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px' }}
-            onClick={() => navigate("/TechBin")}
+            style={{
+              backgroundColor: "green",
+              color: "white",
+              marginBottom: 16,
+              marginLeft: "20px",
+            }}
+            onClick={() => navigate("/techBin")}
           >
             {t("View Bin")}
           </Button>
           <Button
             type="primary"
             icon={<HistoryOutlined />}
-            style={{ backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px' }}
-            onClick={() => navigate("/TechHistory")}
+            style={{
+              backgroundColor: "green",
+              color: "white",
+              marginBottom: 16,
+              marginLeft: "20px",
+            }}
+            onClick={() => navigate("/techHistory")}
           >
             {t("View History")}
           </Button>

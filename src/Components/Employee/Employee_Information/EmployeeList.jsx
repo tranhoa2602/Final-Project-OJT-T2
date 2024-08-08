@@ -507,7 +507,7 @@ const EmployeeList = () => {
           <Button
             type="default"
             icon={<DeleteOutlined />}
-            onClick={() => navigate("/EmployeeBin")}
+            onClick={() => navigate("/employeeBin")}
             className={styles["view-bin-button"]}
             style={{ backgroundColor: "green", color: "white" }}
           >

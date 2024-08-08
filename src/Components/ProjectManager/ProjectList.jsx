@@ -364,7 +364,7 @@ const ListProject = () => {
                 type="default"
                 icon={<DeleteOutlined />}
                 style={{ backgroundColor: "green", color: "white" }}
-                onClick={() => navigate("/ProjectBin")}
+                onClick={() => navigate("/projectBin")}
               >
                 {t("Project Bin")}
               </Button>
@@ -375,7 +375,7 @@ const ListProject = () => {
                 type="default"
                 icon={<HistoryOutlined />}
                 style={{ backgroundColor: "green", color: "white" }}
-                onClick={() => navigate("/ProjectHistory")}
+                onClick={() => navigate("/projectHistory")}
               >
                 {t("Project History")}
               </Button>
@@ -386,7 +386,7 @@ const ListProject = () => {
                 type="default"
                 icon={<FileSearchOutlined />}
                 style={{ backgroundColor: "blue", color: "white" }}
-                onClick={() => navigate("/AssignHistory")}
+                onClick={() => navigate("/assignHistory")}
               >
                 {t("Assign History")}
               </Button>

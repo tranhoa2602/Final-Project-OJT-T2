@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import styles from "../../styles/layouts/ViewLanguage.module.scss";
 import LanguageSkeleton from "../Loading/ListProgram"; // Import the skeleton component
-import "../../styles/layouts/tablestyles.css"
+import "../../styles/layouts/tablestyles.css";
 
 const { Option } = Select;
 
@@ -220,10 +220,10 @@ const ViewLanguage = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-              <Tag color="blue" key={tag}>
-                {tag}
-              </Tag>
-            ))
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
             : null}
         </>
       ),
@@ -260,7 +260,7 @@ const ViewLanguage = () => {
       title: t("Description"),
       dataIndex: "programingdescription",
       key: "programingdescription",
-      className: "truncate-text"
+      className: "truncate-text",
     },
     {
       title: t("Actions"),
@@ -308,8 +308,12 @@ const ViewLanguage = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{ backgroundColor: 'green', color: 'white', marginRight: '890px' }}
-            onClick={() => navigate("/LanguageBin")}
+            style={{
+              backgroundColor: "green",
+              color: "white",
+              marginRight: "890px",
+            }}
+            onClick={() => navigate("/languageBin")}
           >
             {t("View Bin")}
           </Button>

@@ -17,9 +17,11 @@ import {
   PlusOutlined,
   ExportOutlined,
   HistoryOutlined,
+  FileSearchOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import moment from "moment-timezone";
 import CreateProject from "./CreateProject";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -75,25 +77,7 @@ const ListProject = () => {
   };
 
   const getVietnamTime = () => {
-    const formatter = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Ho_Chi_Minh",
-      day: "2-digit",
-      month: "2-digit",
-      year: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-
-    const parts = formatter.formatToParts(new Date());
-    const day = parts.find((part) => part.type === "day").value;
-    const month = parts.find((part) => part.type === "month").value;
-    const year = parts.find((part) => part.type === "year").value;
-    const hour = parts.find((part) => part.type === "hour").value;
-    const minute = parts.find((part) => part.type === "minute").value;
-    const second = parts.find((part) => part.type === "second").value;
-
-    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+    return moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YY HH:mm:ss");
   };
 
   const handleDelete = (id, status) => {
@@ -230,8 +214,7 @@ const ListProject = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
-      className: "table-header", // Sửa ở đây
-      className: "action-table", // Sửa ở đây
+      className: "action-table",
       render: (text, record) => (
         <>
           {(user?.position === "Project Manager" || user?.role === "Admin") && (
@@ -349,8 +332,6 @@ const ListProject = () => {
       ) : (
         <>
           <Space className={styles["actions-container"]}>
-            {" "}
-            {/* Sửa ở đây */}
             <Input
               placeholder={t("Search by Name")}
               value={searchText}
@@ -397,6 +378,17 @@ const ListProject = () => {
                 onClick={() => navigate("/ProjectHistory")}
               >
                 {t("Project History")}
+              </Button>
+            )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+              <Button
+                type="default"
+                icon={<FileSearchOutlined />}
+                style={{ backgroundColor: "blue", color: "white" }}
+                onClick={() => navigate("/AssignHistory")}
+              >
+                {t("Assign History")}
               </Button>
             )}
           </Space>

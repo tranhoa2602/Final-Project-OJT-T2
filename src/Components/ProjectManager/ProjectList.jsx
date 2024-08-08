@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Table,
-  Button,
-  Tag,
-  message,
-  Input,
-  Space,
-  Skeleton,
-  Modal,
-} from "antd";
+import { Table, Button, Tag, message, Input, Space, Skeleton } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import {
   EditOutlined,
@@ -35,7 +26,6 @@ const ListProject = () => {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true); // Add loading state
-  const [deleteId, setDeleteId] = useState(null); // Add state to track project to be deleted
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,7 +61,7 @@ const ListProject = () => {
     setLoading(false); // Set loading to false after data is fetched
   };
 
-  const confirmDelete = (id, status) => {
+  const handleDelete = async (id, status) => {
     if (["Ongoing"].includes(status)) {
       message.error(
         t("The project is in Ongoing status and cannot be deleted.")
@@ -91,24 +81,11 @@ const ListProject = () => {
       return;
     }
 
-    setDeleteId(id); // Set the project id to be deleted
-    Modal.confirm({
-      title: t("Confirm Delete"),
-      content: t("This action cannot be undone."),
-      okText: t("Yes"),
-      okType: "danger",
-      cancelText: t("No"),
-      onOk: handleDelete,
-    });
-  };
-
-  const handleDelete = async () => {
     try {
       const db = getDatabase();
-      await update(ref(db, `projects/${deleteId}`), { deletestatus: true });
+      await update(ref(db, `projects/${id}`), { deletestatus: true });
       message.success(t("Project moved to bin successfully!"));
       fetchProjects(); // Refresh the project list after deletion
-      setDeleteId(null); // Reset deleteId after deletion
     } catch (error) {
       console.error("Error updating delete status:", error);
       message.error(t("Failed to move project to bin!"));
@@ -173,6 +150,7 @@ const ListProject = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
+      class: ".table-header",
       className: "action-table",
       render: (text, record) => (
         <>
@@ -197,7 +175,7 @@ const ListProject = () => {
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => confirmDelete(record.id, record.status)}
+                onClick={() => handleDelete(record.id, record.status)}
                 type="primary"
                 danger
                 style={{ marginLeft: 8 }}
@@ -290,7 +268,7 @@ const ListProject = () => {
         </>
       ) : (
         <>
-          <Space className={styles["actions-container"]}>
+          <Space class={styles["actions-container"]}>
             <Input
               placeholder={t("Search by Name")}
               value={searchText}

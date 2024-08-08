@@ -23,6 +23,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UploadOutlined } from "@ant-design/icons";
+import BackButton from "../layouts/BackButton";
 import exportEmployeeCV from "../Employee/Employee_Information/EmployeeCV"; // Ensure this path is correct
 import styles from "../../styles/layouts/ProfileEdit.module.scss";
 
@@ -190,6 +191,7 @@ const ProfileEdit = () => {
 
   return (
     <div className={styles.profilePage}>
+      <BackButton />
       <Card title={t("Profile Edit")} className={styles.profileCard}>
         <div className={styles.profileHeader}>
           <Spin spinning={loading}>
@@ -355,13 +357,6 @@ const ProfileEdit = () => {
               className={styles.updateButton}
             >
               {t("Update Profile")}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => navigate("/profile")}
-              className={styles.backButton}
-            >
-              {t("Back to Details")}
             </Button>
           </div>
         </Form>

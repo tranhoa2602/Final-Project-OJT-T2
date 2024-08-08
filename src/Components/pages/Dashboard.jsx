@@ -83,9 +83,6 @@ const Dashboard = () => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchEmployeesData, 10000); // Update every 10 seconds
-
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   const dataPie = {

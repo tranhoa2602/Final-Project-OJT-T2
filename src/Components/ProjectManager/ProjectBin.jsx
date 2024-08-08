@@ -88,6 +88,7 @@ const ProjectBin = () => {
         <>
           <Button
             onClick={() => handleRestore(record.id)}
+            type="primary"
             style={{ marginRight: 8 }}
           >
             {t("Restore")}
@@ -104,9 +105,12 @@ const ProjectBin = () => {
     <div>
       <Space style={{ marginTop: 16, marginBottom: 16 }}>
         <Link to="/projects">
-          <Button type="default">{t("Back to Project List")}</Button>
+          <Button type="primary">{t("Back to Project List")}</Button>
         </Link>
       </Space>
+
+      <h1 className="title">{t("PROJECT BIN")}</h1>
+
       {loading ? (
         <Skeleton active paragraph={{ rows: 5 }} />
       ) : (

@@ -206,7 +206,7 @@ const columns = (
               icon={<DeleteOutlined />}
               className={styles["delete-button"]}
             >
-              {t("Delete")}
+              {t("Move to Bin")}
             </Button>
           </Tooltip>
         </div>

@@ -60,20 +60,20 @@ const columns = (handleRestore, handleDelete, navigate, t) => [
     render: (_, record) => (
       <div className={styles["actions-container"]}>
         <Button
-          onClick={() => handleRestore(record)}
-          type="primary"
-          icon={<EditOutlined />}
-          className={styles["restore-button"]}
-        >
-          {t("Restore")}
-        </Button>
-        <Button
           type="default"
           onClick={() => navigate("/details", { state: { employee: record } })}
           icon={<InfoCircleOutlined />}
           className={styles["detail-button"]}
         >
           {t("Detail")}
+        </Button>
+        <Button
+          onClick={() => handleRestore(record)}
+          type="primary"
+          icon={<EditOutlined />}
+          className={styles["restore-button"]}
+        >
+          {t("Restore")}
         </Button>
         <Button
           type="default" danger

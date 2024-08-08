@@ -159,6 +159,9 @@ const TechBin = () => {
       >
         {t("Back to Tech List")}
       </Button>
+
+      <h1 className="title">{t("TECHNOLOGY BIN")}</h1>
+
       {loading ? (
         <Skeleton active paragraph={{ rows: 5 }} />
       ) : (

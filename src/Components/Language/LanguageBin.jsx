@@ -114,15 +114,27 @@ const LanguageBin = () => {
     <div>
       <Button
         type="primary"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 16, marginTop: 16 }}
         onClick={() => navigate("/ViewLanguage")}
       >
         {t("Back to Language List")}
       </Button>
+
+      <h1 className="title">{t("LANGUAGE BIN")}</h1>
+
       {loading ? (
         <Skeleton active paragraph={{ rows: 5 }} />
       ) : (
-        <Table columns={columns} dataSource={data} rowKey="id" />
+        <Table columns={columns} dataSource={data} rowKey="id"
+          components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }} />
       )}
     </div>
   );

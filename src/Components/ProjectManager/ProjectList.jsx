@@ -180,7 +180,7 @@ const ListProject = () => {
                 danger
                 style={{ marginLeft: 8 }}
               >
-                {t("Delete")}
+                {t("Move to Bin")}
               </Button>
             </>
           ) : null}
@@ -304,7 +304,7 @@ const ListProject = () => {
                 style={{ backgroundColor: "green", color: "white" }}
                 onClick={() => navigate("/ProjectBin")}
               >
-                {t("Project Bin")}
+                {t("View Bin")}
               </Button>
             )}
           </Space>

@@ -241,6 +241,7 @@ const ListPosition = () => {
             <>
               <Button
                 icon={<RollbackOutlined />}
+                type="primary"
                 onClick={() => handleRestore(record.id)}
                 className={styles["restore-button"]}
               >
@@ -248,6 +249,7 @@ const ListPosition = () => {
               </Button>
               <Button
                 icon={<DeleteOutlined />}
+                type="primary" danger
                 onClick={() => handlePermanentDelete(record.id)}
                 className={styles["delete-button"]}
               >
@@ -313,7 +315,7 @@ const ListPosition = () => {
           </Button>
         </Space>
       )}
-      <h1 className="title">{t("LIST OF POSITION")}</h1>
+      <h1 className="title">{showBin ? t("POSITION BIN") : t("LIST OF POSITION")}</h1>
       {loading ? (
         <PositionSkeleton />
       ) : (

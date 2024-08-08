@@ -6,7 +6,7 @@ import {
   EMAILJS_SERVICE_ID,
   EMAILJS_TEMPLATE_ID,
   EMAILJS_USER_ID,
-} from "../../emailConfig"; // Import email configuration
+} from "../../../emailConfig"; // Import email configuration
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 

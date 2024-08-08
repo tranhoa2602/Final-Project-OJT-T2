@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Table,
-  Button,
-  Tag,
-  message,
-  Input,
-  Space,
-  Skeleton,
-  Modal,
-} from "antd";
+import { Table, Button, Tag, message, Input, Space, Skeleton, Modal } from "antd";
 import { getDatabase, ref, update, get } from "firebase/database";
 import {
   EditOutlined,
@@ -35,7 +26,6 @@ const ListProject = () => {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true); // Add loading state
-  const [deleteId, setDeleteId] = useState(null); // Add state to track project to be deleted
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,48 +65,35 @@ const ListProject = () => {
   };
   
 
-  const confirmDelete = (id, status) => {
-    console.log('ID:', id); // Log the ID to check its value
-  
-    if (["Ongoing", "Pending"].includes(status)) {
-      message.error(t("The project is in a status that cannot be deleted."));
+  const handleDelete = (id, status) => {
+    if (["Ongoing"].includes(status)) {
+      message.error(t("The project is in Ongoing status and cannot be deleted."));
+      return;
+    }
+    if (["Pending"].includes(status)) {
+      message.error(t("The project is in Pending status and cannot be deleted."));
       return;
     }
   
-    setDeleteId(id); // Set the project id to be deleted
+    // Show confirmation dialog
     Modal.confirm({
-      title: t("Confirm Delete"),
-      content: t("This action cannot be undone."),
+      title: t("Are you sure you want to move this project to the bin?"),
       okText: t("Yes"),
-      okType: "danger",
       cancelText: t("No"),
-      onOk: handleDelete,
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          await update(ref(db, `projects/${id}`), { deletestatus: true });
+          message.success(t("Project moved to bin successfully!"));
+          fetchProjects(); // Refresh the project list after deletion
+        } catch (error) {
+          console.error("Error updating delete status:", error);
+          message.error(t("Failed to move project to bin!"));
+        }
+      },
     });
   };
   
-  
-  const handleDelete = async () => {
-    console.log('Delete ID:', deleteId); // Log deleteId to ensure it's set
-  
-    if (!deleteId) {
-      message.error(t("No project ID provided."));
-      return;
-    }
-  
-    try {
-      const db = getDatabase();
-      const projectRef = ref(db, `projects/${deleteId}`);
-      
-      await update(projectRef, { deletestatus: true });
-  
-      message.success(t("Project moved to bin successfully!"));
-      fetchProjects(); // Refresh the project list after deletion
-      setDeleteId(null); // Reset deleteId after deletion
-    } catch (error) {
-      console.error("Error updating delete status:", error);
-      message.error(t("Failed to move project to bin!"));
-    }
-  };
   
 
   const getStatusTag = (status) => {
@@ -177,6 +154,7 @@ const ListProject = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
+      class: ".table-header",
       className: "action-table",
       render: (text, record) => (
         <>
@@ -201,7 +179,7 @@ const ListProject = () => {
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => confirmDelete(record.id, record.status)}
+                onClick={() => handleDelete(record.id, record.status)}
                 type="primary"
                 danger
                 style={{ marginLeft: 8 }}
@@ -294,7 +272,7 @@ const ListProject = () => {
         </>
       ) : (
         <>
-          <Space className={styles["actions-container"]}>
+          <Space class={styles["actions-container"]}>
             <Input
               placeholder={t("Search by Name")}
               value={searchText}

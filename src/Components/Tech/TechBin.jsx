@@ -202,7 +202,7 @@ const TechBin = () => {
     <div>
       <Button
         type="primary"
-        style={{ marginBottom: 16 }}
+        style={{ marginBottom: 16, marginTop: 16 }}
         onClick={() => navigate("/TechList")}
       >
         {t("Back to Tech List")}
@@ -216,6 +216,15 @@ const TechBin = () => {
           rowKey="id"
           pagination={{ current: currentPage, pageSize }}
           onChange={handleTableChange}
+          components={{
+          header: {
+            cell: (props) => (
+              <th {...props} className={`table-header ${props.className}`}>
+                {props.children}
+              </th>
+            ),
+          },
+        }}
         />
       )}
     </div>

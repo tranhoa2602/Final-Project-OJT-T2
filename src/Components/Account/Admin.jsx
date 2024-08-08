@@ -20,7 +20,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
-import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
+import styles from "../../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const defaultAvatarUrl =
   "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL

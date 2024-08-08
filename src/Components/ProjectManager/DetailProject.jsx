@@ -116,6 +116,7 @@ const DetailProject = () => {
         "template_j26jobr",
         {
           to_name: employee.name,
+          email_name: employee.email,
           from_name: "Your Company Name",
           email: employee.email,
           projectName,

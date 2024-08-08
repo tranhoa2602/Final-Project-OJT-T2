@@ -292,13 +292,13 @@ const EmployeeList = () => {
       setPositions(positions);
       setProjects(projects);
       setFilteredEmployees(employees);
-      setLoading(false); // Set loading to false after data is fetched
+      setLoading(false);
     };
 
     // Simulate a delay to show the skeleton
     const timer = setTimeout(() => {
       fetchDataAndSetState();
-    }, 2000); // Adjust the delay as needed
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);

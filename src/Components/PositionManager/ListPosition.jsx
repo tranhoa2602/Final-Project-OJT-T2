@@ -166,7 +166,7 @@ const ListPosition = () => {
           const positionRef = ref(db, `positions/${id}`);
           await remove(positionRef);
           message.success(t("Position deleted permanently!"));
-  
+
           // Cập nhật danh sách positions
           setPositions(prevPositions => prevPositions.filter(position => position.id !== id));
         } catch (error) {
@@ -413,7 +413,7 @@ const ListPosition = () => {
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              {editingPosition ? t("Update Position") : t("Add Position")}
+              {editingPosition ? t("Edit Position") : t("Add Position")}
             </Button>
           </Form.Item>
         </Form>

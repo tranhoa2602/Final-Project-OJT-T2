@@ -17,7 +17,7 @@ import styles from "../../styles/layouts/Dashboard.module.scss";
 const { Content } = Layout;
 
 const Dashboard = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // Use useTranslation hook
   const [projectStatuses, setProjectStatuses] = useState({});
   const [employeeParticipation, setEmployeeParticipation] = useState({});
   const [employeeCounts, setEmployeeCounts] = useState({
@@ -27,15 +27,16 @@ const Dashboard = () => {
     terminated: 0,
   });
   const [projectCount, setProjectCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Add loading state
   const [monthlyAdditions, setMonthlyAdditions] = useState({
     ProgramLanguages: {},
     Technologies: {},
   });
 
   useEffect(() => {
+    // Fetch data from Firebase with a delay to simulate loading
     const fetchData = async () => {
-      setLoading(true);
+      setLoading(true); // Set loading to true before data fetch
       const db = getDatabase(app);
       const projectsRef = ref(db, "projects");
       const employeesRef = ref(db, "employees");
@@ -72,58 +73,17 @@ const Dashboard = () => {
 
       setProjectStatuses(projectStatuses);
       setEmployeeParticipation(employeeParticipation);
-      setEmployeeCounts({
-        total,
-        participating,
-        notParticipating,
-        terminated,
-      });
+      setEmployeeCounts({ total, participating, notParticipating, terminated });
       setProjectCount(Object.keys(projectsData).length);
       setMonthlyAdditions(monthlyAdditions);
 
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1500);
     };
 
     fetchData();
   }, []);
-
-  const fetchEmployeeChanges = async () => {
-    const db = getDatabase(app);
-    const employeesRef = ref(db, "employees");
-    const employeesSnapshot = await get(employeesRef);
-
-    if (employeesSnapshot.exists()) {
-      const employeesData = employeesSnapshot.val();
-      const newTotal = Object.keys(employeesData).length;
-
-      if (newTotal > employeeCounts.total) {
-        // New employee added
-        const currentMonthYear = `${
-          new Date().getMonth() + 1
-        }/${new Date().getFullYear()}`;
-        setEmployeeParticipation((prev) => ({
-          ...prev,
-          [currentMonthYear]: (prev[currentMonthYear] || 0) + 1,
-        }));
-      }
-
-      const { total, participating, notParticipating, terminated } =
-        calculateEmployeeCounts(employeesData, projectsData);
-
-      setEmployeeCounts({
-        total,
-        participating,
-        notParticipating,
-        terminated,
-      });
-    }
-  };
-
-  useEffect(() => {
-    const intervalId = setInterval(fetchEmployeeChanges, 10000); // Check every 10 seconds
-
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }, [employeeCounts.total]); // Dependency array includes employeeCounts.total
 
   const dataPie = {
     labels: Object.keys(projectStatuses),
@@ -173,7 +133,9 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card1}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>{t("Total Employees")}</h2>
+                    <h2 className={styles.cardTitle}>
+                      {t("Total Employees In Company")}
+                    </h2>
                     <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
                   </div>
                   <TeamOutlined className={styles.cardIcon} />
@@ -298,13 +260,13 @@ const Dashboard = () => {
 export default Dashboard;
 
 // Utility function to extract data from JSON
-const extractData = (projectsData) => {
-  const projectStatuses = Object.values(projectsData).reduce((acc, project) => {
+const extractData = (jsonData) => {
+  const projectStatuses = Object.values(jsonData).reduce((acc, project) => {
     acc[project.status] = (acc[project.status] || 0) + 1;
     return acc;
   }, {});
 
-  const employeeParticipation = Object.values(projectsData).reduce(
+  const employeeParticipation = Object.values(jsonData).reduce(
     (acc, project) => {
       const startDate = new Date(project.startDate);
       const monthYear = `${
@@ -325,7 +287,7 @@ const extractData = (projectsData) => {
 const calculateEmployeeCounts = (employeesData, projectsData) => {
   const total = Object.keys(employeesData).length;
   const terminated = Object.values(employeesData).filter(
-    (employee) => employee.status === "terminated" && employee.deleteStatus
+    (employee) => employee.status === "terminated"
   ).length;
 
   const participating = new Set();

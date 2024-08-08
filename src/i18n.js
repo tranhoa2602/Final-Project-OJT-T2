@@ -393,6 +393,20 @@ i18n.use(initReactI18next).init({
                 'Timestamp': 'Timestamp',
                 'Are you sure you want to move this project to the bin?': 'Are you sure you want to move this project to the bin?',
                 'Project History': 'Project History',
+                'Are you sure you want to edit this employee?': 'Are you sure you want to edit this employee?',
+                'Successfully edited employee': 'Successfully edited employee',
+                'Are you sure you want to restore this technology?': 'Are you sure you want to restore this technology?',
+                'Are you sure you want to permanently delete this technology?': 'Are you sure you want to permanently delete this technology?',
+                'Are you sure you want to permanently delete this programming language?': 'Are you sure you want to permanently delete this programming language?',
+                'Are you sure you want to restore this programming language?': 'Are you sure you want to restore this programming language?',
+                'Are you sure you want to move this position to the bin?': 'Are you sure you want to move this position to the bin?',
+                'Are you sure you want to restore this position from the bin?': 'Are you sure you want to restore this position from the bin?',
+                'Position moved to bin successfully!': 'Position moved to bin successfully!',
+                'Position restored successfully!': 'Position restored successfully!',
+                'Are you sure you want to permanently delete this position?': 'Are you sure you want to permanently delete this position?',
+                'Position deleted permanently!': 'Position deleted permanently!',
+
+
 
             },
         },
@@ -789,6 +803,20 @@ i18n.use(initReactI18next).init({
                 'Timestamp': 'Mốc thời gian',
                 'Are you sure you want to move this project to the bin?': 'Bạn có chắc chắn muốn chuyển dự án này vào thùng rác không?',
                 'Project History': 'Lịch sử dự án',
+                'Are you sure you want to edit this employee?': 'Bạn có chắc chắn muốn chỉnh sửa nhân viên này không?',
+                'Successfully edited employee': 'Nhân viên đã chỉnh sửa thành công',
+                'Are you sure you want to restore this technology?': 'Bạn có chắc chắn muốn khôi phục công nghệ này không?',
+                'Are you sure you want to permanently delete this technology?': 'Bạn có chắc chắn muốn xóa vĩnh viễn công nghệ này không?',
+                'Are you sure you want to permanently delete this programming language?': 'Bạn có chắc chắn muốn xóa vĩnh viễn ngôn ngữ lập trình này không?',
+                'Are you sure you want to restore this programming language?': 'Bạn có chắc chắn muốn khôi phục ngôn ngữ lập trình này không?',
+                'Are you sure you want to move this position to the bin?': 'Bạn có chắc chắn muốn di chuyển vị trí này vào thùng rác không?',
+                'Are you sure you want to restore this position from the bin?': 'Bạn có chắc chắn muốn khôi phục vị trí này từ thùng rác không?',
+                'Position moved to bin successfully!': 'Vị trí đã được chuyển vào thùng rác thành công!',
+                'Position restored successfully!': 'Đã khôi phục vị trí thành công!',
+                'Are you sure you want to permanently delete this position?': 'Bạn có chắc chắn muốn xóa vĩnh viễn vị trí này không?',
+                'Position deleted permanently!': 'Vị trí đã bị xóa vĩnh viễn!',
+
+
 
             },
         },

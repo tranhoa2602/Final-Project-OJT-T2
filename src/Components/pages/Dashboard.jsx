@@ -34,7 +34,6 @@ const Dashboard = () => {
   });
 
   const fetchEmployeesData = async () => {
-    setLoading(true);
     const db = getDatabase(app);
     const employeesRef = ref(db, "employees");
     const snapshot = await get(employeesRef);
@@ -68,7 +67,14 @@ const Dashboard = () => {
         terminated,
       });
 
-      setLoading(false);
+      // Update employeeParticipation for the current month
+      const currentMonthYear = `${
+        new Date().getMonth() + 1
+      }/${new Date().getFullYear()}`;
+      setEmployeeParticipation((prev) => ({
+        ...prev,
+        [currentMonthYear]: (prev[currentMonthYear] || 0) + participating.size,
+      }));
     }
   };
 
@@ -120,12 +126,13 @@ const Dashboard = () => {
       setProjectCount(Object.keys(projectsData).length);
       setMonthlyAdditions(monthlyAdditions);
 
-      setTimeout(() => {
-        setLoading(false);
-      }, 1500);
+      setLoading(false);
     };
 
     fetchData();
+    const intervalId = setInterval(fetchEmployeesData, 10000); // Update every 10 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   const dataPie = {
@@ -301,13 +308,13 @@ const Dashboard = () => {
 export default Dashboard;
 
 // Utility function to extract data from JSON
-const extractData = (jsonData) => {
-  const projectStatuses = Object.values(jsonData).reduce((acc, project) => {
+const extractData = (projectsData) => {
+  const projectStatuses = Object.values(projectsData).reduce((acc, project) => {
     acc[project.status] = (acc[project.status] || 0) + 1;
     return acc;
   }, {});
 
-  const employeeParticipation = Object.values(jsonData).reduce(
+  const employeeParticipation = Object.values(projectsData).reduce(
     (acc, project) => {
       const startDate = new Date(project.startDate);
       const monthYear = `${

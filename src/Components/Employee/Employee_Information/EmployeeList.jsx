@@ -126,16 +126,16 @@ const columns = (
           text: position.name,
           value: position.name,
         })),
-      onFilter: (value, record) => record.positionName === value,
-    },
-    {
-      title: t("Status"),
-      key: "status",
-      dataIndex: "status",
-      align: "center",
-      filters: loading
-        ? []
-        : [
+    onFilter: (value, record) => record.positionName === value,
+  },
+  {
+    title: t("Status"),
+    key: "status",
+    dataIndex: "status",
+    align: "center",
+    filters: loading
+      ? []
+      : [
           { text: t("Involved"), value: "Involved" },
           { text: t("Available"), value: "Available" },
           { text: t("Inactive"), value: "Inactive" },
@@ -320,7 +320,10 @@ const EmployeeList = () => {
         try {
           const db = getDatabase();
           const employeeRef = ref(db, `employees/${employee.key}`);
-          await update(employeeRef, { deleteStatus: true });
+          await update(employeeRef, {
+            status: "terminated",
+            deleteStatus: true,
+          });
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
@@ -493,7 +496,7 @@ const EmployeeList = () => {
             type="primary"
             icon={<UserAddOutlined />}
             onClick={() => navigate("/create")}
-            style={{backgroundColor: 'green', color: 'white'}}
+            style={{ backgroundColor: "green", color: "white" }}
           >
             {t("Add Employee")}
           </Button>
@@ -509,7 +512,7 @@ const EmployeeList = () => {
             icon={<DeleteOutlined />}
             onClick={() => navigate("/EmployeeBin")}
             className={styles["view-bin-button"]}
-            style={{backgroundColor: 'green', color: 'white'}}
+            style={{ backgroundColor: "green", color: "white" }}
           >
             {t("View Bin")}
           </Button>

@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Tag, Space, message } from "antd";
+import { Table, Button, Tag, Space, message, Skeleton } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
 import { RedoOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 const TechBin = () => {
   const { t } = useTranslation();
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(3);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true); // Set loading to true before fetching data
         const response = await axios.get(
           `${firebaseConfig.databaseURL}/technologies.json`
         );
@@ -30,10 +32,12 @@ const TechBin = () => {
           techList.push({ id: key, ...result[key] });
         }
 
-        setData(techList.filter(item => item.deletestatus === true));
+        setData(techList.filter((item) => item.deletestatus === true));
       } catch (error) {
         console.error("Error fetching technologies:", error);
         message.error(t("Failed to fetch technologies."));
+      } finally {
+        setLoading(false); // Set loading to false after data is fetched
       }
     };
 
@@ -47,7 +51,7 @@ const TechBin = () => {
         { deletestatus: false }
       );
       message.success(t("Technology restored successfully!"));
-      setData(data.filter(item => item.id !== id));
+      setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error restoring technology:", error);
       message.error(t("Failed to restore technology."));
@@ -60,7 +64,7 @@ const TechBin = () => {
         `${firebaseConfig.databaseURL}/technologies/${id}.json`
       );
       message.success(t("Technology permanently deleted!"));
-      setData(data.filter(item => item.id !== id));
+      setData(data.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting technology:", error);
       message.error(t("Failed to delete technology."));
@@ -86,10 +90,10 @@ const TechBin = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-              <Tag color="blue" key={tag}>
-                {tag}
-              </Tag>
-            ))
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))
             : null}
         </>
       ),
@@ -135,17 +139,10 @@ const TechBin = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => handleRestore(record.id)}
-          >
+          <Button type="primary" onClick={() => handleRestore(record.id)}>
             <RedoOutlined /> {t("Restore")}
           </Button>
-          <Button
-            type="primary"
-            danger
-            onClick={() => handleDelete(record.id)}
-          >
+          <Button type="primary" danger onClick={() => handleDelete(record.id)}>
             <DeleteOutlined /> {t("Delete")}
           </Button>
         </Space>
@@ -162,13 +159,17 @@ const TechBin = () => {
       >
         {t("Back to Tech List")}
       </Button>
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        pagination={{ current: currentPage, pageSize: 3 }}
-        onChange={handleTableChange}
-      />
+      {loading ? (
+        <Skeleton active paragraph={{ rows: 5 }} />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={data}
+          rowKey="id"
+          pagination={{ current: currentPage, pageSize }}
+          onChange={handleTableChange}
+        />
+      )}
     </div>
   );
 };

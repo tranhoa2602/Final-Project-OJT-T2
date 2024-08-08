@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Space, Table, Tag, Button, Avatar, message } from "antd";
+import { Space, Table, Tag, Button, Avatar, message, Skeleton } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get, update, remove } from "firebase/database";
 import {
@@ -107,12 +107,14 @@ const fetchData = async () => {
 const EmployeeBin = () => {
   const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDataAndSetState = async () => {
       const employees = await fetchData();
       setEmployees(employees);
+      setLoading(false); // Set loading to false after data is fetched
     };
 
     fetchDataAndSetState();
@@ -125,10 +127,10 @@ const EmployeeBin = () => {
       await update(employeeRef, { deleteStatus: false });
       const employees = await fetchData(); // Refresh the list
       setEmployees(employees);
-      message.success("Employee restored successfully");
+      message.success(t("Employee restored successfully"));
     } catch (error) {
       console.error("Error restoring employee:", error);
-      message.error("Failed to restore employee");
+      message.error(t("Failed to restore employee"));
     }
   };
 
@@ -138,10 +140,10 @@ const EmployeeBin = () => {
       await remove(ref(db, `employees/${employee.key}`));
       const employees = await fetchData(); // Refresh the list
       setEmployees(employees);
-      message.success("Employee deleted permanently");
+      message.success(t("Employee deleted permanently"));
     } catch (error) {
       console.error("Error deleting employee:", error);
-      message.error("Failed to delete employee");
+      message.error(t("Failed to delete employee"));
     }
   };
 
@@ -156,13 +158,17 @@ const EmployeeBin = () => {
           {t("Back to List")}
         </Button>
       </Space>
-      <Table
-        columns={columns(handleRestore, handleDelete, navigate, t)}
-        dataSource={employees}
-        rowKey="key"
-        pagination={{ pageSize: 6 }}
-        className={styles["employee-table"]}
-      />
+      {loading ? (
+        <Skeleton active paragraph={{ rows: 5 }} />
+      ) : (
+        <Table
+          columns={columns(handleRestore, handleDelete, navigate, t)}
+          dataSource={employees}
+          rowKey="key"
+          pagination={{ pageSize: 6 }}
+          className={styles["employee-table"]}
+        />
+      )}
     </div>
   );
 };

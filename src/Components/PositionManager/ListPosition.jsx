@@ -23,7 +23,7 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../styles/layouts/ListPosition.module.scss";
 import PositionSkeleton from "../Loading/positionSkeleton";
-import "../../styles/layouts/tablestyles.css" // Import the PositionSkeleton component
+import "../../styles/layouts/tablestyles.css"; // Import the PositionSkeleton component
 
 const { TextArea } = Input;
 
@@ -108,7 +108,7 @@ const ListPosition = () => {
     setModalVisible(true);
   };
 
-  const handleMoveToBin = async (id, status) => {
+  const confirmDelete = (id, status, action) => {
     if (status === "active") {
       message.error(
         t("The position is in Active status and cannot be deleted.")
@@ -116,11 +116,24 @@ const ListPosition = () => {
       return;
     }
 
-    const db = getDatabase();
-    const positionRef = ref(db, `positions/${id}`);
-    await update(positionRef, { deleteStatus: true });
-    message.success(t("Position moved to bin successfully!"));
-    setPositions(positions.filter((position) => position.id !== id));
+    Modal.confirm({
+      title: t("Confirm Delete"),
+      content: t("Are you sure you want to delete this position?"),
+      okText: t("Yes"),
+      okType: "danger",
+      cancelText: t("No"),
+      onOk: () => action(id),
+    });
+  };
+
+  const handleMoveToBin = (id, status) => {
+    confirmDelete(id, status, async (id) => {
+      const db = getDatabase();
+      const positionRef = ref(db, `positions/${id}`);
+      await update(positionRef, { deleteStatus: true });
+      message.success(t("Position moved to bin successfully!"));
+      setPositions(positions.filter((position) => position.id !== id));
+    });
   };
 
   const handleRestore = async (id) => {
@@ -211,7 +224,7 @@ const ListPosition = () => {
       title: t("Description"),
       dataIndex: "description",
       key: "description",
-      className: 'truncate-text', // Add this line to apply truncation
+      className: "truncate-text", // Add this line to apply truncation
     },
     {
       title: t("Status"),
@@ -248,7 +261,9 @@ const ListPosition = () => {
               </Button>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handlePermanentDelete(record.id)}
+                onClick={() =>
+                  confirmDelete(record.id, record.status, handlePermanentDelete)
+                }
                 className={styles["delete-button"]}
               >
                 {t("Delete")}
@@ -289,7 +304,10 @@ const ListPosition = () => {
           <Skeleton.Button style={{ width: 100 }} active />
         </Space>
       ) : (
-        <Space className={styles["actions-container"]} style={{ marginTop: '20px' }}>
+        <Space
+          className={styles["actions-container"]}
+          style={{ marginTop: "20px" }}
+        >
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -304,10 +322,9 @@ const ListPosition = () => {
           <Button
             type="default"
             icon={<DeleteOutlined />}
-            style={{ backgroundColor: 'green', color: 'white' }}
+            style={{ backgroundColor: "green", color: "white" }}
             onClick={handleViewBin}
             className={styles["view-bin-button"]}
-
           >
             {showBin ? t("Back to List") : t("View Bin")}
           </Button>

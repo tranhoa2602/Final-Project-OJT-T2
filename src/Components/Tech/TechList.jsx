@@ -12,9 +12,10 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getDatabase, ref, get, update, set } from "firebase/database";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useTranslation } from "react-i18next";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -96,49 +97,96 @@ const TechList = () => {
     filterData();
   }, [searchName, searchType, searchStatus, data]);
 
+  const getVietnamTime = () => {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  };
+  
   const handleDelete = (id, status) => {
-    const getDeleteMessage = () => {
-      switch (status) {
-        case "Active":
-          return t("Technology is in Active status and cannot be deleted.");
-        case "Inactive":
-          return t("Technology is in Inactive status and cannot be deleted.");
-        default:
-          return t("Technology cannot be deleted.");
-      }
-    };
-
     if (status === "Active") {
-      message.error(getDeleteMessage());
+      message.error(t("The technology is in Active status and cannot be deleted."));
       return;
     }
 
     Modal.confirm({
-      title: t("Confirm Deletion"),
-      content: t("Are you sure you want to move this technology to the bin?"),
+      title: t("Are you sure you want to move this technology to the bin?"),
       okText: t("Yes"),
-      okType: "danger",
       cancelText: t("No"),
       onOk: async () => {
         try {
-          await axios.patch(
-            `${firebaseConfig.databaseURL}/technologies/${id}.json`,
-            { deletestatus: true }
-          );
+          const storedUser = localStorage.getItem('user');
+          if (!storedUser) {
+            throw new Error("User information is missing in local storage.");
+          }
+
+          const user = JSON.parse(storedUser);
+          const userKey = user.key;
+
+          if (!userKey) {
+            throw new Error("User key is missing in local storage.");
+          }
+
+          const db = getDatabase();
+          const userRef = ref(db, `users/${userKey}`);
+          const userSnapshot = await get(userRef);
+
+          if (!userSnapshot.exists()) {
+            throw new Error("User not found.");
+          }
+
+          const userName = userSnapshot.val().name || 'Unknown';
+          const techRef = ref(db, `technologies/${id}`);
+          const techSnapshot = await get(techRef);
+
+          if (!techSnapshot.exists()) {
+            throw new Error("Technology not found.");
+          }
+
+          const techName = techSnapshot.val().techname;
+          await update(techRef, { deletestatus: true });
+
+          const formattedTimestamp = getVietnamTime();
+          await set(ref(db, `techhistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`), {
+            techname: techName,
+            user: userName,
+            action: "Move to Bin",
+            timestamp: formattedTimestamp,
+          });
+
           message.success(t("Technology moved to bin successfully!"));
-          setData(
-            data.map((item) =>
-              item.id === id ? { ...item, deletestatus: true } : item
-            )
-          );
-          setFilteredData(filteredData.filter((item) => item.id !== id));
+          setData(prevData => prevData.map(item => item.id === id ? { ...item, deletestatus: true } : item));
+          setFilteredData(prevFilteredData => prevFilteredData.filter(item => item.id !== id));
         } catch (error) {
-          console.error("Error updating deletestatus: ", error);
-          message.error(t("Failed to move technology to bin."));
+          console.error("Error handling delete action: ", error.message);
+          message.error(t(`Failed to move technology to bin: ${error.message}`));
         }
       },
     });
   };
+  
+
+  
+  
+  
+  
+  
 
   const handleNameFilter = (value) => {
     setSearchName(value);
@@ -317,6 +365,14 @@ const TechList = () => {
             onClick={() => navigate("/TechBin")}
           >
             {t("View Bin")}
+          </Button>
+          <Button
+            type="primary"
+            icon={<HistoryOutlined />}
+            style={{ backgroundColor: 'green', color: 'white', marginBottom: 16, marginLeft: '20px' }}
+            onClick={() => navigate("/TechHistory")}
+          >
+            {t("View History")}
           </Button>
           <h1 className="title">{t("LIST OF TECHNOLOGY")}</h1>
           <Table

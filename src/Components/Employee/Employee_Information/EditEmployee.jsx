@@ -192,20 +192,6 @@ const EditEmployee = () => {
           </Form.Item>
 
           <Form.Item
-            label={t("Status")}
-            name="status"
-            rules={[
-              { required: true, message: t("Please select the status!") },
-            ]}
-          >
-            <Select>
-              <Option value="Involved">{t("Involved")}</Option>
-              <Option value="Available">{t("Available")}</Option>
-              <Option value="Inactive">{t("Inactive")}</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
             label={t("Position")}
             name="positionName"
             rules={[

@@ -11,8 +11,8 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
-import app from "../../firebaseConfig";
-import styles from "../styles/layouts/Dashboard.module.scss";
+import app from "../../../firebaseConfig";
+import styles from "../../styles/layouts/Dashboard.module.scss";
 
 const { Content } = Layout;
 

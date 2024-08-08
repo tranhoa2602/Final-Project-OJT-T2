@@ -11,7 +11,7 @@ import {
   update,
 } from "firebase/database";
 import bcrypt from "bcryptjs";
-import styles from "../styles/layouts/ResetPassword.module.scss";
+import styles from "../../styles/layouts/ResetPassword.module.scss";
 
 const { Title } = Typography;
 

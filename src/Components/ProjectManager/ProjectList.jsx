@@ -1,21 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  Table,
-  Button,
-  Tag,
-  message,
-  Input,
-  Space,
-  Skeleton,
-  Modal,
-} from "antd";
-import { getDatabase, ref, update, get } from "firebase/database";
+import { Table, Button, Tag, message, Input, Space, Skeleton, Modal } from "antd";
+import { getDatabase, ref, update, get, set } from "firebase/database";
 import {
   EditOutlined,
   DeleteOutlined,
   InfoCircleOutlined,
   PlusOutlined,
   ExportOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -35,7 +27,6 @@ const ListProject = () => {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true); // Add loading state
-  const [deleteId, setDeleteId] = useState(null); // Add state to track project to be deleted
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,15 +37,16 @@ const ListProject = () => {
 
     const timer = setTimeout(() => {
       fetchProjects();
-    }, 2000); // Set timeout for 2 seconds
+    }, 2000);
 
-    return () => clearTimeout(timer); // Cleanup the timer
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchProjects = async () => {
     const db = getDatabase();
     const projectsRef = ref(db, "projects");
     const snapshot = await get(projectsRef);
+
     if (snapshot.exists()) {
       const data = snapshot.val();
       const formattedData = Object.keys(data)
@@ -64,56 +56,113 @@ const ListProject = () => {
           startDate: new Date(data[key].startDate),
           endDate: new Date(data[key].endDate),
         }))
-        .filter((project) => project.deletestatus === false); // Only include projects not marked as deleted
+        .filter((project) => project.deletestatus === false);
+
       setProjects(formattedData);
       setFilteredProjects(sortProjects(formattedData));
     }
-    setLoading(false); // Set loading to false after data is fetched
+
+    setLoading(false);
   };
 
-  const confirmDelete = (id, status) => {
+
+  const getVietnamTime = () => {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    const parts = formatter.formatToParts(new Date());
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  };
+
+  const handleDelete = (id, status) => {
     if (["Ongoing"].includes(status)) {
-      message.error(
-        t("The project is in Ongoing status and cannot be deleted.")
-      );
+      message.error(t("The project is in Ongoing status and cannot be deleted."));
       return;
     }
     if (["Pending"].includes(status)) {
-      message.error(
-        t("The project is in Pending status and cannot be deleted.")
-      );
-      return;
-    }
-    if (["Not Started"].includes(status)) {
-      message.error(
-        t("The project is in Not Started status and cannot be deleted.")
-      );
+      message.error(t("The project is in Pending status and cannot be deleted."));
       return;
     }
 
-    setDeleteId(id); // Set the project id to be deleted
+    // Show confirmation dialog
     Modal.confirm({
-      title: t("Confirm Delete"),
-      content: t("This action cannot be undone."),
+      title: t("Are you sure you want to move this project to the bin?"),
       okText: t("Yes"),
-      okType: "danger",
       cancelText: t("No"),
-      onOk: handleDelete,
+      onOk: async () => {
+        try {
+          const db = getDatabase();
+          const userKey = JSON.parse(localStorage.getItem('user'))?.key;
+
+          if (!userKey) {
+            throw new Error("User key is missing in local storage.");
+          }
+
+          const userRef = ref(db, `users/${userKey}`);
+          const userSnapshot = await get(userRef);
+
+          if (!userSnapshot.exists()) {
+            throw new Error("User not found.");
+          }
+
+          const userName = userSnapshot.val().name || 'Unknown';
+
+          const projectRef = ref(db, `projects/${id}`);
+          const projectSnapshot = await get(projectRef);
+
+          if (!projectSnapshot.exists()) {
+            throw new Error("Project not found.");
+          }
+
+          const projectData = projectSnapshot.val();
+          const projectName = projectData.name;
+
+          if (!projectName) {
+            throw new Error("Project name is undefined.");
+          }
+
+
+          await update(projectRef, { deletestatus: true });
+
+
+          const formattedTimestamp = getVietnamTime();
+          const historyRef = ref(db, `projecthistory/${formattedTimestamp.replace(/[/: ]/g, "_")}`);
+
+
+          await set(historyRef, {
+            projectname: projectName,
+            user: userName,
+            action: "Move to Bin",
+            timestamp: formattedTimestamp,
+          });
+
+          message.success(t("Project moved to bin successfully!"));
+          fetchProjects();
+
+        } catch (error) {
+          console.error("Error handling delete action:", error.message);
+          message.error(t(`Failed to move project to bin: ${error.message}`));
+        }
+      },
     });
   };
 
-  const handleDelete = async () => {
-    try {
-      const db = getDatabase();
-      await update(ref(db, `projects/${deleteId}`), { deletestatus: true });
-      message.success(t("Project moved to bin successfully!"));
-      fetchProjects(); // Refresh the project list after deletion
-      setDeleteId(null); // Reset deleteId after deletion
-    } catch (error) {
-      console.error("Error updating delete status:", error);
-      message.error(t("Failed to move project to bin!"));
-    }
-  };
+
+
 
   const getStatusTag = (status) => {
     switch (status) {
@@ -173,6 +222,7 @@ const ListProject = () => {
       title: t("Actions"),
       key: "actions",
       align: "center",
+      class: ".table-header",
       className: "action-table",
       render: (text, record) => (
         <>
@@ -197,7 +247,7 @@ const ListProject = () => {
               </Link>
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => confirmDelete(record.id, record.status)}
+                onClick={() => handleDelete(record.id, record.status)}
                 type="primary"
                 danger
                 style={{ marginLeft: 8 }}
@@ -290,7 +340,7 @@ const ListProject = () => {
         </>
       ) : (
         <>
-          <Space className={styles["actions-container"]}>
+          <Space class={styles["actions-container"]}>
             <Input
               placeholder={t("Search by Name")}
               value={searchText}
@@ -328,6 +378,19 @@ const ListProject = () => {
                 >
                   {t("Project Bin")}
                 </Button>
+
+              )}
+            {(user?.position === "Project Manager" ||
+              user?.role === "Admin") && (
+                <Button
+                  type="default"
+                  icon={<HistoryOutlined />}
+                  style={{ backgroundColor: "green", color: "white" }}
+                  onClick={() => navigate("/ProjectHistory")}
+                >
+                  {t("Project History")}
+                </Button>
+
               )}
           </Space>
           <h1 className="title">{t("LIST OF PROJECTS")}</h1>

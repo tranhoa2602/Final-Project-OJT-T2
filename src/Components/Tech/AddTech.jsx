@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Typography, message, Switch, Select, Upload, Spin } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Typography,
+  message,
+  Switch,
+  Select,
+  Upload,
+  Spin,
+} from "antd";
 import axios from "axios";
 import { firebaseConfig } from "../../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { UploadOutlined } from '@ant-design/icons';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { UploadOutlined } from "@ant-design/icons";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import BackButton from "../../Components/layouts/BackButton";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -32,8 +48,14 @@ const AddTech = () => {
   useEffect(() => {
     const fetchExistingTypes = async () => {
       try {
-        const response = await axios.get(`${firebaseConfig.databaseURL}/technologies.json`);
-        const types = response.data ? Object.values(response.data).map(tech => tech.techtype).flat() : [];
+        const response = await axios.get(
+          `${firebaseConfig.databaseURL}/technologies.json`
+        );
+        const types = response.data
+          ? Object.values(response.data)
+              .map((tech) => tech.techtype)
+              .flat()
+          : [];
         setExistingTypes([...new Set(types)]);
       } catch (error) {
         console.error("Error fetching existing types: ", error);
@@ -45,26 +67,28 @@ const AddTech = () => {
 
   const handleUpload = async () => {
     const storage = getStorage();
-    const uploadPromises = fileList.map(file => {
+    const uploadPromises = fileList.map((file) => {
       const storageRef = ref(storage, `techimage/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file.originFileObj); 
+      const uploadTask = uploadBytesResumable(storageRef, file.originFileObj);
 
       return new Promise((resolve, reject) => {
-        uploadTask.on('state_changed',
-          snapshot => {
-          },
-          error => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {},
+          (error) => {
             console.error("Upload error: ", error);
             reject(error);
           },
           () => {
-            getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
-              console.log("Download URL retrieved: ", downloadURL); 
-              resolve(downloadURL);
-            }).catch(error => {
-              console.error("Error getting download URL: ", error);
-              reject(error);
-            });
+            getDownloadURL(uploadTask.snapshot.ref)
+              .then((downloadURL) => {
+                console.log("Download URL retrieved: ", downloadURL);
+                resolve(downloadURL);
+              })
+              .catch((error) => {
+                console.error("Error getting download URL: ", error);
+                reject(error);
+              });
           }
         );
       });
@@ -110,12 +134,19 @@ const AddTech = () => {
   };
 
   const validateDescription = (_, value) => {
-    const wordCount = value ? value.split(' ').filter(word => word).length : 0;
-    return wordCount <= 20 ? Promise.resolve() : Promise.reject(new Error(t("Description cannot exceed 20 words")));
+    const wordCount = value
+      ? value.split(" ").filter((word) => word).length
+      : 0;
+    return wordCount <= 20
+      ? Promise.resolve()
+      : Promise.reject(new Error(t("Description cannot exceed 20 words")));
   };
 
   return (
-    <Spin spinning={loading}> {/* Wrap the form with Spin */}
+    <Spin spinning={loading}>
+      {" "}
+      {/* Wrap the form with Spin */}
+      <BackButton />
       <Form
         {...formItemLayout}
         form={form}
@@ -124,7 +155,9 @@ const AddTech = () => {
         style={{ height: "100vh" }}
         initialValues={{ techstatus: true }}
       >
-        <Title level={2}>{t("Add New Technology")}</Title>
+        <Title level={3} style={{ textAlign: "center" }}>
+          {t("Add New Technology")}
+        </Title>
         <Form.Item
           label={t("Tech Name")}
           name="techname"
@@ -141,7 +174,10 @@ const AddTech = () => {
             mode="tags"
             style={{ width: "100%" }}
             placeholder={t("Tags Mode")}
-            options={existingTypes.map(type => ({ label: type, value: type }))}
+            options={existingTypes.map((type) => ({
+              label: type,
+              value: type,
+            }))}
           />
         </Form.Item>
         <Form.Item
@@ -161,14 +197,11 @@ const AddTech = () => {
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          label={t("Upload Images")}
-          name="techimages"
-        >
+        <Form.Item label={t("Upload Images")} name="techimages">
           <Upload
             fileList={fileList}
             onChange={({ fileList }) => setFileList(fileList)}
-            beforeUpload={() => false} 
+            beforeUpload={() => false}
             listType="picture"
             multiple
           >

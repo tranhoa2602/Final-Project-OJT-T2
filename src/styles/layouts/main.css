@@ -3,10 +3,15 @@
   width: 75%;
   left: 20%;
   top: 0;
-
   margin: 0;
   padding: 0;
   background-color: #f5f5f5; /* Replace with your desired background color */
-
   overflow-x: hidden; /* To prevent horizontal scrolling */
+}
+/* BackButton.css */
+.back-button {
+  position: absolute;
+  top: 10px; /* Khoảng cách từ trên cùng */
+  left: 5px; /* Khoảng cách từ bên trái */
+  z-index: 1000; /* Đảm bảo nút nằm trên các phần tử khác */
 }

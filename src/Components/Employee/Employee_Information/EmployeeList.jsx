@@ -26,7 +26,7 @@ import {
 import { useTranslation } from "react-i18next";
 import styles from "../../../styles/layouts/EmployeeList.module.scss";
 import ListSkeleton from "../../Loading/ListSkeleton"; // Ensure the correct path
-import "../../../styles/layouts/tablestyles.css"     
+import "../../../styles/layouts/tablestyles.css";
 
 const { Option } = Select;
 
@@ -132,6 +132,7 @@ const columns = (
     title: t("Status"),
     key: "status",
     dataIndex: "status",
+    align: "center",
     filters: loading
       ? []
       : [
@@ -175,14 +176,6 @@ const columns = (
       ) : (
         <div className={styles["actions-container"]}>
           <Button
-            onClick={() => navigate("/edit", { state: { employee: record } })}
-            type="primary"
-            icon={<EditOutlined />}
-            className={styles["edit-button"]}
-          >
-            {t("Edit")}
-          </Button>
-          <Button
             type="default"
             onClick={() =>
               navigate("/details", { state: { employee: record } })
@@ -191,6 +184,14 @@ const columns = (
             className={styles["detail-button"]}
           >
             {t("Detail")}
+          </Button>
+          <Button
+            onClick={() => navigate("/edit", { state: { employee: record } })}
+            type="primary"
+            icon={<EditOutlined />}
+            className={styles["edit-button"]}
+          >
+            {t("Edit")}
           </Button>
           <Tooltip
             title={
@@ -323,7 +324,7 @@ const EmployeeList = () => {
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
-          message.success(t("Employee status updated to deleted successfully"));
+          message.success(t("Employee moved to bin successfully"));
         } catch (error) {
           console.error(t("Error updating employee status:"), error);
           message.error(t("Failed to update employee status"));
@@ -337,7 +338,6 @@ const EmployeeList = () => {
     const worksheet = workbook.addWorksheet("Employees");
 
     worksheet.columns = [
-      { header: t("ID"), key: "id", width: 10 },
       { header: t("Name"), key: "name", width: 30 },
       { header: t("Email"), key: "email", width: 30 },
       { header: t("Phone"), key: "phone", width: 15 },
@@ -473,12 +473,12 @@ const EmployeeList = () => {
       ) : (
         <Space className={styles["actions-container"]}>
           <Input
-            placeholder={t("Export to Excel filter by Email")}
+            placeholder={t("Filter by Email")}
             onChange={handleSearch}
             className={styles["search-input"]}
           />
           <Select
-            placeholder={t("Export to Excel filter by Position")}
+            placeholder={t("Filter by Position")}
             onChange={handlePositionChange}
             className={styles["position-select"]}
             allowClear
@@ -493,7 +493,7 @@ const EmployeeList = () => {
             type="primary"
             icon={<UserAddOutlined />}
             onClick={() => navigate("/create")}
-            className={styles["add-button"]}
+            style={{ backgroundColor: "green", color: "white" }}
           >
             {t("Add Employee")}
           </Button>
@@ -501,20 +501,21 @@ const EmployeeList = () => {
             type="primary"
             icon={<ExportOutlined />}
             onClick={exportToExcel}
-            className={styles["export-button"]}
           >
             {t("Export to Excel")}
           </Button>
           <Button
             type="default"
+            icon={<DeleteOutlined />}
             onClick={() => navigate("/EmployeeBin")}
             className={styles["view-bin-button"]}
+            style={{ backgroundColor: "green", color: "white" }}
           >
             {t("View Bin")}
           </Button>
         </Space>
       )}
-      <h1 className="title">LIST OF EMPLOYEES</h1>
+      <h1 className="title">{t("LIST OF EMPLOYEES")}</h1>
       {loading ? (
         <ListSkeleton />
       ) : (
@@ -533,14 +534,14 @@ const EmployeeList = () => {
           pagination={{ pageSize: 6 }}
           className={styles["employee-table"]}
           components={{
-              header: {
-                cell: (props) => (
-                  <th {...props} className={`table-header ${props.className}`}>
+            header: {
+              cell: (props) => (
+                <th {...props} className={`table-header ${props.className}`}>
                   {props.children}
-                  </th>
-                ),
-              },
-            }}
+                </th>
+              ),
+            },
+          }}
         />
       )}
     </div>

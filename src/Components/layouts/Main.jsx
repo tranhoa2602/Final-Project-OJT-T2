@@ -8,22 +8,24 @@ import EditTech from "../Tech/EditTech";
 import ViewLanguage from "../Language/ViewLanguage";
 import AddLanguage from "../Language/AddLanguage";
 import EditLanguage from "../Language/EditLanguage";
-import Login from "../../pages/Login";
-import Register from "../../pages/Register";
-import ForgetPassword from "../../pages/ForgetPassword";
-import ResetPassword from "../../pages/ResetPassword";
-import Admin from "../../pages/Admin";
+import Login from "../../Components/Account/Login.jsx";
+import Register from "../../Components/Account/Register.jsx";
+import ForgetPassword from "../../Components/Account/ForgetPassword.jsx";
+import ResetPassword from "../../Components/Account/ResetPassword.jsx";
+import Admin from "../../Components/Account/Admin.jsx";
 import AdminRoute from "../Admin/AdminRoute";
 import EditEmployee from "../Employee/Employee_Information/EditEmployee";
 import EmployeeList from "../Employee/Employee_Information/EmployeeList";
 import EmployeeDetails from "../Employee/Employee_Information/EmployeeDetails";
-import ChangePassword from "../../pages/ChangePassword";
+import ChangePassword from "../../Components/Account/ChangePassword.jsx";
 import ListPosition from "../PositionManager/ListPosition";
 import EditProject from "../ProjectManager/EditProject";
 import ProjectList from "../ProjectManager/ProjectList";
 import CreateProject from "../ProjectManager/CreateProject";
 import DetailProject from "../ProjectManager/DetailProject";
 import TechBin from "../Tech/TechBin";
+import TechHistory from "../Tech/TechHistory";
+import ProjectHistory from "../ProjectManager/ProjectHistory";
 import LanguageBin from "../Language/LanguageBin";
 import ProjectBin from "../ProjectManager/ProjectBin.jsx";
 import EmployeeBin from "../Employee/Employee_Information/EmployeeBin";
@@ -32,6 +34,7 @@ import VerifyAccount from "../../../VerifyAccount";
 import EmployeeCV from "../Employee/Employee_Information/EmployeeCV.jsx";
 import ProfileDetail from "../User/ProfileDetail";
 import ProfileEdit from "../User/ProfileEdit";
+import Dashboard from "../../Components/pages/Dashboard.jsx";
 
 const Main = () => {
   const [user, setUser] = useState(null);
@@ -103,9 +106,12 @@ const Main = () => {
           <Route path="/projects/edit/:id" element={<EditProject />} />
           <Route path="/projects/details/:id" element={<DetailProject />} />
           <Route path="/TechBin" element={<TechBin />} />
+          <Route path="/TechHistory" element={<TechHistory />} />
+          <Route path="/ProjectHistory" element={<ProjectHistory />} />
           <Route path="/LanguageBin" element={<LanguageBin />} />
           <Route path="/EmployeeBin" element={<EmployeeBin />} />
           <Route path="/ProjectBin" element={<ProjectBin />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           {/* Corrected path */}
         </Routes>
       </main>

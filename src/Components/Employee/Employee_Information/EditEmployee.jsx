@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Button, Upload, message, Spin, Modal } from "antd";
+import {
+  Form,
+  Input,
+  Select,
+  Button,
+  Upload,
+  message,
+  Typography,
+  Spin,
+  Modal,
+} from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getDatabase, ref, get, update } from "firebase/database";
 import {
@@ -10,6 +20,7 @@ import {
 } from "firebase/storage";
 import { useTranslation } from "react-i18next";
 import TextArea from "antd/es/input/TextArea";
+import BackButton from "../../layouts/BackButton";
 
 const { Option } = Select;
 
@@ -22,6 +33,7 @@ const EditEmployee = () => {
   const [positions, setPositions] = useState([]);
   const [cvFile, setCvFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [employeeName, setEmployeeName] = useState(employee?.name || "");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,10 +51,11 @@ const EditEmployee = () => {
       } else {
         setPositions([]);
       }
+      setEmployeeName(employee.name);
     };
 
     fetchData();
-  }, []);
+  }, [employee.projects, employee.name]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -90,7 +103,6 @@ const EditEmployee = () => {
     }
   };
 
-
   const handleConfirmSubmit = () => {
     form
       .validateFields()
@@ -116,7 +128,11 @@ const EditEmployee = () => {
   };
 
   return (
-    <div style={{ height: "100vh", marginTop: "20px" }}>
+    <div style={{ height: "100vh", marginTop: "30px" }}>
+      <BackButton />
+      <Typography.Title style={{ textAlign: "center", fontSize: "20px" }}>
+        {t("Edit")} : {employeeName}
+      </Typography.Title>
       {loading ? (
         <Spin
           size="large"
@@ -176,20 +192,6 @@ const EditEmployee = () => {
           </Form.Item>
 
           <Form.Item
-            label={t("Status")}
-            name="status"
-            rules={[
-              { required: true, message: t("Please select the status!") },
-            ]}
-          >
-            <Select>
-              <Option value="Involved">{t("Involved")}</Option>
-              <Option value="Available">{t("Available")}</Option>
-              <Option value="Inactive">{t("Inactive")}</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
             label={t("Position")}
             name="positionName"
             rules={[
@@ -212,11 +214,6 @@ const EditEmployee = () => {
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {t("Submit")}
-            </Button>
-          </Form.Item>
-          <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-            <Button type="primary" onClick={gotoEmployeeList}>
-              {t("Back")}
             </Button>
           </Form.Item>
         </Form>

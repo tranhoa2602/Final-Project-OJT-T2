@@ -1,0 +1,78 @@
+@use "sass:math";
+@import url(https://fonts.googleapis.com/css?family=Raleway:600);
+
+$color1: #1fa9d6;
+$color2: #ee4b5e;
+$color3: white;
+$switch-height: 30px;
+$switch-width: 60px;
+$knob-size: 24px;
+$translate-distance: $switch-width - $knob-size - 9px;
+
+.flag-switch {
+  position: relative;
+  outline: 0;
+  appearance: none;
+  width: $switch-width;
+  height: $switch-height;
+  margin: 5px auto;
+  display: flex;
+  align-items: center;
+
+  &:before,
+  &:after {
+    position: absolute;
+    color: white;
+    font-family: "Raleway", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  &:before {
+    left: -20px;
+    content: attr(data-first-lang);
+  }
+
+  &:after {
+    right: -20px;
+    content: attr(data-second-lang);
+  }
+
+  input {
+    display: none;
+  }
+
+  input + label {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    width: $switch-width;
+    height: $switch-height;
+    background-color: $color1;
+    border-radius: math.div($switch-height, 2);
+
+    &:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 3px;
+      transform: translate(0, -50%);
+      border-radius: 50%;
+      border: 2px solid #dfdfdf;
+      width: $knob-size;
+      height: $knob-size;
+      background: url(/src/assets/flag.jpeg) -2px center;
+      transition: all 0.25s ease-in-out;
+    }
+  }
+
+  input:checked + label:after {
+    background: url(/src/assets/flag.jpeg) -26px center;
+    transform: translate($translate-distance, -50%);
+  }
+
+  input:checked + label {
+    background-color: $color2;
+  }
+}

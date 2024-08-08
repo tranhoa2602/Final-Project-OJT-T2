@@ -20,7 +20,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
-import styles from "../styles/layouts/Admin.module.scss"; // Import the SCSS module
+import styles from "../../styles/layouts/Admin.module.scss"; // Import the SCSS module
 
 const defaultAvatarUrl =
   "https://firebasestorage.googleapis.com/v0/b/ojt-final-project.appspot.com/o/profilePictures%2FdefaultAvatars.jpg?alt=media&token=32a0e3f9-039b-4041-92d0-c248f78cedd9"; // Replace with your actual default avatar URL
@@ -210,7 +210,7 @@ function Admin() {
               <strong>{t("Role")}:</strong> {t(user.role)}
             </p>
             <p>
-              <strong>{t("Status")}:</strong> {user.status}
+              <strong>{t("Status")}:</strong> {t(user.status)}
             </p>
           </div>
           <div className={styles["profile-social-media"]}>
@@ -264,8 +264,8 @@ function Admin() {
                         value && validateEmail(value)
                           ? Promise.resolve()
                           : Promise.reject(
-                              t("Please enter a valid email address")
-                            ),
+                            t("Please enter a valid email address")
+                          ),
                     },
                   ]}
                 >

@@ -201,6 +201,7 @@ const ViewLanguage = () => {
       title: t("Type"),
       dataIndex: "programingtype",
       key: "programingtype",
+      align: "center",
       filterDropdown: () => (
         <div className={styles["filter-dropdown"]}>
           <Input
@@ -219,10 +220,10 @@ const ViewLanguage = () => {
         <>
           {Array.isArray(tags)
             ? tags.map((tag) => (
-                <Tag color="blue" key={tag}>
-                  {tag}
-                </Tag>
-              ))
+              <Tag color="blue" key={tag}>
+                {tag}
+              </Tag>
+            ))
             : null}
         </>
       ),
@@ -231,6 +232,8 @@ const ViewLanguage = () => {
       title: t("Status"),
       dataIndex: "programingstatus",
       key: "programingstatus",
+      align: "center",
+      className: "type-tags",
       filterDropdown: () => (
         <div className={styles["filter-dropdown"]}>
           <Select
@@ -248,7 +251,9 @@ const ViewLanguage = () => {
       onFilter: (value, record) =>
         record.programingstatus.toLowerCase().includes(value.toLowerCase()),
       render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
+        <Tag color={status === "Active" ? "green" : "red"}>
+          {t(status === "Active" ? "Active" : "Inactive")}
+        </Tag>
       ),
     },
     {
@@ -261,6 +266,7 @@ const ViewLanguage = () => {
       title: t("Actions"),
       key: "action",
       align: "center",
+      className: "action-table",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -302,14 +308,14 @@ const ViewLanguage = () => {
           <Button
             type="primary"
             icon={<DeleteOutlined />}
-            style={{backgroundColor: 'green', color: 'white', marginRight:'890px'}}
+            style={{ backgroundColor: 'green', color: 'white', marginRight: '890px' }}
             onClick={() => navigate("/LanguageBin")}
           >
             {t("View Bin")}
           </Button>
         </div>
       )}
-      <h1 className="title">LIST OF PROGRAMMING LANGUAGES</h1>
+      <h1 className="title">{t("LIST OF PROGRAMMING LANGUAGES")}</h1>
       {loading ? (
         <LanguageSkeleton />
       ) : (
@@ -320,14 +326,14 @@ const ViewLanguage = () => {
           pagination={{ current: currentPage, pageSize }}
           onChange={handleTableChange}
           components={{
-              header: {
-                cell: (props) => (
-                  <th {...props} className={`table-header ${props.className}`}>
+            header: {
+              cell: (props) => (
+                <th {...props} className={`table-header ${props.className}`}>
                   {props.children}
-                  </th>
-                ),
-              },
-            }}
+                </th>
+              ),
+            },
+          }}
         />
       )}
     </div>

@@ -3,7 +3,7 @@ import { Form, Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
 import bcrypt from "bcryptjs";
-import styles from "../styles/layouts/Login.module.scss";
+import styles from "../../styles/layouts/Login.module.scss";
 
 const Login = ({ setUser }) => {
   const [loading, setLoading] = useState(false);
@@ -33,8 +33,8 @@ const Login = ({ setUser }) => {
         const employeeData = employeeSnapshot.val();
         const employee = employeeData
           ? Object.values(employeeData).find(
-              (employee) => employee.email === email
-            )
+            (employee) => employee.email === email
+          )
           : null;
 
         if (employee) {

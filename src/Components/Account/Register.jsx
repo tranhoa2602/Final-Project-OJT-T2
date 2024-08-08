@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Typography, Alert, Select } from "antd";
-import { signUpUser } from "../service/authService.js";
-import styles from "../styles/layouts/Register.module.scss";
+import { signUpUser } from "../../service/authService";
+import styles from "../../styles/layouts/Register.module.scss";
 
 const { Title } = Typography;
 const { Option } = Select;

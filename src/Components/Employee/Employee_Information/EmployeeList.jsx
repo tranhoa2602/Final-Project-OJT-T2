@@ -320,11 +320,17 @@ const EmployeeList = () => {
         try {
           const db = getDatabase();
           const employeeRef = ref(db, `employees/${employee.key}`);
+<<<<<<< HEAD
           await update(employeeRef, { deleteStatus: true });
+=======
+          await update(employeeRef, {
+            deleteStatus: true,
+          });
+>>>>>>> 0028820a67910a60eb7176fb21f68a2ca412da66
           const { employees } = await fetchData();
           setEmployees(employees);
           applyFilters(searchText, selectedPosition, employees);
-          message.success(t("Employee status updated to deleted successfully"));
+          message.success(t("Employee moved to bin successfully"));
         } catch (error) {
           console.error(t("Error updating employee status:"), error);
           message.error(t("Failed to update employee status"));
@@ -473,12 +479,12 @@ const EmployeeList = () => {
       ) : (
         <Space className={styles["actions-container"]}>
           <Input
-            placeholder={t("Export to Excel filter by Email")}
+            placeholder={t("Filter by Email")}
             onChange={handleSearch}
             className={styles["search-input"]}
           />
           <Select
-            placeholder={t("Export to Excel filter by Position")}
+            placeholder={t("Filter by Position")}
             onChange={handlePositionChange}
             className={styles["position-select"]}
             allowClear

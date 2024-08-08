@@ -1,0 +1,19 @@
+.custom-table {
+  width: 1200px;
+  margin: 0;
+
+  .ant-table-thead > tr > th {
+    background-color: #fafafa;
+    font-weight: bold;
+    text-align: left;
+  }
+
+  .ant-table-tbody > tr > td {
+    text-align: left;
+  }
+}
+
+.custom-skeleton {
+  margin: 0;
+  width: 1200px;
+}

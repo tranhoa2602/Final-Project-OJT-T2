@@ -33,8 +33,8 @@ const Login = ({ setUser }) => {
         const employeeData = employeeSnapshot.val();
         const employee = employeeData
           ? Object.values(employeeData).find(
-            (employee) => employee.email === email
-          )
+              (employee) => employee.email === email
+            )
           : null;
 
         if (employee) {
@@ -64,7 +64,7 @@ const Login = ({ setUser }) => {
       setUser(storedUser);
 
       const userRolePath =
-        storedUser.role === "Admin" ? "/Dashboard" : "/profile";
+        storedUser.role === "Admin" ? "/dashboard" : "/profile";
       navigate(userRolePath);
       message.success("Login successful!");
     } else {

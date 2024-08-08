@@ -78,7 +78,7 @@ const ResetPassword = () => {
         setError("");
         setTimeout(() => {
           navigate("/");
-        }, 2000); // Redirect to login page after 2 seconds
+        }, 2000);
       } else {
         setError("User not found.");
         setMessage("");

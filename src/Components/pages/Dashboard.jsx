@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Card, Row, Col, Skeleton } from "antd";
 import { Bar, Doughnut } from "react-chartjs-2";
 import "chart.js/auto";
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, get, child } from "firebase/database";
 import {
   TeamOutlined,
   UsergroupAddOutlined,
@@ -38,10 +38,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       setLoading(true); // Set loading to true before data fetch
       const db = getDatabase(app);
-      const projectsRef = ref(db, "projects");
-      const employeesRef = ref(db, "employees");
-      const programLanguagesRef = ref(db, "programmingLanguages");
-      const technologiesRef = ref(db, "technologies");
+      const dbRef = ref(db);
 
       const [
         projectsSnapshot,
@@ -49,10 +46,10 @@ const Dashboard = () => {
         programLanguagesSnapshot,
         technologiesSnapshot,
       ] = await Promise.all([
-        get(projectsRef),
-        get(employeesRef),
-        get(programLanguagesRef),
-        get(technologiesRef),
+        get(child(dbRef, "projects")),
+        get(child(dbRef, "employees")),
+        get(child(dbRef, "programmingLanguages")),
+        get(child(dbRef, "technologies")),
       ]);
 
       const projectsData = projectsSnapshot.val();
@@ -133,9 +130,7 @@ const Dashboard = () => {
               <Card className={`${styles.card} ${styles.card1}`} hoverable>
                 <div className={styles.cardContent}>
                   <div className={styles.cardText}>
-                    <h2 className={styles.cardTitle}>
-                      {t("Total Employees In Company")}
-                    </h2>
+                    <h2 className={styles.cardTitle}>{t("Total Employees")}</h2>
                     <h1 className={styles.cardValue}>{employeeCounts.total}</h1>
                   </div>
                   <TeamOutlined className={styles.cardIcon} />
@@ -283,7 +278,6 @@ const extractData = (jsonData) => {
   return { projectStatuses, employeeParticipation };
 };
 
-// Utility function to calculate employee counts
 const calculateEmployeeCounts = (employeesData, projectsData) => {
   const total = Object.keys(employeesData).length;
   const terminated = Object.values(employeesData).filter(

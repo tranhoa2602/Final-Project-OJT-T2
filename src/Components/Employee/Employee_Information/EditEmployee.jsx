@@ -74,7 +74,7 @@ const EditEmployee = () => {
       ...employee,
       name: values.name,
       phone: values.phone,
-      status: values.status,
+      status: values.status ?? "active", // Ensure status is not undefined
       positionName: values.positionName,
       cv_file: cvUrl, // Ensure cv_file is not undefined
       cv_list: [

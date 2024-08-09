@@ -64,7 +64,7 @@ const CreateEmployee = () => {
     };
 
     const verificationToken = uuidv4();
-    const verificationLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
+    const verificationLink = `http://150.95.115.36:9999/verify-account?email=${encodeURIComponent(
       emailLowercase
     )}&token=${verificationToken}`;
 
@@ -196,11 +196,6 @@ const CreateEmployee = () => {
           <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
             <Button type="primary" htmlType="submit">
               {t("Create Account")}
-            </Button>
-          </Form.Item>
-          <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
-            <Button type="primary" onClick={gotoEmployeeList}>
-              {t("Back")}
             </Button>
           </Form.Item>
         </Form>

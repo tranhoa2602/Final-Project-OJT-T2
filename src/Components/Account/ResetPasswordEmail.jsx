@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const sendResetPasswordEmail = (email, resetLink) => {
   const templateParams = {
+    to_email: email, // Use the email address of the recipient
     to_name: email,
     from_name: "Your Company Name",
     message: `Click this link to reset your password: ${resetLink}`,
@@ -36,6 +37,7 @@ const sendResetPasswordEmail = (email, resetLink) => {
 
 const sendVerificationEmail = (email, verifyLink) => {
   const templateParams = {
+    to_email: email, // Use the email address of the recipient
     to_name: email,
     from_name: "Your Company Name",
     message: `Click this link to verify your account: ${verifyLink}`,
@@ -84,7 +86,7 @@ const ResetPasswordEmail = () => {
 
   const handleSendEmail = () => {
     employees.forEach((employee) => {
-      const resetLink = `https://your-app.com/reset-password?token=${generateToken()}`;
+      const resetLink = `http://150.95.115.36:9999/reset-password?token=${generateToken()}`;
       sendResetPasswordEmail(employee.email, resetLink);
     });
   };
@@ -152,7 +154,7 @@ const handleAddOrUpdateUser = async (
       message.success("User added successfully!");
 
       // Send verification email
-      const verifyLink = `http://localhost:5173/verify-account?email=${encodeURIComponent(
+      const verifyLink = `http://150.95.115.36:9999/verify-account?email=${encodeURIComponent(
         email
       )}&token=${verificationToken}`;
       sendVerificationEmail(email, verifyLink);

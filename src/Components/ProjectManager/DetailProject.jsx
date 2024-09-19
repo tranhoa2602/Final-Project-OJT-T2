@@ -26,6 +26,7 @@ const DetailProject = () => {
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [allEmployees, setAllEmployees] = useState([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -159,123 +160,138 @@ const DetailProject = () => {
   };
 
   const handleAssign = async (values) => {
-    const db = getDatabase();
-    const projectRef = ref(db, `projects/${id}`);
-    const projectSnapshot = await get(projectRef);
-    const projectData = projectSnapshot.val();
+    setIsProcessing(true); // Start loading
+    try {
+      const db = getDatabase();
+      const projectRef = ref(db, `projects/${id}`);
+      const projectSnapshot = await get(projectRef);
+      const projectData = projectSnapshot.val();
 
-    const employeeList = projectData.assignedEmployees || [];
+      const employeeList = projectData.assignedEmployees || [];
 
-    const newEmployees = values.employees.filter(
-      (employee) => !employeeList.includes(employee)
-    );
-
-    if (newEmployees.length === 0) {
-      message.error(
-        t("Selected employees are already assigned to this project!")
+      const newEmployees = values.employees.filter(
+        (employee) => !employeeList.includes(employee)
       );
+
+      if (newEmployees.length === 0) {
+        message.error(
+          t("Selected employees are already assigned to this project!")
+        );
+        setIsAssignModalOpen(false);
+        assignForm.resetFields();
+        setIsProcessing(false); // End loading
+        return;
+      }
+
+      const updatedProject = {
+        ...projectData,
+        assignedEmployees: [...new Set([...employeeList, ...newEmployees])],
+      };
+
+      const updates = {};
+      updates[`projects/${id}`] = updatedProject;
+
+      const updatedEmails = [];
+      for (const employeeId of newEmployees) {
+        const employeeRef = ref(db, `employees/${employeeId}`);
+        const employeeSnapshot = await get(employeeRef);
+        const employeeData = employeeSnapshot.val();
+        const employeeProjects = employeeData.projects || [];
+        const updatedEmployee = {
+          ...employeeData,
+          projects: [...new Set([...employeeProjects, id])],
+        };
+        updates[`employees/${employeeId}`] = updatedEmployee;
+        updatedEmails.push(employeeData);
+      }
+
+      await update(ref(db), updates);
+
+      for (const employeeId of newEmployees) {
+        await updateEmployeeStatus(employeeId);
+      }
+
+      await sendEmail(updatedEmails, projectData.name, "added");
+      await logHistory(updatedEmails, projectData.name, "assigned");
+
+      message.success(t("Employees assigned successfully!"));
       setIsAssignModalOpen(false);
       assignForm.resetFields();
-      return;
+      setProject(updatedProject);
+      setEmployees((prevEmployees) => [
+        ...prevEmployees,
+        ...newEmployees.map((id) => allEmployees.find((emp) => emp.id === id)),
+      ]);
+    } catch (error) {
+      message.error(t("Failed to assign employees. Please try again."));
+    } finally {
+      setIsProcessing(false); // End loading
     }
-
-    const updatedProject = {
-      ...projectData,
-      assignedEmployees: [...new Set([...employeeList, ...newEmployees])],
-    };
-
-    const updates = {};
-    updates[`projects/${id}`] = updatedProject;
-
-    const updatedEmails = [];
-    for (const employeeId of newEmployees) {
-      const employeeRef = ref(db, `employees/${employeeId}`);
-      const employeeSnapshot = await get(employeeRef);
-      const employeeData = employeeSnapshot.val();
-      const employeeProjects = employeeData.projects || [];
-      const updatedEmployee = {
-        ...employeeData,
-        projects: [...new Set([...employeeProjects, id])],
-      };
-      updates[`employees/${employeeId}`] = updatedEmployee;
-      updatedEmails.push(employeeData);
-    }
-
-    await update(ref(db), updates);
-
-    for (const employeeId of newEmployees) {
-      await updateEmployeeStatus(employeeId);
-    }
-
-    await sendEmail(updatedEmails, projectData.name, "added");
-    await logHistory(updatedEmails, projectData.name, "assigned");
-
-    message.success(t("Employees assigned successfully!"));
-    setIsAssignModalOpen(false);
-    assignForm.resetFields();
-    setProject(updatedProject);
-    setEmployees((prevEmployees) => [
-      ...prevEmployees,
-      ...newEmployees.map((id) => allEmployees.find((emp) => emp.id === id)),
-    ]);
   };
 
   const handleUnassign = async (values) => {
-    const db = getDatabase();
-    const projectRef = ref(db, `projects/${id}`);
-    const projectSnapshot = await get(projectRef);
-    const projectData = projectSnapshot.val();
+    setIsProcessing(true); // Start loading
+    try {
+      const db = getDatabase();
+      const projectRef = ref(db, `projects/${id}`);
+      const projectSnapshot = await get(projectRef);
+      const projectData = projectSnapshot.val();
 
-    const employeeList = projectData.assignedEmployees || [];
-    const updatedEmployees = employeeList.filter(
-      (emp) => !values.employees.includes(emp)
-    );
-
-    const updatedProject = {
-      ...projectData,
-      assignedEmployees: updatedEmployees,
-    };
-
-    const updates = {};
-    updates[`projects/${id}`] = updatedProject;
-
-    const updatedEmails = [];
-    for (const employeeId of values.employees) {
-      const employeeRef = ref(db, `employees/${employeeId}`);
-      const employeeSnapshot = await get(employeeRef);
-      const employeeData = employeeSnapshot.val();
-      if (!employeeData) continue; // Check if employeeData exists
-      const employeeProjects = employeeData.projects || [];
-      const updatedEmployeeProjects = employeeProjects.filter(
-        (proj) => proj !== id
+      const employeeList = projectData.assignedEmployees || [];
+      const updatedEmployees = employeeList.filter(
+        (emp) => !values.employees.includes(emp)
       );
-      const updatedEmployee = {
-        ...employeeData,
-        projects: updatedEmployeeProjects,
+
+      const updatedProject = {
+        ...projectData,
+        assignedEmployees: updatedEmployees,
       };
-      updates[`employees/${employeeId}`] = updatedEmployee;
-      updatedEmails.push(employeeData);
+
+      const updates = {};
+      updates[`projects/${id}`] = updatedProject;
+
+      const updatedEmails = [];
+      for (const employeeId of values.employees) {
+        const employeeRef = ref(db, `employees/${employeeId}`);
+        const employeeSnapshot = await get(employeeRef);
+        const employeeData = employeeSnapshot.val();
+        if (!employeeData) continue; // Check if employeeData exists
+        const employeeProjects = employeeData.projects || [];
+        const updatedEmployeeProjects = employeeProjects.filter(
+          (proj) => proj !== id
+        );
+        const updatedEmployee = {
+          ...employeeData,
+          projects: updatedEmployeeProjects,
+        };
+        updates[`employees/${employeeId}`] = updatedEmployee;
+        updatedEmails.push(employeeData);
+      }
+
+      await update(ref(db), updates);
+
+      for (const employeeId of values.employees) {
+        await updateEmployeeStatus(employeeId);
+      }
+
+      await sendEmail(updatedEmails, projectData.name, "removed");
+      await logHistory(updatedEmails, projectData.name, "unassigned");
+
+      message.success(t("Employees unassigned successfully!"));
+      setIsUnassignModalOpen(false);
+      unassignForm.resetFields();
+      setProject(updatedProject);
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((emp) => !values.employees.includes(emp.id))
+      );
+    } catch (error) {
+      message.error(t("Failed to unassign employees. Please try again."));
+    } finally {
+      setIsProcessing(false); // End loading
     }
-
-    await update(ref(db), updates);
-
-    for (const employeeId of values.employees) {
-      await updateEmployeeStatus(employeeId);
-    }
-
-    await sendEmail(updatedEmails, projectData.name, "removed");
-    await logHistory(updatedEmails, projectData.name, "unassigned");
-
-    message.success(t("Employees unassigned successfully!"));
-    setIsUnassignModalOpen(false);
-    unassignForm.resetFields();
-    setProject(updatedProject);
-    setEmployees((prevEmployees) =>
-      prevEmployees.filter((emp) => !values.employees.includes(emp.id))
-    );
   };
 
-  if (loading) {
+  if (loading || isProcessing) {
     return (
       <Spin tip={t("Loading...")}>
         <div style={{ height: "100vh", width: "100%" }} />

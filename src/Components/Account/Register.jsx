@@ -89,6 +89,7 @@ function Register({ setUser }) {
           >
             <Select placeholder="Select a role">
               <Option value="Employee">Employee</Option>
+              <Option value="Admin">Admin</Option>
             </Select>
           </Form.Item>
           {error && <Alert message={error} type="error" showIcon />}

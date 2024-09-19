@@ -74,9 +74,9 @@ const EditEmployee = () => {
       ...employee,
       name: values.name,
       phone: values.phone,
-      status: values.status,
+      status: values.status || employee.status, // Ensure status is not undefined
       positionName: values.positionName,
-      cv_file: cvUrl, // Ensure cv_file is not undefined
+      cv_file: cvUrl,
       cv_list: [
         {
           cv_experience: [
@@ -88,6 +88,13 @@ const EditEmployee = () => {
       ],
       deleteStatus: employee.deleteStatus ?? false, // Ensure deleteStatus is not undefined
     };
+
+    // Remove any undefined properties
+    Object.keys(updatedEmployee).forEach((key) => {
+      if (updatedEmployee[key] === undefined) {
+        delete updatedEmployee[key];
+      }
+    });
 
     try {
       const employeeRef = ref(db, `employees/${employee.id}`);

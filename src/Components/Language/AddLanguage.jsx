@@ -168,13 +168,6 @@ const AddLanguage = () => {
           <Button type="primary" htmlType="submit">
             {t("Submit")}
           </Button>
-          <Button
-            type="primary"
-            style={{ marginLeft: 8 }}
-            onClick={() => navigate("/ViewLanguage")}
-          >
-            {t("Back to Programming Language List")}
-          </Button>
         </Form.Item>
       </Form>
     </Spin>

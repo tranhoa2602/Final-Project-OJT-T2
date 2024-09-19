@@ -42,6 +42,7 @@ const ForgetPassword = () => {
     try {
       const templateParams = {
         to_name: email,
+        to_email: employeeEmail,
         from_name: "Your Company Name",
         message: `Click this link to reset your password: ${resetLink}`,
       };
@@ -71,8 +72,9 @@ const ForgetPassword = () => {
       return;
     }
 
-    const resetLink = `${window.location.origin
-      }/reset-password?email=${encodeURIComponent(employee.email)}`;
+    const resetLink = `http://150.95.115.36:9999/reset-password?email=${encodeURIComponent(
+      employee.email
+    )}`;
     sendResetPasswordEmail(employee.email, resetLink);
   };
 

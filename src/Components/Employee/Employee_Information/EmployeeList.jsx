@@ -239,17 +239,18 @@ const fetchData = async () => {
       let newStatus = "Available"; // Default status
 
       if (
-        assignedProjects.some((project) =>
-          ["Ongoing", "Not Started"].includes(project.status)
-        )
+        assignedProjects.some((project) => ["Ongoing"].includes(project.status))
       ) {
         newStatus = "Involved";
       } else if (
-        assignedProjects.some((project) => project.status === "Pending")
+        assignedProjects.some(
+          (project) => project.status === "Pending",
+          "Completed"
+        )
       ) {
         newStatus = "Available";
       } else if (
-        assignedProjects.every((project) => project.status === "Completed")
+        assignedProjects.every((project) => project.status === "Not Started")
       ) {
         newStatus = "Inactive";
       }
@@ -507,7 +508,7 @@ const EmployeeList = () => {
           <Button
             type="default"
             icon={<DeleteOutlined />}
-            onClick={() => navigate("/EmployeeBin")}
+            onClick={() => navigate("/employeeBin")}
             className={styles["view-bin-button"]}
             style={{ backgroundColor: "green", color: "white" }}
           >

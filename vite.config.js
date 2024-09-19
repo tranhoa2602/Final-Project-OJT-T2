@@ -6,7 +6,8 @@ export default defineConfig({
   build: {
     outDir: "dist",
     rollupOptions: {
-      input: "/index.html",
+      // Correcting input to be a relative path
+      input: "index.html",
     },
   },
 });
